@@ -13,7 +13,7 @@ import edu.wpi.first.math.util.Units;
 
 public class SwerveModule {
   private static final double kWheelRadius = Units.inchesToMeters(2);
-  private static final int kEncoderResolution = 4096;
+  private static final int kEncoderResolution = 1024;
 
   private static final double kModuleMaxAngularVelocity = Drivetrain.kMaxAngularSpeed;
   private static final double kModuleMaxAngularAcceleration =
