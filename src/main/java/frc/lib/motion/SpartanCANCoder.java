@@ -1,11 +1,10 @@
 package frc.lib.motion;
 
-// import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 // import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-import com.ctre.phoenix.sensors.SensorTimeBase;
+// import com.ctre.phoenix.sensors.SensorTimeBase;
 
-// import com.ctre.phoenix6.configs.AbsoluteSensorRange;
-import com.ctre.phoenix6.configs.*;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 
@@ -56,21 +55,22 @@ public class SpartanCANCoder {
   }
 
   private void buildConfig() {
-    config.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
+    config.absoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0_to_360;
     config.sensorDirection = inverted;
     config.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
     config.sensorTimeBase = SensorTimeBase.PerSecond;
   }
 
-  public double getPosition() {
+  public StatusSignal<Double> getPosition() {
+    //return cancoder.getPosition();
     return cancoder.getPosition();
   }
 
-  public double getVelocity() {
+  public StatusSignal<Double> getVelocity() {
     return cancoder.getVelocity();
   }
 
-  public double getAbsolutePosition() {
+  public StatusSignal<Double> getAbsolutePosition() {
     return cancoder.getAbsolutePosition();
   }
 }
