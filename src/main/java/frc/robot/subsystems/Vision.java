@@ -19,6 +19,9 @@ public class Vision extends SubsystemBase {
 
         double horizontalOffset = tx.getDouble(0.0);
         double verticalOffset = ty.getDouble(0.0);
+
+        System.out.println("Vertical Offset: " + horizontalOffset);
+        System.out.println("Horizontal Offset: " + verticalOffset);
     }
 
     public void periodic() {
