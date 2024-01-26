@@ -34,21 +34,10 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase
 {
+  private final SwerveDrive swerveDrive; // Swerve drive object.
+  public        double      maximumSpeed = Units.feetToMeters(14.5); // Maximum speed of the robot in meters per second, used to limit acceleration.
 
-  /**
-   * Swerve drive object.
-   */
-  private final SwerveDrive swerveDrive;
-  /**
-   * Maximum speed of the robot in meters per second, used to limit acceleration.
-   */
-  public        double      maximumSpeed = Units.feetToMeters(14.5);
-
-  /**
-   * Initialize {@link SwerveDrive} with the directory provided.
-   *
-   * @param directory Directory of swerve drive config files.
-   */
+  // Initialize SwerveDrive class with the directory provided.
   public SwerveSubsystem(File directory)
   {
     // Angle conversion factor is 360 / (GEAR RATIO * ENCODER RESOLUTION)
@@ -92,9 +81,7 @@ public class SwerveSubsystem extends SubsystemBase
     swerveDrive = new SwerveDrive(driveCfg, controllerCfg, maximumSpeed);
   }
 
-  /**
-   * Setup AutoBuilder for PathPlanner.
-   */
+  // Setup AutoBuilder for PathPlanner.
   public void setupPathPlanner()
   {
     AutoBuilder.configureHolonomic(
@@ -156,12 +143,12 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public Command driveToPose(Pose2d pose)
   {
-// Create the constraints to use while pathfinding
+    // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
         swerveDrive.getMaximumVelocity(), 4.0,
         swerveDrive.getMaximumAngularVelocity(), Units.degreesToRadians(720));
 
-// Since AutoBuilder is configured, we can use it to build pathfinding commands
+    // Since AutoBuilder is configured, we can use it to build pathfinding commands
     return AutoBuilder.pathfindToPose(
         pose,
         constraints,
