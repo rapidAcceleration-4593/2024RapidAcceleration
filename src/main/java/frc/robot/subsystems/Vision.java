@@ -3,27 +3,25 @@ package frc.robot.subsystems;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Vision {
-    private final NetworkTable table;
+public class Vision extends SubsystemBase {
 
     public Vision() {
-        table = NetworkTableInstance.getDefault().getTable("limelight");
+       
     }
 
-    public void periodic() {
-        int selectedPipeline = 2;
-
-        table.getEntry("pipeline").getNumber(selectedPipeline);
+    public void alignWithAprilTag() {
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
         NetworkTableEntry tx = table.getEntry("tx");
         NetworkTableEntry ty = table.getEntry("ty");
 
-        double horizontalOffset = tx.getDouble(0);
-        double verticalOffset = ty.getDouble(0);
+        double horizontalOffset = tx.getDouble(0.0);
+        double verticalOffset = ty.getDouble(0.0);
+    }
 
-        SmartDashboard.getNumber("Horizontal Offset", horizontalOffset);
-        SmartDashboard.getNumber("Vertical Offset", verticalOffset);
+    public void periodic() {
+        alignWithAprilTag();
     }
 }

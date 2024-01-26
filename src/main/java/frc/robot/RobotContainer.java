@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.Vision;
@@ -29,7 +30,7 @@ public class RobotContainer
   // Define the robot's subsystems and commands
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
   private Vision vision = new Vision();
-  XboxController driverXbox = new XboxController(0);
+  CommandXboxController driverXbox = new CommandXboxController(0);
 
   // The container for the robot. Contains subsystems, OI devices, and commands.
   public RobotContainer()
@@ -54,10 +55,7 @@ public class RobotContainer
   // Use this method to define your trigger->command mappings
   private void configureBindings()
   {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new JoystickButton(driverXbox, 1).onTrue((new InstantCommand(drivebase::zeroGyro)));
-    new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
-    new JoystickButton(driverXbox, 2).whileTrue(Commands.deferredProxy(() -> drivebase.driveToPose(new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))));
+    driverXbox.a().onTrue((new InstantCommand(() -> drivebase.zeroGyro())));    
   }
 
   // Use this method to pass the autonomous command to the main class
@@ -65,11 +63,6 @@ public class RobotContainer
   {
     // An example command will be run in autonomous
     return drivebase.getAutonomousCommand("New Path", true);
-  }
-
-  public void setDriveMode()
-  {
-    // drivebase.setDefaultCommand();
   }
 
   public void setMotorBrake(boolean brake)
