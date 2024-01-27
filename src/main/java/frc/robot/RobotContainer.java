@@ -49,7 +49,8 @@ public class RobotContainer
   // Use this method to define your trigger->command mappings
   private void configureBindings()
   {
-    driverXbox.a().onTrue((new InstantCommand(() -> drivebase.zeroGyro())));    
+    driverXbox.a().onTrue((new InstantCommand(() -> drivebase.zeroGyro())));
+    driverXbox.y().onTrue((new InstantCommand(() -> vision.alignWithAprilTag())));
   }
 
   // Use this method to pass the autonomous command to the main class
