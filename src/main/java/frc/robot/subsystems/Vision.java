@@ -22,8 +22,6 @@ public class Vision extends SubsystemBase {
         NetworkTableEntry ty = table.getEntry("ty");
         double verticalOffset = ty.getDouble(0.0);
 
-        System.out.println(verticalOffset);
-
         swerveSubsystem.drive(new Translation2d(0.0, -verticalOffset * .05), 0.0, false);
     }
 
