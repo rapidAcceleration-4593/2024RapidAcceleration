@@ -5,11 +5,14 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AlignWithAprilTag;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
@@ -49,8 +52,9 @@ public class RobotContainer
   // Use this method to define your trigger->command mappings
   private void configureBindings()
   {
+
     driverXbox.a().onTrue((new InstantCommand(() -> drivebase.zeroGyro())));
-    driverXbox.y().onTrue((new InstantCommand(() -> vision.alignWithAprilTag())));
+    driverXbox.y().whileTrue(new AlignWithAprilTag(vision));
   }
 
   // Use this method to pass the autonomous command to the main class
