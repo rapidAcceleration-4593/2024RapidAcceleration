@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.AlignWithAprilTag;
+import frc.robot.commands.VisionCommand;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 
@@ -51,7 +51,7 @@ public class RobotContainer
   {
 
     driverXbox.a().onTrue((new InstantCommand(() -> drivebase.zeroGyro())));
-    driverXbox.y().whileTrue(new AlignWithAprilTag(drivebase));
+    driverXbox.y().whileTrue(new VisionCommand(drivebase));
   }
 
   // Use this method to pass the autonomous command to the main class
