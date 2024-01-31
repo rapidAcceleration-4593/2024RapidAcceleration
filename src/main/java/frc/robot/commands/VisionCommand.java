@@ -9,11 +9,30 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 public class VisionCommand extends Command {
     
     private final SwerveSubsystem swerve;
-    private final double kPTranslation = 0.75;
-    private final double kPRotation = 0.09;
+    private final PIDController distanceController;
+    private final PIDController rotationController;
 
     public VisionCommand(SwerveSubsystem swerve) {
+        // Initialize swerve for all movement
         this.swerve = swerve;
+
+        // Initialize PIDController for distance control
+        double kPTranslation = 0.75;
+        double kITranslation = 0.0;
+        double kDTranslation = 0.0;
+        distanceController = new PIDController(kPTranslation, kITranslation, kDTranslation);
+        distanceController.setSetpoint(36);
+
+        // Initialize PIDController for rotation control
+        double kPRotation = 1.0;
+        double kIRotation = 0.0;
+        double kDRotation = 0.0;
+        rotationController = new PIDController(kPRotation, kIRotation, kDRotation);
+        rotationController.setSetpoint(0.0);
+
+        // Set deadband for distance & rotation PID Controllers
+        distanceController.setTolerance(0.5);
+        rotationController.setTolerance(0.5);
     }
 
     @Override
@@ -22,39 +41,20 @@ public class VisionCommand extends Command {
         double horizontalOffset = LimelightHelpers.getTY("");
         double verticalOffset = LimelightHelpers.getTX("");
 
-        double cameraMountAngleDegrees = 25.0; // Degrees back Limelight is rotated from perfectly vertical
-        double cameraLensHeightInches = 20.0; // Distance from center of Limelight lens to the floor
+        double cameraMountAngleDegrees = 0.0; // Degrees back Limelight is rotated from perfectly vertical
+        double cameraLensHeightInches = 10.0; // Distance from center of Limelight lens to the floor
         double targetHeightInches = 60.0; // Distance from the target to the floor
 
         double angleToTargetDegrees = cameraMountAngleDegrees + verticalOffset;
         double angleToTargetRadians = angleToTargetDegrees * (Math.PI / 180.0);
 
-        // Calculate Distance from Limelight to Target
-        double distanceFromLimelightToTargetInches = (targetHeightInches - cameraLensHeightInches) / Math.tan(angleToTargetRadians);
+        double distanceFromLimelightToTargetInches = (targetHeightInches - cameraLensHeightInches) / Math.tan(angleToTargetRadians); // Calculate Distance from Limelight to Target
 
-        // Might not work, but rotate to AprilTag
-        // double rotateHeadOn = -horizontalOffset * kPRotation;
-        // swerve.drive(new Translation2d(0.0, 0.0), rotateHeadOn, false);
+        // PID Control Adjustments for distance & rotation
+        double distanceAdjust = distanceController.calculate(distanceFromLimelightToTargetInches);
+        double rotationAdjust = distanceController.calculate(horizontalOffset);
 
-        // Align the robot horizontally with AprilTag
-        if (horizontalOffset < -2 || verticalOffset > 2) {
-            swerve.drive(new Translation2d(0.0, -horizontalOffset * kPRotation), -horizontalOffset * kPRotation, false);
-        } else {
-            // Maintain 3-4 feet distance away from the AprilTag
-            if (distanceFromLimelightToTargetInches < 36 && distanceFromLimelightToTargetInches != 0) {
-                // Robot is too far away, drive forward
-                swerve.drive(new Translation2d(-1 * kPTranslation, 0.0), 0.0, false);
-
-                // double currentDistance = distanceFromLimelightToTargetInches;
-                // double desiredDistance = 36;
-
-                // double distanceError = desiredDistance - currentDistance;
-                // double drivingAdjust = kPTranslation * distanceError;
-                // Example: leftCommand += distanceAdjust;
-            } else if (distanceFromLimelightToTargetInches > 48) {
-                // Robot is too close, drive backward
-                swerve.drive(new Translation2d(1 * kPTranslation, 0.0), 0.0, false);
-            }
-        }
+        // Swerve drive with both distance & rotation PID adjustments
+        swerve.drive(new Translation2d(-distanceAdjust, 0.0), rotationAdjust, false);
     }
 }
