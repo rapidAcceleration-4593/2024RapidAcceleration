@@ -15,7 +15,7 @@ public class VisionCommand extends Command {
     private final PIDController translationControllerX;
     private final PIDController translationControllerY;
 
-    private static final int targetID = 1;
+    private static final int targetID = 11;
 
     public VisionCommand(SwerveSubsystem swerve) {
         // Initialize Swerv3
@@ -64,24 +64,5 @@ public class VisionCommand extends Command {
             // No AprilTag detected, stop
             swerve.drive(new Translation2d(0.0, 0.0), 0.0, false);
         }
-
-        // Use the Robot's pose in target space
-        Pose3d targetPose = LimelightHelpers.getBotPose3d_TargetSpace("");
-
-        double botX = targetPose.getTranslation().getX();
-        double botY = targetPose.getTranslation().getY();
-        double botZ = targetPose.getTranslation().getZ();
-        double botAngleX = targetPose.getRotation().getX();
-        double botAngleY = targetPose.getRotation().getY();
-        double botAngleZ = targetPose.getRotation().getZ();
-
-        // Maybe just try targetPose.getX() ??? try with getbotpose2d??
-        
-        System.out.println("BotX: " + botY);
-        System.out.println("BotY: " + botX);
-        System.out.println("BotZ: " + botZ);
-        System.out.println("BotAngleX: " + botAngleX);
-        System.out.println("BotAngleY: " + botAngleY);
-        System.out.println("BotAngleZ: " + botAngleZ);
     }
 }
