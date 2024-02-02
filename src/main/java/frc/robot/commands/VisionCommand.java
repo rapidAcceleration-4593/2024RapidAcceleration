@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
@@ -11,29 +12,38 @@ public class VisionCommand extends Command {
 
     private final SwerveSubsystem swerve;
     private final PIDController rotationController;
-    private final PIDController translationController;
+    private final PIDController translationControllerX;
+    private final PIDController translationControllerY;
 
     private static final int targetID = 1;
 
     public VisionCommand(SwerveSubsystem swerve) {
-        // Initialize Swerve
+        // Initialize Swerv3
         this.swerve = swerve;
 
-        // Initalize Translation PID Controller
-        double kPTranslation = 0.0;
-        double kITranslation = 0.0;
-        double KDTranslation = 0.0;
-        translationController = new PIDController(kPTranslation, kITranslation, KDTranslation);
-        translationController.setSetpoint(0.0);
-        translationController.setTolerance(0.5);
+        // Initalize TranslationX PID Controller
+        double kPTranslationX = 1.8;
+        double kITranslationX = 0.03;
+        double KDTranslationX = 0.06;
+        translationControllerX = new PIDController(kPTranslationX, kITranslationX, KDTranslationX);
+        translationControllerX.setSetpoint(1.0);
+        translationControllerX.setTolerance(0.25);
+
+        // Initalize TranslationY PID Controller
+        double kPTranslationY = 0.06;
+        double kITranslationY = 0.0;
+        double KDTranslationY = 0.01;
+        translationControllerY = new PIDController(kPTranslationY, kITranslationY, KDTranslationY);
+        translationControllerY.setSetpoint(0.0);
+        translationControllerY.setTolerance(0.6);
 
         // Initialize Rotation PID Controller
-        double kPRotation = 0.15;
-        double kIRotation = 0.01;
-        double kDRotation = 0.02;
+        double kPRotation = 0.14;
+        double kIRotation = 0.001;
+        double kDRotation = 0.01;
         rotationController = new PIDController(kPRotation, kIRotation, kDRotation);
         rotationController.setSetpoint(0.0);
-        rotationController.setTolerance(0.5);
+        rotationController.setTolerance(0.7);
     }
 
     @Override
@@ -44,14 +54,34 @@ public class VisionCommand extends Command {
 
         // Check if the selected AprilTag ID is visible
         if (hasTargets && LimelightHelpers.getFiducialID("") == targetID) {
-            double translationAdjustX = translationController.calculate(targetArea);
-            double translationAdjustY = translationController.calculate(rotationController.getPositionError());
-            double rotationAdjust = rotationController.calculate(-horizontalOffset);
+            double translationAdjustX = translationControllerX.calculate(targetArea);
+            double translationAdjustY = translationControllerY.calculate(rotationController.getPositionError());
+            double rotationAdjust = rotationController.calculate(horizontalOffset);
 
-            swerve.drive(new Translation2d(translationAdjustX, translationAdjustY), rotationAdjust, false);
+            swerve.drive(new Translation2d(-translationAdjustX, -translationAdjustY), rotationAdjust, false);
         } else {
+
             // No AprilTag detected, stop
             swerve.drive(new Translation2d(0.0, 0.0), 0.0, false);
         }
+
+        // Use the Robot's pose in target space
+        Pose3d targetPose = LimelightHelpers.getBotPose3d_TargetSpace("");
+
+        double botX = targetPose.getTranslation().getX();
+        double botY = targetPose.getTranslation().getY();
+        double botZ = targetPose.getTranslation().getZ();
+        double botAngleX = targetPose.getRotation().getX();
+        double botAngleY = targetPose.getRotation().getY();
+        double botAngleZ = targetPose.getRotation().getZ();
+
+        // Maybe just try targetPose.getX() ??? try with getbotpose2d??
+        
+        System.out.println("BotX: " + botY);
+        System.out.println("BotY: " + botX);
+        System.out.println("BotZ: " + botZ);
+        System.out.println("BotAngleX: " + botAngleX);
+        System.out.println("BotAngleY: " + botAngleY);
+        System.out.println("BotAngleZ: " + botAngleZ);
     }
 }
