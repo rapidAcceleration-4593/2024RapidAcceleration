@@ -11,77 +11,57 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 public class VisionCommand extends Command {
 
     private final SwerveSubsystem swerve;
-    private final PIDController rotationController;
     private final PIDController translationControllerX;
     private final PIDController translationControllerY;
+    private final PIDController rotationController;
 
     private static final int targetID = 1;
 
     public VisionCommand(SwerveSubsystem swerve) {
-        // Initialize Swerv3
+        // Initialize Swerve
         this.swerve = swerve;
 
         // Initalize TranslationX PID Controller
-        double kPTranslationX = 1.8;
-        double kITranslationX = 0.03;
-        double KDTranslationX = 0.06;
+        double kPTranslationX = 2.0;
+        double kITranslationX = 0.0;
+        double KDTranslationX = 0.01;
         translationControllerX = new PIDController(kPTranslationX, kITranslationX, KDTranslationX);
-        translationControllerX.setSetpoint(1.0);
-        translationControllerX.setTolerance(0.25);
+        translationControllerX.setSetpoint(2.0); // 2 meter
+        translationControllerX.setTolerance(0.1);
 
         // Initalize TranslationY PID Controller
-        double kPTranslationY = 0.06;
+        double kPTranslationY = 1.0;
         double kITranslationY = 0.0;
         double KDTranslationY = 0.01;
         translationControllerY = new PIDController(kPTranslationY, kITranslationY, KDTranslationY);
         translationControllerY.setSetpoint(0.0);
-        translationControllerY.setTolerance(0.6);
+        translationControllerY.setTolerance(0.1);
 
-        // Initialize Rotation PID Controller
-        double kPRotation = 0.14;
-        double kIRotation = 0.001;
+        // Initalize Rotation PID Controller
+        double kPRotation = 0.2;
+        double kIRotation = 0.0;
         double kDRotation = 0.01;
         rotationController = new PIDController(kPRotation, kIRotation, kDRotation);
         rotationController.setSetpoint(0.0);
-        rotationController.setTolerance(0.7);
+        rotationController.setTolerance(0.1);
     }
 
     @Override
     public void execute() {
         boolean hasTargets = LimelightHelpers.getTV("");
-        double targetArea = LimelightHelpers.getTA("");
-        double horizontalOffset = LimelightHelpers.getTY("");
 
         // Check if the selected AprilTag ID is visible
         if (hasTargets && LimelightHelpers.getFiducialID("") == targetID) {
-            double translationAdjustX = translationControllerX.calculate(targetArea);
-            double translationAdjustY = translationControllerY.calculate(rotationController.getPositionError());
-            double rotationAdjust = rotationController.calculate(horizontalOffset);
+            Pose3d target = LimelightHelpers.getTargetPose3d_CameraSpace("");
 
-            swerve.drive(new Translation2d(-translationAdjustX, -translationAdjustY), rotationAdjust, false);
+            double translationAdjustX = translationControllerX.calculate(target.getZ());
+            double translationAdjustY = translationControllerY.calculate(target.getX());
+            double rotationAdjust = rotationController.calculate(LimelightHelpers.getTY(""));
+
+            swerve.drive(new Translation2d(translationAdjustX, translationAdjustY), rotationAdjust, false);
         } else {
-
             // No AprilTag detected, stop
             swerve.drive(new Translation2d(0.0, 0.0), 0.0, false);
         }
-
-        // Use the Robot's pose in target space
-        Pose3d targetPose = LimelightHelpers.getBotPose3d_TargetSpace("");
-
-        double botX = targetPose.getTranslation().getX();
-        double botY = targetPose.getTranslation().getY();
-        double botZ = targetPose.getTranslation().getZ();
-        double botAngleX = targetPose.getRotation().getX();
-        double botAngleY = targetPose.getRotation().getY();
-        double botAngleZ = targetPose.getRotation().getZ();
-
-        // Maybe just try targetPose.getX() ??? try with getbotpose2d??
-        
-        System.out.println("BotX: " + botY);
-        System.out.println("BotY: " + botX);
-        System.out.println("BotZ: " + botZ);
-        System.out.println("BotAngleX: " + botAngleX);
-        System.out.println("BotAngleY: " + botAngleY);
-        System.out.println("BotAngleZ: " + botAngleZ);
     }
 }
