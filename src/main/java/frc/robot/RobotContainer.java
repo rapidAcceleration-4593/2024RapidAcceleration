@@ -11,6 +11,11 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.VisionCommand;
+import frc.robot.commands.ArmCommands.ArmRotateStop;
+import frc.robot.commands.ArmCommands.ManualControl.ArmRotateDown;
+import frc.robot.commands.ArmCommands.ManualControl.ArmRotateUp;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 
@@ -23,7 +28,9 @@ public class RobotContainer
 {
   // Define the robot's subsystems and commands
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
-  // private Vision vision = new Vision(drivebase);
+  private VisionSubsystem visionSubsystem = new VisionSubsystem(drivebase);
+  private ArmSubsystem armSubsystem = new ArmSubsystem();
+
   CommandXboxController driverXbox = new CommandXboxController(0);
 
   // The container for the robot. Contains subsystems, OI devices, and commands.
@@ -49,9 +56,15 @@ public class RobotContainer
   // Use this method to define your trigger->command mappings
   private void configureBindings()
   {
+    // Driver Buttons
+    driverXbox.a().onTrue((new InstantCommand(() -> drivebase.zeroGyro()))); // Reset field orientation
+    driverXbox.y().whileTrue(new VisionCommand(visionSubsystem)); // Align with AprilTag
 
-    driverXbox.a().onTrue((new InstantCommand(() -> drivebase.zeroGyro())));
-    driverXbox.y().whileTrue(new VisionCommand(drivebase));
+    driverXbox.x().whileTrue(new ArmRotateUp(armSubsystem)); // Raise Arm
+    driverXbox.x().whileFalse(new ArmRotateStop(armSubsystem)); // Stop Arm Movement
+
+    driverXbox.b().whileTrue(new ArmRotateDown(armSubsystem)); // Lower Arm
+    driverXbox.b().whileFalse(new ArmRotateStop(armSubsystem)); // Stop Arm Movement
   }
 
   // Use this method to pass the autonomous command to the main class
