@@ -16,4 +16,10 @@ public class ArmSubsystem extends SubsystemBase {
     public void ArmRotateUp() {}
     public void ArmRotateDown() {}
     public void ArmRotateStop() {}
+
+    public void ArmIntake() {}
+    public void ArmIntakeStop() {}
+    
+    public void ArmShooter() {}
+    public void ArmShooterStop() {}
 }

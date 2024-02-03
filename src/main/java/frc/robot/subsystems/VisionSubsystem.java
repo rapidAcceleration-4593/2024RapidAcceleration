@@ -25,7 +25,7 @@ public class VisionSubsystem extends SubsystemBase {
         double kITranslationX = 0.0; // Adjust accordingly
         double KDTranslationX = 0.01;
         translationControllerX = new PIDController(kPTranslationX, kITranslationX, KDTranslationX);
-        translationControllerX.setSetpoint(2.0); // 2 Meters
+        translationControllerX.setSetpoint(1.5); // 1.5 Meters
         translationControllerX.setTolerance(0.1);
 
         // Initalize TranslationY PID Controller
@@ -45,7 +45,7 @@ public class VisionSubsystem extends SubsystemBase {
         rotationController.setTolerance(0.1);
     }
 
-    public void followAprilTag() {
+    public void alignAprilTag() {
         boolean hasTargets = LimelightHelpers.getTV("");
 
         // Check if the selected AprilTag ID is visible
@@ -54,7 +54,7 @@ public class VisionSubsystem extends SubsystemBase {
 
             double translationAdjustX = translationControllerX.calculate(target.getZ());
             double translationAdjustY = translationControllerY.calculate(target.getX());
-            double rotationAdjust = rotationController.calculate(LimelightHelpers.getTY(""));
+            double rotationAdjust = rotationController.calculate(target.getRotation().getY());
 
             swerve.drive(new Translation2d(translationAdjustX, translationAdjustY), rotationAdjust, false);
         } else {
