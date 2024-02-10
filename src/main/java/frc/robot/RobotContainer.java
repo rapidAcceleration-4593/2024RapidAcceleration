@@ -14,6 +14,8 @@ import frc.robot.commands.VisionAlignCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.commands.ArmCommands.*;
+import frc.robot.commands.ArmCommands.ManualControl.*;
 import java.io.File;
 
 /**
@@ -25,7 +27,7 @@ public class RobotContainer
 {
   // Define the robot's subsystems and commands
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
-  private VisionSubsystem visionSubsystem = new VisionSubsystem(drivebase);
+  public VisionSubsystem visionSubsystem = new VisionSubsystem(drivebase);
   public ArmSubsystem armSubsystem = new ArmSubsystem();
 
   CommandXboxController driverXbox = new CommandXboxController(0);
@@ -41,6 +43,7 @@ public class RobotContainer
     // controls are front-left positive
     // left stick controls translation
     // right stick controls the angular velocity of the robot
+
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
         () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
         () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
@@ -54,19 +57,25 @@ public class RobotContainer
   private void configureBindings()
   {
     // Driver Buttons
-    driverXbox.a().onTrue((new InstantCommand(() -> drivebase.zeroGyro()))); // Reset field orientation
-    driverXbox.y().whileTrue(new VisionAlignCommand(visionSubsystem)); // Align with AprilTag
+    // driverXbox.back().onTrue((new InstantCommand(() -> drivebase.zeroGyro()))); // Reset field orientation
+    // driverXbox.start().whileTrue(new VisionAlignCommand(visionSubsystem)); // Align with AprilTag
 
-    // driverXbox.define().whileTrue(new ArmRotateUp(armSubsystem)); // Raise Arm
-    // driverXbox.define().whileFalse(new ArmRotateStop(armSubsystem)); // Stop Arm
+    // Rotating Arm Commands
+    // driverXbox.y().whileTrue(new ArmRotateUp(armSubsystem)); // Raise Arm
+    // driverXbox.y().whileFalse(new ArmRotateStop(armSubsystem)); // Stop Arm
+    // driverXbox.a().whileTrue(new ArmRotateDown(armSubsystem)); // Lower Arm
+    // driverXbox.a().whileFalse(new ArmRotateStop(armSubsystem)); // Stop Arm
 
-    // driverXbox.define().whileTrue(new ArmRotateDown(armSubsystem)); // Lower Arm
-    // driverXbox.define().whileFalse(new ArmRotateStop(armSubsystem)); // Stop Arm
+    // Intake Commands
+    driverXbox.rightBumper().whileTrue(new ArmIntake(armSubsystem)); // Intake
+    driverXbox.leftBumper().whileTrue(new ArmOuttake(armSubsystem)); // Outtake
 
-    // driverXbox.define().whileTrue(new ArmInake(armSubsystem)); // Start Intake
-    // driverXbox.define().whileFalse(new ArmIntakeStop(armSubsystem)); // Stop Intake
-  
-    
+    driverXbox.rightBumper().whileFalse(new ArmIntakeStop(armSubsystem)); // Stop Intake & Outtake
+    driverXbox.leftBumper().whileFalse(new ArmIntakeStop(armSubsystem)); // Stop Intake & Outtake
+
+    // Shooter Commands
+    driverXbox.x().whileTrue(new ArmShooter(armSubsystem));
+    driverXbox.x().whileFalse(new ArmShooterStop(armSubsystem));
   }
 
   // Use this method to pass the autonomous command to the main class
