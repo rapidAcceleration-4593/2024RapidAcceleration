@@ -1,19 +1,18 @@
-package frc.robot.commands.ArmCommands.ManualControl;
+package frc.robot.commands.ArmCommands.PresetArmPositions;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ArmSubsystem;
 
-public class ArmRotateDown extends Command {
+public class ArmAmpPosition extends Command {
     
     private final ArmSubsystem arm;
 
-    public ArmRotateDown(ArmSubsystem armPassedIn) {
+    public ArmAmpPosition(ArmSubsystem armPassedIn) {
         arm = armPassedIn;
         addRequirements(armPassedIn);
     }
 
-    @Override
     public void execute() {
-        arm.ArmRotateDown();
+        arm.ArmAmpPosition();
     }
 }

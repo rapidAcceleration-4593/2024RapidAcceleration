@@ -12,9 +12,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import java.io.File;
 import java.io.IOException;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-
 import swervelib.parser.SwerveParser;
 
 /**
@@ -31,11 +28,6 @@ public class Robot extends TimedRobot
   private RobotContainer m_robotContainer;
 
   private Timer disabledTimer;
-
-  private CANSparkMax testing19 = new CANSparkMax(19, MotorType.kBrushless);
-  private CANSparkMax testing20 = new CANSparkMax(20, MotorType.kBrushless);
-  private CANSparkMax testing8 = new CANSparkMax(8, MotorType.kBrushless);
-  private CANSparkMax testing9 = new CANSparkMax(9, MotorType.kBrushless);
 
   public Robot()
   {
@@ -127,24 +119,7 @@ public class Robot extends TimedRobot
   // This function is called periodically during operator control.
   @Override
   public void teleopPeriodic()
-  {
-    // ids = 19, 20, 9, 8
-
-    // 20 positive = raise 
-    // 9 positive = lower
-    // 9 negative = raise
-
-    // double power = 0.0;
-
-    // testing19.set(power);
-    // testing20.set(power);
-    // testing9.set(-power);
-    // testing8.set(-power);
-
-    // System.out.println("19 " + testing19.get());
-    // System.out.println("20 " + testing20.get());
-    // System.out.println("9 " + testing9.get());
-    // System.out.println("8 " + testing8.get());
+  {  
   }
 
   @Override
@@ -171,13 +146,11 @@ public class Robot extends TimedRobot
   @Override
   public void simulationInit()
   {
-
   }
 
   // This function is called periodically whilst in simulation.
   @Override
   public void simulationPeriodic()
   {
-
   }
 }

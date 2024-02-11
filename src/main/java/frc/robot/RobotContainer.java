@@ -15,7 +15,8 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.commands.ArmCommands.*;
-import frc.robot.commands.ArmCommands.ManualControl.*;
+import frc.robot.commands.ArmCommands.PresetArmPositions.*;
+
 import java.io.File;
 
 /**
@@ -57,21 +58,20 @@ public class RobotContainer
   private void configureBindings()
   {
     // Driver Buttons
-    // driverXbox.back().onTrue((new InstantCommand(() -> drivebase.zeroGyro()))); // Reset field orientation
-    // driverXbox.start().whileTrue(new VisionAlignCommand(visionSubsystem)); // Align with AprilTag
+    driverXbox.back().onTrue((new InstantCommand(() -> drivebase.zeroGyro()))); // Reset field orientation
+    driverXbox.start().whileTrue(new VisionAlignCommand(visionSubsystem)); // Align with AprilTag
 
-    // Rotating Arm Commands
-    // driverXbox.y().whileTrue(new ArmRotateUp(armSubsystem)); // Raise Arm
-    // driverXbox.y().whileFalse(new ArmRotateStop(armSubsystem)); // Stop Arm
-    // driverXbox.a().whileTrue(new ArmRotateDown(armSubsystem)); // Lower Arm
-    // driverXbox.a().whileFalse(new ArmRotateStop(armSubsystem)); // Stop Arm
+    // Rotating Arm Preset Commands
+    driverXbox.a().whileTrue(new ArmIntakePosition(armSubsystem));
+    driverXbox.a().whileFalse(new ArmRotateStop(armSubsystem));
+    driverXbox.y().whileTrue(new ArmAmpPosition(armSubsystem));
+    driverXbox.y().whileFalse(new ArmRotateStop(armSubsystem));
 
     // Intake Commands
     driverXbox.rightBumper().whileTrue(new ArmIntake(armSubsystem)); // Intake
+    driverXbox.rightBumper().whileFalse(new ArmIntakeStop(armSubsystem)); // Stop Intake
     driverXbox.leftBumper().whileTrue(new ArmOuttake(armSubsystem)); // Outtake
-
-    driverXbox.rightBumper().whileFalse(new ArmIntakeStop(armSubsystem)); // Stop Intake & Outtake
-    driverXbox.leftBumper().whileFalse(new ArmIntakeStop(armSubsystem)); // Stop Intake & Outtake
+    driverXbox.leftBumper().whileFalse(new ArmIntakeStop(armSubsystem)); // Stop Outtake
 
     // Shooter Commands
     driverXbox.x().whileTrue(new ArmShooter(armSubsystem));
