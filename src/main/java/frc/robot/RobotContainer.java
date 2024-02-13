@@ -12,10 +12,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.VisionAlignCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.commands.ArmCommands.*;
-import frc.robot.commands.ArmCommands.Climber.*;
 import frc.robot.commands.ArmCommands.TestingArm.*;
 
 import java.io.File;
@@ -31,6 +31,7 @@ public class RobotContainer
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
   public VisionSubsystem visionSubsystem = new VisionSubsystem(drivebase);
   public ArmSubsystem armSubsystem = new ArmSubsystem();
+  public ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
   CommandXboxController driverXbox = new CommandXboxController(0);
 
@@ -60,17 +61,19 @@ public class RobotContainer
   {
     // Driver Buttons
     driverXbox.back().onTrue((new InstantCommand(() -> drivebase.zeroGyro()))); // Reset field orientation
-    // driverXbox.start().whileTrue(new VisionAlignCommand(visionSubsystem)); // Align with AprilTag
+    driverXbox.start().whileTrue(new VisionAlignCommand(visionSubsystem)); // Align with AprilTag
 
+    // Arm Rotation
     driverXbox.y().whileTrue(new ArmUp(armSubsystem));
     driverXbox.y().whileFalse(new ArmRotateStop(armSubsystem));
     driverXbox.a().whileTrue(new ArmDown(armSubsystem));
     driverXbox.a().whileFalse(new ArmRotateStop(armSubsystem));
 
-    // driverXbox.a().whileTrue(new Climber(armSubsystem));
-    // driverXbox.a().whileFalse(new ClimberStop(armSubsystem));
-    // driverXbox.y().whileTrue(new ClimberReverse(armSubsystem));
-    // driverXbox.y().whileFalse(new ClimberStop(armSubsystem));
+    // Climber
+    // driverXbox.define().whileTrue(new ClimberUp(climberSubsystem));
+    // driverXbox.define().whileFalse(new ClimberStop(climberSubsystem));
+    // driverXbox.define().whileTrue(new ClimberDown(climberSubsystem));
+    // driverXbox.define().whileFalse(new ClimberStop(climberSubsystem));
 
     // Intake Commands
     driverXbox.rightBumper().whileTrue(new ArmIntake(armSubsystem)); // Intake

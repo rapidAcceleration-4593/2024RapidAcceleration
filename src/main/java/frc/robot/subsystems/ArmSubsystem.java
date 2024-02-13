@@ -24,8 +24,6 @@ public class ArmSubsystem extends SubsystemBase {
     private CANSparkMax rightGearbox1;
     private CANSparkMax rightGearbox2;
 
-    private CANSparkMax climberMotor;
-
     public ArmSubsystem() {
         // Initialize Motor Objects to CAN SparkMAX ID
         intakeMotor = new CANSparkMax(14, MotorType.kBrushless);
@@ -40,8 +38,6 @@ public class ArmSubsystem extends SubsystemBase {
         leftGearbox2 = new CANSparkMax(20, MotorType.kBrushless);
         rightGearbox1 = new CANSparkMax(8, MotorType.kBrushless);
         rightGearbox2 = new CANSparkMax(9, MotorType.kBrushless);
-
-        climberMotor = new CANSparkMax(10, MotorType.kBrushless);
     }
 
 
@@ -56,21 +52,6 @@ public class ArmSubsystem extends SubsystemBase {
     public void ArmRotateStop() {
         ArmSetRotateSpeed(0.0);
     }
-
-    public void Climber() {
-        climberMotor.set(1.0);
-    }
-
-    public void ClimberReverse() {
-        climberMotor.set(-1.0);
-    }
-
-    public void ClimberStop() {
-        climberMotor.set(0.0);
-    }
-
-
-
 
     public void ArmIntake() {
         if (intakeLimitSwitch.get()) {
