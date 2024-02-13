@@ -39,6 +39,7 @@ public class ArmSubsystem extends SubsystemBase {
         rightGearbox1 = new CANSparkMax(8, MotorType.kBrushless);
         rightGearbox2 = new CANSparkMax(9, MotorType.kBrushless);
     }
+    
 
 
     public void ArmUp() {
@@ -53,6 +54,9 @@ public class ArmSubsystem extends SubsystemBase {
         ArmSetRotateSpeed(0.0);
     }
 
+
+
+    // Intake, Outtake, and Shooter
     public void ArmIntake() {
         if (intakeLimitSwitch.get()) {
             intakeMotor.set(-1.0);

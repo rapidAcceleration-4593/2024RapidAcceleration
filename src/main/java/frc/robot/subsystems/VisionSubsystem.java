@@ -14,7 +14,7 @@ public class VisionSubsystem extends SubsystemBase {
     private final PIDController translationControllerY;
     private final PIDController rotationController;
 
-    private static final int targetID = 1;
+    private static final int targetID = 11;
 
     public VisionSubsystem(SwerveSubsystem swerve) {
         // Initialize Swerve
