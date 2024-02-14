@@ -54,52 +54,52 @@ public class ArmSubsystem extends SubsystemBase {
         armGoalAngle = 0;
 
         armRotateUpController = new PIDController(0.01, 0.0022, 0.0);
-        armRotateDownController = new PIDController(0.0, 0.0, 0.0);
+        armRotateDownController = new PIDController(0.001, 0.0, 0.0);
         armRotateTopController = new PIDController(0.0, 0.0, 0.0);
         armRotateBottomController = new PIDController(0.0, 0.0, 0.0);
     }
     
     public void IntakePosition() {
-        armGoalAngle = 0;
-        lastArmGoalAngle = armGoalAngle;
-        double armRotationSpeed = 0;
+        // armGoalAngle = 0;
+        // lastArmGoalAngle = armGoalAngle;
+        // double armRotationSpeed = 0;
 
-        if (armEncoder.get() >= 30) {
-            armRotationSpeed = armRotateDownController.calculate(armEncoder.get(), armGoalAngle);
-        } else if (armEncoder.get() > armGoalAngle) {
-            armRotationSpeed = armRotateBottomController.calculate(armEncoder.get(), armGoalAngle);
-        } else {
-            armEncoder.reset();
-        }
-        ArmSetRotateSpeed(armRotationSpeed);
+        // if (armEncoder.get() >= 30) {
+        //     armRotationSpeed = armRotateDownController.calculate(armEncoder.get(), armGoalAngle);
+        // } else if (armEncoder.get() > armGoalAngle) {
+        //     armRotationSpeed = armRotateBottomController.calculate(armEncoder.get(), armGoalAngle);
+        // } else {
+        //     armEncoder.reset();
+        // }
+        // ArmSetRotateSpeed(armRotationSpeed);
     }
 
     public void SubwooferPosition() {
-        armGoalAngle = 85;
-        lastArmGoalAngle = armGoalAngle;
-        double armRotationSpeed = 0;
+        // armGoalAngle = 85;
+        // lastArmGoalAngle = armGoalAngle;
+        // double armRotationSpeed = 0;
 
-        if (armEncoder.get() < armGoalAngle) {
-            armRotationSpeed = armRotateUpController.calculate(armEncoder.get(), armGoalAngle);
-        } else if (armEncoder.get() > armGoalAngle) {
-            armRotationSpeed = armRotateDownController.calculate(armEncoder.get(), armGoalAngle);
-        }
-        ArmSetRotateSpeed(armRotationSpeed);
+        // if (armEncoder.get() < armGoalAngle) {
+        //     armRotationSpeed = armRotateUpController.calculate(armEncoder.get(), armGoalAngle);
+        // } else if (armEncoder.get() > armGoalAngle) {
+        //     armRotationSpeed = armRotateDownController.calculate(armEncoder.get(), armGoalAngle);
+        // }
+        // ArmSetRotateSpeed(armRotationSpeed);
     }
 
     public void AmpPosition() {
-        armGoalAngle = 300;
-        lastArmGoalAngle = armGoalAngle;
-        double armRotationSpeed = 0;
+        // armGoalAngle = 300;
+        // lastArmGoalAngle = armGoalAngle;
+        // double armRotationSpeed = 0;
 
-        if (armEncoder.get() <= 270) {
-            armRotationSpeed = armRotateUpController.calculate(armEncoder.get(), armGoalAngle);
-        } else if (armEncoder.get() < armGoalAngle) {
-            armRotationSpeed = armRotateTopController.calculate(armEncoder.get(), armGoalAngle);
-        } else {
-            armRotationSpeed = armRotateDownController.calculate(armEncoder.get(), armGoalAngle);
-        }
-        ArmSetRotateSpeed(armRotationSpeed);
+        // if (armEncoder.get() <= 270) {
+        //     armRotationSpeed = armRotateUpController.calculate(armEncoder.get(), armGoalAngle);
+        // } else if (armEncoder.get() < armGoalAngle) {
+        //     armRotationSpeed = armRotateTopController.calculate(armEncoder.get(), armGoalAngle);
+        // } else {
+        //     armRotationSpeed = armRotateDownController.calculate(armEncoder.get(), armGoalAngle);
+        // }
+        // ArmSetRotateSpeed(armRotationSpeed);
     }
 
 
@@ -118,13 +118,14 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public void ArmRotateStop() {
-        // ArmSetRotateSpeed(0.0);
-        double armRotationSpeed = 0;
+        double armRotationSpeed = 0.0;
 
         if (armEncoder.get() < lastArmGoalAngle) {
-            armRotationSpeed = armRotateUpController.calculate(armEncoder.get(), lastArmGoalAngle);
+            // armRotationSpeed = armRotateUpController.calculate(armEncoder.get(), lastArmGoalAngle);
+            System.out.println("Too low, go up");
         } else if (armEncoder.get() > lastArmGoalAngle) {
-            armRotationSpeed = armRotateDownController.calculate(armEncoder.get(), lastArmGoalAngle);
+            // armRotationSpeed = armRotateDownController.calculate(armEncoder.get(), lastArmGoalAngle);
+            System.out.println("Too high, go down");
         }
         ArmSetRotateSpeed(armRotationSpeed);
     }
@@ -182,7 +183,7 @@ public class ArmSubsystem extends SubsystemBase {
         rightGearbox1.follow(leftGearbox1, true);
         rightGearbox2.follow(leftGearbox1, true);
 
-        System.out.println("-------------------");
+        System.out.println("<-------------------->");
         System.out.println("Set Value: " + lastArmGoalAngle);
         System.out.println("Encoder Value: " + armEncoder.get());
         System.out.println("Power: " + speed);

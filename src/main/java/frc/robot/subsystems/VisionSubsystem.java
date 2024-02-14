@@ -56,10 +56,15 @@ public class VisionSubsystem extends SubsystemBase {
             double translationAdjustY = translationControllerY.calculate(target.getX());
             double rotationAdjust = rotationController.calculate(target.getRotation().getY());
 
-            swerve.drive(new Translation2d(translationAdjustX, translationAdjustY), rotationAdjust, false);
+            System.out.println("<-------------------->");
+            System.out.println("Z Distance: " + target.getZ());
+            System.out.println("X Distance: " + target.getX());
+            System.out.println("Y Rotation: " + target.getRotation().getY());
+
+            // swerve.drive(new Translation2d(translationAdjustX, translationAdjustY), rotationAdjust, false);
         } else {
             // No AprilTag detected, stop
-            swerve.drive(new Translation2d(0.0, 0.0), 0.0, false);
+            // swerve.drive(new Translation2d(0.0, 0.0), 0.0, false);
         }
     }
 }
