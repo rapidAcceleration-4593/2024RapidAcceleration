@@ -104,8 +104,8 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public void ArmShooter() {
-        shooterTopMotor.set(0.25);
-        shooterBottomMotor.set(0.25);
+        shooterTopMotor.set(0.7593);
+        shooterBottomMotor.set(0.7593);
 
         if (!shooterTimerStarted) {
             shooterTimer.start();
