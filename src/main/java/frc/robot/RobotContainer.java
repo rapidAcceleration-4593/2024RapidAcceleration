@@ -10,12 +10,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.subsystems.ArmPIDSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.commands.ArmCommands.*;
+import frc.robot.commands.ArmCommands.PresetPositions.SubwooferPosition;
 import frc.robot.commands.ArmCommands.TestingArm.*;
 import frc.robot.commands.VisionCommands.VisionAlignCommand;
 
@@ -32,7 +32,6 @@ public class RobotContainer
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
   public VisionSubsystem visionSubsystem = new VisionSubsystem(drivebase);
   public ArmSubsystem armSubsystem = new ArmSubsystem();
-  public ArmPIDSubsystem armPIDSubsystem = new ArmPIDSubsystem();
   public ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
   CommandXboxController driverXbox = new CommandXboxController(0);
@@ -71,8 +70,8 @@ public class RobotContainer
     driverXbox.a().whileTrue(new ArmDown(armSubsystem));
     driverXbox.a().whileFalse(new ArmRotateStop(armSubsystem));
 
-    // ONLY GOD KNOWS IF THIS WILL WORK ENABLE IF YOU REALLY HATE BUILD TEAM
-    new PIDHoldArmCommand(armPIDSubsystem).schedule();
+    driverXbox.b().whileTrue(new SubwooferPosition(armSubsystem));
+    driverXbox.b().whileFalse(new ArmRotateStop(armSubsystem));
 
     // Climber
     // driverXbox.define().whileTrue(new ClimberUp(climberSubsystem));

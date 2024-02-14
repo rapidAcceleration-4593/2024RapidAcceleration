@@ -3,7 +3,9 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -24,6 +26,12 @@ public class ArmSubsystem extends SubsystemBase {
     private CANSparkMax rightGearbox1;
     private CANSparkMax rightGearbox2;
 
+    private final Encoder armEncoder;
+
+    private final PIDController armRotateUpController;
+    private int armGoalAngle;
+    private int lastArmGoalAngle;
+
     public ArmSubsystem() {
         // Initialize Motor Objects to CAN SparkMAX ID
         intakeMotor = new CANSparkMax(14, MotorType.kBrushless);
@@ -38,8 +46,30 @@ public class ArmSubsystem extends SubsystemBase {
         leftGearbox2 = new CANSparkMax(20, MotorType.kBrushless);
         rightGearbox1 = new CANSparkMax(8, MotorType.kBrushless);
         rightGearbox2 = new CANSparkMax(9, MotorType.kBrushless);
+
+        armEncoder = new Encoder(8, 9);
+
+        armRotateUpController = new PIDController(0.01, 0.0022, 0.0);
+        armGoalAngle = 0;
     }
     
+    public void IntakePosition() {
+        armGoalAngle = 0;
+        lastArmGoalAngle = armGoalAngle;
+    }
+
+    public void SubwooferPosition() {
+        armGoalAngle = 85;
+        lastArmGoalAngle = armGoalAngle;
+
+        double armRotationSpeed = armRotateUpController.calculate(armEncoder.get(), armGoalAngle);
+        ArmSetRotateSpeed(armRotationSpeed);
+    }
+
+    public void AmpPosition() {
+        armGoalAngle = 300;
+        lastArmGoalAngle = armGoalAngle;
+    }
 
 
     public void ArmUp() {
@@ -74,8 +104,8 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public void ArmShooter() {
-        shooterTopMotor.set(0.7593);
-        shooterBottomMotor.set(0.7593);
+        shooterTopMotor.set(0.25);
+        shooterBottomMotor.set(0.25);
 
         if (!shooterTimerStarted) {
             shooterTimer.start();
@@ -101,5 +131,9 @@ public class ArmSubsystem extends SubsystemBase {
         leftGearbox2.follow(leftGearbox1, false);
         rightGearbox1.follow(leftGearbox1, true);
         rightGearbox2.follow(leftGearbox1, true);
+
+        System.out.println("-------------------");
+        System.out.println("Encoder Value: " + armEncoder.get());
+        System.out.println("Power: " + speed);
     }
 }
