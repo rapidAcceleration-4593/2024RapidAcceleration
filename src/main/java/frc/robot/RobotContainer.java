@@ -70,15 +70,6 @@ public class RobotContainer
     driverXbox.a().whileTrue(new ArmDown(armSubsystem));
     driverXbox.a().whileFalse(new ArmRotateStop(armSubsystem));
 
-    driverXbox.b().whileTrue(new SubwooferPosition(armSubsystem));
-    driverXbox.b().whileFalse(new ArmRotateStop(armSubsystem));
-
-    // Climber
-    // driverXbox.define().whileTrue(new ClimberUp(climberSubsystem));
-    // driverXbox.define().whileFalse(new ClimberStop(climberSubsystem));
-    // driverXbox.define().whileTrue(new ClimberDown(climberSubsystem));
-    // driverXbox.define().whileFalse(new ClimberStop(climberSubsystem));
-
     // Intake Commands
     driverXbox.rightBumper().whileTrue(new ArmIntake(armSubsystem)); // Intake
     driverXbox.rightBumper().whileFalse(new ArmIntakeStop(armSubsystem)); // Stop Intake
