@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.ArmPIDSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
@@ -31,6 +32,7 @@ public class RobotContainer
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
   public VisionSubsystem visionSubsystem = new VisionSubsystem(drivebase);
   public ArmSubsystem armSubsystem = new ArmSubsystem();
+  public ArmPIDSubsystem armPIDSubsystem = new ArmPIDSubsystem();
   public ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
   CommandXboxController driverXbox = new CommandXboxController(0);
@@ -68,6 +70,9 @@ public class RobotContainer
     driverXbox.y().whileFalse(new ArmRotateStop(armSubsystem));
     driverXbox.a().whileTrue(new ArmDown(armSubsystem));
     driverXbox.a().whileFalse(new ArmRotateStop(armSubsystem));
+
+    // ONLY GOD KNOWS IF THIS WILL WORK ENABLE IF YOU REALLY HATE BUILD TEAM
+    new PIDHoldArmCommand(armPIDSubsystem).schedule();
 
     // Climber
     // driverXbox.define().whileTrue(new ClimberUp(climberSubsystem));
