@@ -17,6 +17,9 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.commands.ArmCommands.*;
 import frc.robot.commands.ArmCommands.PresetPositions.SubwooferPosition;
 import frc.robot.commands.ArmCommands.TestingArm.*;
+import frc.robot.commands.ClimberCommands.ClimberDown;
+import frc.robot.commands.ClimberCommands.ClimberStop;
+import frc.robot.commands.ClimberCommands.ClimberUp;
 import frc.robot.commands.VisionCommands.VisionAlignCommand;
 
 import java.io.File;
@@ -62,13 +65,18 @@ public class RobotContainer
   {
     // Driver Buttons
     driverXbox.back().onTrue((new InstantCommand(() -> drivebase.zeroGyro()))); // Reset field orientation
-    driverXbox.start().whileTrue(new VisionAlignCommand(visionSubsystem)); // Align with AprilTag
+    // driverXbox.start().whileTrue(new VisionAlignCommand(visionSubsystem)); // Align with AprilTag
 
     // Arm Rotation
     driverXbox.y().whileTrue(new ArmUp(armSubsystem));
     driverXbox.y().whileFalse(new ArmRotateStop(armSubsystem));
     driverXbox.a().whileTrue(new ArmDown(armSubsystem));
     driverXbox.a().whileFalse(new ArmRotateStop(armSubsystem));
+
+    driverXbox.b().whileTrue(new ClimberUp(climberSubsystem));
+    driverXbox.b().whileFalse(new ClimberStop(climberSubsystem));
+    driverXbox.start().whileTrue(new ClimberDown(climberSubsystem));
+    driverXbox.start().whileFalse(new ClimberStop(climberSubsystem));
 
     // Intake Commands
     driverXbox.rightBumper().whileTrue(new ArmIntake(armSubsystem)); // Intake
