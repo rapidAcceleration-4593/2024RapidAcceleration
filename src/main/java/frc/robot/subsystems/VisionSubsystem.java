@@ -14,7 +14,7 @@ public class VisionSubsystem extends SubsystemBase {
     private final PIDController translationControllerY;
     private final PIDController rotationController;
 
-    private static final int targetID = 11;
+    private static final int targetID = 4;
 
     public VisionSubsystem(SwerveSubsystem swerve) {
         // Initialize Swerve
@@ -23,29 +23,29 @@ public class VisionSubsystem extends SubsystemBase {
         // Initalize TranslationX PID Controller
         double kPTranslationX = 2.0;
         double kITranslationX = 0.0; // Adjust accordingly
-        double KDTranslationX = 0.01;
+        double KDTranslationX = 0.0;
         translationControllerX = new PIDController(kPTranslationX, kITranslationX, KDTranslationX);
-        translationControllerX.setSetpoint(1.5); // 1.5 Meters
-        translationControllerX.setTolerance(0.1);
+        translationControllerX.setSetpoint(5); // 5 Meters
+        translationControllerX.setTolerance(0.0);
 
         // Initalize TranslationY PID Controller
-        double kPTranslationY = 1.0;
+        double kPTranslationY = 1.25;
         double kITranslationY = 0.0; // Adjust accordingly
-        double KDTranslationY = 0.01;
+        double KDTranslationY = 0.0;
         translationControllerY = new PIDController(kPTranslationY, kITranslationY, KDTranslationY);
         translationControllerY.setSetpoint(0.0);
         translationControllerY.setTolerance(0.1);
 
         // Initalize Rotation PID Controller
-        double kPRotation = 0.2;
+        double kPRotation = 4.0;
         double kIRotation = 0.0; // Adjust accordingly
-        double kDRotation = 0.01;
+        double kDRotation = 0.001;
         rotationController = new PIDController(kPRotation, kIRotation, kDRotation);
         rotationController.setSetpoint(0.0);
-        rotationController.setTolerance(0.1);
+        rotationController.setTolerance(0.002);
     }
 
-    public void alignAprilTag() {
+    public void VisionSwerveAlign() {
         boolean hasTargets = LimelightHelpers.getTV("");
 
         // Check if the selected AprilTag ID is visible
@@ -61,10 +61,18 @@ public class VisionSubsystem extends SubsystemBase {
             System.out.println("X Distance: " + target.getX());
             System.out.println("Y Rotation: " + target.getRotation().getY());
 
-            // swerve.drive(new Translation2d(translationAdjustX, translationAdjustY), rotationAdjust, false);
+            swerve.drive(new Translation2d(translationAdjustX, 0.0), 0.0, false);
+
+            // if (target.getX() > 0.1 && target.getX() < -0.1) {
+            //     swerve.drive(new Translation2d(0.0, translationAdjustY), 0.0, false);
+            // }
+
+            // if (target.getRotation().getY() > 0.01 && target.getRotation().getY() < -0.01) {
+            //     swerve.drive(new Translation2d(0.0, 0.0), -rotationAdjust, false);
+            // }
         } else {
             // No AprilTag detected, stop
-            // swerve.drive(new Translation2d(0.0, 0.0), 0.0, false);
+            swerve.drive(new Translation2d(0.0, 0.0), 0.0, false);
         }
     }
 }

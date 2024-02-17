@@ -3,16 +3,17 @@ package frc.robot.commands.ArmCommands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ArmSubsystem;
 
-public class ArmIntake extends Command {
+public class VisionArmAngle extends Command {
     
     private final ArmSubsystem arm;
 
-    public ArmIntake(ArmSubsystem armPassedIn) {
+    public VisionArmAngle(ArmSubsystem armPassedIn) {
         arm = armPassedIn;
         addRequirements(armPassedIn);
     }
 
+    @Override
     public void execute() {
-        arm.ArmIntake();
+        arm.VisionArmAngle();
     }
 }

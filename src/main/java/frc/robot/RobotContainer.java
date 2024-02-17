@@ -11,16 +11,17 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.BeakSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.commands.ArmCommands.*;
+import frc.robot.commands.ArmCommands.PresetPositions.AmpPosition;
+import frc.robot.commands.ArmCommands.PresetPositions.IntakePosition;
 import frc.robot.commands.ArmCommands.PresetPositions.SubwooferPosition;
 import frc.robot.commands.ArmCommands.TestingArm.*;
-import frc.robot.commands.ClimberCommands.ClimberDown;
-import frc.robot.commands.ClimberCommands.ClimberStop;
-import frc.robot.commands.ClimberCommands.ClimberUp;
-import frc.robot.commands.VisionCommands.VisionAlignCommand;
+import frc.robot.commands.BeakCommands.*;
+import frc.robot.commands.VisionCommands.VisionSwerveAlign;
 
 import java.io.File;
 
@@ -35,6 +36,7 @@ public class RobotContainer
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
   public VisionSubsystem visionSubsystem = new VisionSubsystem(drivebase);
   public ArmSubsystem armSubsystem = new ArmSubsystem();
+  public BeakSubsystem beakSubsystem = new BeakSubsystem();
   public ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
   CommandXboxController driverXbox = new CommandXboxController(0);
@@ -65,28 +67,33 @@ public class RobotContainer
   {
     // Driver Buttons
     driverXbox.back().onTrue((new InstantCommand(() -> drivebase.zeroGyro()))); // Reset field orientation
-    // driverXbox.start().whileTrue(new VisionAlignCommand(visionSubsystem)); // Align with AprilTag
+    driverXbox.start().whileTrue(new VisionSwerveAlign(visionSubsystem)); // Align with AprilTag
+    // driverXbox.b().whileTrue(new VisionArmAngle(armSubsystem));
 
     // Arm Rotation
-    driverXbox.y().whileTrue(new ArmUp(armSubsystem));
-    driverXbox.y().whileFalse(new ArmRotateStop(armSubsystem));
-    driverXbox.a().whileTrue(new ArmDown(armSubsystem));
+    driverXbox.a().whileTrue(new ArmUp(armSubsystem));
     driverXbox.a().whileFalse(new ArmRotateStop(armSubsystem));
 
-    driverXbox.b().whileTrue(new ClimberUp(climberSubsystem));
-    driverXbox.b().whileFalse(new ClimberStop(climberSubsystem));
-    driverXbox.start().whileTrue(new ClimberDown(climberSubsystem));
-    driverXbox.start().whileFalse(new ClimberStop(climberSubsystem));
+    driverXbox.y().whileTrue(new SubwooferPosition(armSubsystem));
+    driverXbox.y().whileFalse(new ArmRotateStop(armSubsystem));
+
+    driverXbox.b().whileTrue(new IntakePosition(armSubsystem));
+    driverXbox.b().whileFalse(new ArmRotateStop(armSubsystem));
+
+    // driverXbox.b().whileTrue(new ClimberUp(climberSubsystem));
+    // driverXbox.b().whileFalse(new ClimberStop(climberSubsystem));
+    // driverXbox.start().whileTrue(new ClimberDown(climberSubsystem));
+    // driverXbox.start().whileFalse(new ClimberStop(climberSubsystem));
 
     // Intake Commands
-    driverXbox.rightBumper().whileTrue(new ArmIntake(armSubsystem)); // Intake
-    driverXbox.rightBumper().whileFalse(new ArmIntakeStop(armSubsystem)); // Stop Intake
-    driverXbox.leftBumper().whileTrue(new ArmOuttake(armSubsystem)); // Outtake
-    driverXbox.leftBumper().whileFalse(new ArmIntakeStop(armSubsystem)); // Stop Outtake
+    driverXbox.rightBumper().whileTrue(new BeakIntake(beakSubsystem)); // Intake
+    driverXbox.rightBumper().whileFalse(new BeakIntakeStop(beakSubsystem)); // Stop Intake
+    driverXbox.leftBumper().whileTrue(new BeakOuttake(beakSubsystem)); // Outtake
+    driverXbox.leftBumper().whileFalse(new BeakIntakeStop(beakSubsystem)); // Stop Outtake
 
     // Shooter Commands
-    driverXbox.x().whileTrue(new ArmShooter(armSubsystem));
-    driverXbox.x().whileFalse(new ArmShooterStop(armSubsystem));
+    driverXbox.x().whileTrue(new BeakShooter(beakSubsystem));
+    driverXbox.x().whileFalse(new BeakShooterStop(beakSubsystem));
   }
 
   // Use this method to pass the autonomous command to the main class
