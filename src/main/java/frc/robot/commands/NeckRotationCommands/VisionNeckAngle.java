@@ -1,13 +1,13 @@
-package frc.robot.commands.NeckCommands;
+package frc.robot.commands.NeckRotationCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.NeckSubsystem;
+import frc.robot.subsystems.NeckRotationSubsystem;
 
 public class VisionNeckAngle extends Command {
     
-    private final NeckSubsystem neck;
+    private final NeckRotationSubsystem neck;
 
-    public VisionNeckAngle(NeckSubsystem neckPassedIn) {
+    public VisionNeckAngle(NeckRotationSubsystem neckPassedIn) {
         neck = neckPassedIn;
         addRequirements(neckPassedIn);
     }

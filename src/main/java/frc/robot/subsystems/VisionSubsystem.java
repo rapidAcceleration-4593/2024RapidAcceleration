@@ -14,6 +14,9 @@ public class VisionSubsystem extends SubsystemBase {
     private final PIDController translationControllerY;
     private final PIDController rotationController;
 
+    private static double translationDeadband;
+    private static double rotationDeadband;
+
     private static final int targetID = 4;
 
     public VisionSubsystem(SwerveSubsystem swerve) {
@@ -21,28 +24,19 @@ public class VisionSubsystem extends SubsystemBase {
         this.swerve = swerve;
 
         // Initalize TranslationX PID Controller
-        double kPTranslationX = 2.0;
-        double kITranslationX = 0.0; // Adjust accordingly
-        double KDTranslationX = 0.0;
-        translationControllerX = new PIDController(kPTranslationX, kITranslationX, KDTranslationX);
-        translationControllerX.setSetpoint(5); // 5 Meters
-        translationControllerX.setTolerance(0.0);
+        translationControllerX = new PIDController(2.0, 0.0, 0.0);
+        translationControllerX.setSetpoint(5);
 
         // Initalize TranslationY PID Controller
-        double kPTranslationY = 1.25;
-        double kITranslationY = 0.0; // Adjust accordingly
-        double KDTranslationY = 0.0;
-        translationControllerY = new PIDController(kPTranslationY, kITranslationY, KDTranslationY);
+        translationControllerY = new PIDController(1.25, 0.0, 0.0);
         translationControllerY.setSetpoint(0.0);
-        translationControllerY.setTolerance(0.1);
 
         // Initalize Rotation PID Controller
-        double kPRotation = 4.0;
-        double kIRotation = 0.0; // Adjust accordingly
-        double kDRotation = 0.001;
-        rotationController = new PIDController(kPRotation, kIRotation, kDRotation);
+        rotationController = new PIDController(4.0, 0.0, 0.0);
         rotationController.setSetpoint(0.0);
-        rotationController.setTolerance(0.002);
+
+        translationDeadband = 0.1;
+        rotationDeadband = 0.01;
     }
 
     public void VisionSwerveAlign() {
@@ -61,15 +55,20 @@ public class VisionSubsystem extends SubsystemBase {
             System.out.println("X Distance: " + target.getX());
             System.out.println("Y Rotation: " + target.getRotation().getY());
 
-            swerve.drive(new Translation2d(translationAdjustX, 0.0), 0.0, false);
+            // Apply deadband for each direction
+            if (Math.abs(translationAdjustX) < translationDeadband) {
+                translationAdjustX = 0.0;
+            }
 
-            // if (target.getX() > 0.1 && target.getX() < -0.1) {
-            //     swerve.drive(new Translation2d(0.0, translationAdjustY), 0.0, false);
-            // }
+            if (Math.abs(translationAdjustY) < translationDeadband) {
+                translationAdjustY = 0.0;
+            }
 
-            // if (target.getRotation().getY() > 0.01 && target.getRotation().getY() < -0.01) {
-            //     swerve.drive(new Translation2d(0.0, 0.0), -rotationAdjust, false);
-            // }
+            if (Math.abs(rotationAdjust) < rotationDeadband) {
+                rotationAdjust = 0.0;
+            }
+
+            swerve.drive(new Translation2d(translationAdjustX, translationAdjustY), -rotationAdjust, false);
         } else {
             // No AprilTag detected, stop
             swerve.drive(new Translation2d(0.0, 0.0), 0.0, false);

@@ -1,13 +1,13 @@
-package frc.robot.commands.NeckCommands.PresetPositions;
+package frc.robot.commands.NeckRotationCommands.PresetPositions;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.NeckSubsystem;
+import frc.robot.subsystems.NeckRotationSubsystem;
 
 public class SubwooferPosition extends Command {
     
-    private final NeckSubsystem neck;
+    private final NeckRotationSubsystem neck;
 
-    public SubwooferPosition(NeckSubsystem neckPassedIn) {
+    public SubwooferPosition(NeckRotationSubsystem neckPassedIn) {
         neck = neckPassedIn;
         addRequirements(neckPassedIn);
     }
