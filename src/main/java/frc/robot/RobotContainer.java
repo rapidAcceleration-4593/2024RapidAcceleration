@@ -10,17 +10,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.NeckSubsystem;
 import frc.robot.subsystems.BeakSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import frc.robot.commands.ArmCommands.*;
-import frc.robot.commands.ArmCommands.PresetPositions.AmpPosition;
-import frc.robot.commands.ArmCommands.PresetPositions.IntakePosition;
-import frc.robot.commands.ArmCommands.PresetPositions.SubwooferPosition;
-import frc.robot.commands.ArmCommands.TestingArm.*;
 import frc.robot.commands.BeakCommands.*;
+import frc.robot.commands.NeckCommands.*;
+import frc.robot.commands.NeckCommands.ManualControl.*;
+import frc.robot.commands.NeckCommands.PresetPositions.AmpPosition;
+import frc.robot.commands.NeckCommands.PresetPositions.IntakePosition;
+import frc.robot.commands.NeckCommands.PresetPositions.SubwooferPosition;
 import frc.robot.commands.VisionCommands.VisionSwerveAlign;
 
 import java.io.File;
@@ -35,7 +35,7 @@ public class RobotContainer
   // Define the robot's subsystems and commands
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
   public VisionSubsystem visionSubsystem = new VisionSubsystem(drivebase);
-  public ArmSubsystem armSubsystem = new ArmSubsystem();
+  public NeckSubsystem neckSubsystem = new NeckSubsystem();
   public BeakSubsystem beakSubsystem = new BeakSubsystem();
   public ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
@@ -68,17 +68,17 @@ public class RobotContainer
     // Driver Buttons
     driverXbox.back().onTrue((new InstantCommand(() -> drivebase.zeroGyro()))); // Reset field orientation
     driverXbox.start().whileTrue(new VisionSwerveAlign(visionSubsystem)); // Align with AprilTag
-    // driverXbox.b().whileTrue(new VisionArmAngle(armSubsystem));
+    // driverXbox.b().whileTrue(new VisionNeckAngle(neckSubsystem));
 
-    // Arm Rotation
-    driverXbox.a().whileTrue(new ArmUp(armSubsystem));
-    driverXbox.a().whileFalse(new ArmRotateStop(armSubsystem));
+    // Neck Rotation
+    driverXbox.a().whileTrue(new NeckUp(neckSubsystem));
+    driverXbox.a().whileFalse(new NeckHold(neckSubsystem));
 
-    driverXbox.y().whileTrue(new SubwooferPosition(armSubsystem));
-    driverXbox.y().whileFalse(new ArmRotateStop(armSubsystem));
+    driverXbox.y().whileTrue(new SubwooferPosition(neckSubsystem));
+    driverXbox.y().whileFalse(new NeckHold(neckSubsystem));
 
-    driverXbox.b().whileTrue(new IntakePosition(armSubsystem));
-    driverXbox.b().whileFalse(new ArmRotateStop(armSubsystem));
+    driverXbox.b().whileTrue(new IntakePosition(neckSubsystem));
+    driverXbox.b().whileFalse(new NeckHold(neckSubsystem));
 
     // driverXbox.b().whileTrue(new ClimberUp(climberSubsystem));
     // driverXbox.b().whileFalse(new ClimberStop(climberSubsystem));
