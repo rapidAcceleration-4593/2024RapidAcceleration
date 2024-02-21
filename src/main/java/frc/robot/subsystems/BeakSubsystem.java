@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,6 +18,8 @@ public class BeakSubsystem extends SubsystemBase {
     private Timer shooterTimer;
     private boolean shooterTimerStarted;
 
+    private final PIDController shooterSpeedController;
+
     public BeakSubsystem() {
         // Initialize Motor Objects to CAN SparkMAX ID
         intakeMotor = new CANSparkMax(14, MotorType.kBrushless);
@@ -27,6 +29,8 @@ public class BeakSubsystem extends SubsystemBase {
         intakeLimitSwitch = new DigitalInput(0);
         shooterTimer = new Timer();
         shooterTimerStarted = false;
+
+        shooterSpeedController = new PIDController(0.1, 0.0, 0.0);
     }
 
     // Intake, Outtake, and Shooter
@@ -47,6 +51,14 @@ public class BeakSubsystem extends SubsystemBase {
     }
 
     public void BeakShooter() {
+        double desiredVelocity = 3000;
+        double currentVelocity = shooterTopMotor.getEncoder().getVelocity();
+
+        double adjustedSpeed = shooterSpeedController.calculate(currentVelocity, desiredVelocity);
+
+        System.out.println("<-------------------->");
+        System.out.println("Shooter Velocity: " + currentVelocity);
+
         shooterTopMotor.set(0.7593);
         shooterBottomMotor.set(0.7593);
 
