@@ -94,21 +94,26 @@ public class NeckRotationSubsystem extends SubsystemBase {
         double p, i, d;
 
         // Calculate PID Constants based on the neck encoder value
-        if (neckEncoder.get() <= 20) {
+        if (neckEncoder.get() <= 30 && neckGoalAngle <= 30) {
             // Bottom Controller
             p = 0.0013;
-            i = 0.006;
-            d = 0.0;
-        } else if (neckEncoder.get() >= 160) {
-            // Top Controller
-            p = 0.00001;
             i = 0.0;
+            d = 0.0;
+        } else if (neckEncoder.get() >= 180 && neckGoalAngle >= 180) {
+            // Top Controller
+            p = 0.00005;
+            i = 0.00001;
+            d = 0.0;
+        } else if (neckEncoder.get() > neckGoalAngle - 2 && neckEncoder.get() < neckGoalAngle + 2) {
+            // Close Controller
+            p = 0.00005;
+            i = 0.001;
             d = 0.0;
         } else if (neckEncoder.get() < neckGoalAngle) {
             // Up Controller
-            p = 0.01;
-            i = 0.0025;
-            d = 0.0001;
+            p = 0.002;
+            i = 0.0075;
+            d = 0.0002;
         } else if (neckEncoder.get() > neckGoalAngle) {
             // Down Controller
             p = 0.00125;

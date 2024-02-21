@@ -105,6 +105,9 @@ public class RobotContainer
     auxXbox.x().whileTrue(new BeakShooter(beakSubsystem)); // Start Shooter
     auxXbox.x().whileFalse(new BeakShooterStop(beakSubsystem)); // Stop Shooter
 
+    auxXbox.y().whileTrue(new AmpPosition(neckRotationSubsystem)); // Start Shooter
+    auxXbox.y().whileFalse(new NeckFollower(neckRotationSubsystem)); // Stop Shooter
+
     // auxXbox.define().whileTrue(new ExtensionIn(neckExtensionSubsystem));
     // auxXbox.define().whileFalse(new ExtensionStop(neckExtensionSubsystem));
 
@@ -116,7 +119,7 @@ public class RobotContainer
   public Command getAutonomousCommand()
   {
     // An example command will be run in autonomous
-    return drivebase.getAutonomousCommand("New Path", true);
+    return drivebase.getAutonomousCommand("Forward", true);
   }
 
   public void setMotorBrake(boolean brake)
