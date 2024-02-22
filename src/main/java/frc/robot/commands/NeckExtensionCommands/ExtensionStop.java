@@ -5,14 +5,14 @@ import frc.robot.subsystems.NeckExtensionSubsystem;
 
 public class ExtensionStop extends Command {
     
-    private final NeckExtensionSubsystem neck;
+    private final NeckExtensionSubsystem neckSubsystem;
 
-    public ExtensionStop(NeckExtensionSubsystem neckPassedIn) {
-        neck = neckPassedIn;
-        addRequirements(neckPassedIn);
+    public ExtensionStop(NeckExtensionSubsystem neckSubsystem) {
+        this.neckSubsystem = neckSubsystem;
+        addRequirements(neckSubsystem);
     }
 
     public void execute() {
-        neck.ExtensionStop();
+        neckSubsystem.ExtensionStop();
     }
 }

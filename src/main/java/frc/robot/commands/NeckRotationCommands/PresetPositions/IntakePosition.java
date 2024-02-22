@@ -5,14 +5,14 @@ import frc.robot.subsystems.NeckRotationSubsystem;
 
 public class IntakePosition extends Command {
 
-    private final NeckRotationSubsystem neck;
+    private final NeckRotationSubsystem neckSubsystem;
 
-    public IntakePosition(NeckRotationSubsystem neckPassedIn) {
-        neck = neckPassedIn;
-        addRequirements(neckPassedIn);
+    public IntakePosition(NeckRotationSubsystem neckSubsystem) {
+        this.neckSubsystem = neckSubsystem;
+        addRequirements(neckSubsystem);
     }
     
     public void execute() {
-        neck.IntakePosition();
+        neckSubsystem.IntakePosition();
     }
 }

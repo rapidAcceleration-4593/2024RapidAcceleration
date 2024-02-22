@@ -5,14 +5,14 @@ import frc.robot.subsystems.BeakSubsystem;
 
 public class BeakShooter extends Command {
     
-    private final BeakSubsystem beak;
+    private final BeakSubsystem beakSubsystem;
 
-    public BeakShooter(BeakSubsystem beakPassedIn) {
-        beak = beakPassedIn;
-        addRequirements(beakPassedIn);
+    public BeakShooter(BeakSubsystem beakSubsystem) {
+        this.beakSubsystem = beakSubsystem;
+        addRequirements(beakSubsystem);
     }
 
     public void execute() {
-        beak.BeakShooter();
+        beakSubsystem.BeakShooter();
     }
 }

@@ -5,14 +5,14 @@ import frc.robot.subsystems.ClimberSubsystem;
 
 public class ClimberStop extends Command {
 
-    private final ClimberSubsystem climber;
+    private final ClimberSubsystem climberSubsystem;
 
-    public ClimberStop(ClimberSubsystem climberPassedIn) {
-        climber = climberPassedIn;
-        addRequirements(climberPassedIn);
+    public ClimberStop(ClimberSubsystem climberSubsystem) {
+        this.climberSubsystem = climberSubsystem;
+        addRequirements(climberSubsystem);
     }
 
     public void execute() {
-        climber.ClimberStop();
+        climberSubsystem.ClimberStop();
     }
 }

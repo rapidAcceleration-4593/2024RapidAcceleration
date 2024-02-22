@@ -5,15 +5,15 @@ import frc.robot.subsystems.VisionSubsystem;
 
 public class VisionSwerveAlign extends Command {
 
-    private final VisionSubsystem vision;
+    private final VisionSubsystem visionSubsystem;
 
-    public VisionSwerveAlign(VisionSubsystem visionPassedIn) {
-        vision = visionPassedIn;
-        addRequirements(visionPassedIn);
+    public VisionSwerveAlign(VisionSubsystem visionSubsystem) {
+        this.visionSubsystem = visionSubsystem;
+        addRequirements(visionSubsystem);
     }
 
     @Override
     public void execute() {
-        vision.VisionSwerveAlign();
+        visionSubsystem.VisionSwerveAlign();
     }
 }

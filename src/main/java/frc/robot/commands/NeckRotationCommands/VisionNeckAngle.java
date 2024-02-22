@@ -5,15 +5,15 @@ import frc.robot.subsystems.NeckRotationSubsystem;
 
 public class VisionNeckAngle extends Command {
     
-    private final NeckRotationSubsystem neck;
+    private final NeckRotationSubsystem neckSubsystem;
 
-    public VisionNeckAngle(NeckRotationSubsystem neckPassedIn) {
-        neck = neckPassedIn;
-        addRequirements(neckPassedIn);
+    public VisionNeckAngle(NeckRotationSubsystem neckSubsystem) {
+        this.neckSubsystem = neckSubsystem;
+        addRequirements(neckSubsystem);
     }
 
     @Override
     public void execute() {
-        neck.VisionNeckAngle();
+        neckSubsystem.VisionNeckAngle();
     }
 }
