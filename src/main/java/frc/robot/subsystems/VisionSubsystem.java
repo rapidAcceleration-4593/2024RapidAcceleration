@@ -28,7 +28,7 @@ public class VisionSubsystem extends SubsystemBase {
         translationControllerY = new PIDController(0.7, 0.0, 0.0);
         rotationController = new PIDController(0.4, 0.0, 0.01);
 
-        translationDeadband = 0.1;
+        translationDeadband = 0.01;
         rotationDeadband = 0.01;
     }
 
@@ -60,7 +60,7 @@ public class VisionSubsystem extends SubsystemBase {
                 rotationAdjust = 0.0;
             }
 
-            // swerve.drive(new Translation2d(translationAdjustX, translationAdjustY), -rotationAdjust, false);
+            swerve.drive(new Translation2d(translationAdjustX, -translationAdjustY), -rotationAdjust, false);
         } else {
             swerve.drive(new Translation2d(0.0, 0.0), 0.0, false);
         }

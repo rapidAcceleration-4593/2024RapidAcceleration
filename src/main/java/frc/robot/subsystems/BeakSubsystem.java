@@ -30,7 +30,7 @@ public class BeakSubsystem extends SubsystemBase {
         shooterTimer = new Timer();
         shooterTimerStarted = false;
 
-        shooterSpeedController = new PIDController(0.6, 0.59, 0.035);
+        shooterSpeedController = new PIDController(0.525, 0.7, 0.035);
     }
 
     // Intake, Outtake, and Shooter
@@ -59,8 +59,8 @@ public class BeakSubsystem extends SubsystemBase {
         System.out.println("<-------------------->");
         System.out.println("Shooter Velocity: " + currentVelocity);
 
-        shooterTopMotor.set(adjustedSpeed);
-        shooterBottomMotor.set(adjustedSpeed);
+        shooterTopMotor.set(0.75);
+        shooterBottomMotor.set(0.75);
 
         if (!shooterTimerStarted) {
             shooterTimer.start();

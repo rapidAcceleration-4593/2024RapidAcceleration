@@ -5,7 +5,9 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 
@@ -20,6 +22,8 @@ public class NeckRotationSubsystem extends SubsystemBase {
     private int neckGoalAngle;
     private int lastNeckGoalAngle;
 
+    private DigitalInput bottomLimitSwitch;
+
     private final PIDController neckRotateController;
 
     public NeckRotationSubsystem() {
@@ -31,6 +35,8 @@ public class NeckRotationSubsystem extends SubsystemBase {
 
         neckEncoder = new Encoder(8, 9);
         neckGoalAngle = 0;
+
+        bottomLimitSwitch = new DigitalInput(1);
 
         neckRotateController = new PIDController(0.0, 0.0, 0.0);
     }
@@ -55,7 +61,7 @@ public class NeckRotationSubsystem extends SubsystemBase {
     }
 
     public void SubwooferPosition() {
-        neckGoalAngle = 85;
+        neckGoalAngle = 80;
         lastNeckGoalAngle = neckGoalAngle;
     }
 
@@ -67,6 +73,10 @@ public class NeckRotationSubsystem extends SubsystemBase {
     public void NeckFollower() {
         updatePIDConstants();
         applyPIDController(lastNeckGoalAngle);
+
+        if (!bottomLimitSwitch.get()) {
+            neckEncoder.reset();
+        }
     }
 
     public void VisionNeckAngle() {
@@ -77,16 +87,16 @@ public class NeckRotationSubsystem extends SubsystemBase {
             
             System.out.println("Z Distance: " + target.getZ());
 
-            updatePIDConstants();
-            applyPIDController(visionSetAngle(target.getZ()));
+            neckGoalAngle = visionSetAngle(target.getZ());
+            lastNeckGoalAngle = neckGoalAngle;
         }
     }
 
     private int visionSetAngle(double distance) {
         int angle = 0;
-        // if (distance > 0 && distance < 5) {
-        //     angle = 0; // Enter Equation with variable distance as unknown variable x - cast as int
-        // }
+        if (distance > 3.5 && distance < 8) {
+            angle = (int) (0.666667*Math.pow(distance, 3) + -15.0303*Math.pow(distance, 2) + 109.106 * distance + -145.079);
+        }
         return angle;
     }
 
@@ -114,7 +124,7 @@ public class NeckRotationSubsystem extends SubsystemBase {
             p = 0.002;
             i = 0.0075;
             d = 0.0002;
-        } else if (neckEncoder.get() > neckGoalAngle) {
+        } else if (neckEncoder.get() > neckGoalAngle && neckEncoder.get() > 0) {
             // Down Controller
             p = 0.00125;
             i = 0.0;

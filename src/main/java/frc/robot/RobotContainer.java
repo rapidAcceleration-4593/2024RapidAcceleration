@@ -26,6 +26,8 @@ import frc.robot.commands.VisionCommands.VisionSwerveAlign;
 
 import java.io.File;
 
+import com.pathplanner.lib.auto.NamedCommands;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
  * little robot logic should actually be handled in the {@link Robot} periodic methods (other than the scheduler calls).
@@ -48,6 +50,8 @@ public class RobotContainer
   // The container for the robot. Contains subsystems, OI devices, and commands.
   public RobotContainer()
   {
+    NamedCommands.registerCommand("test", new InstantCommand(() -> drivebase.zeroGyro()));
+
     // Configure the trigger bindings
     configureBindings();
 
@@ -73,19 +77,17 @@ public class RobotContainer
     driverXbox.back().onTrue((new InstantCommand(() -> drivebase.zeroGyro()))); // Reset field orientation
     driverXbox.start().whileTrue(new VisionSwerveAlign(visionSubsystem)); // Align with AprilTag
 
-    driverXbox.y().whileTrue(new NeckUp(neckRotationSubsystem));
-    driverXbox.y().whileFalse(new NeckFollower(neckRotationSubsystem));
+    driverXbox.povUp().whileTrue(new NeckUp(neckRotationSubsystem));
+    driverXbox.povUp().whileFalse(new NeckFollower(neckRotationSubsystem));
 
-    driverXbox.a().whileTrue(new NeckDown(neckRotationSubsystem));
-    driverXbox.a().whileFalse(new NeckFollower(neckRotationSubsystem));
+    driverXbox.povDown().whileTrue(new NeckDown(neckRotationSubsystem));
+    driverXbox.povDown().whileFalse(new NeckFollower(neckRotationSubsystem));
 
-    driverXbox.b().whileTrue(new SubwooferPosition(neckRotationSubsystem));
-    driverXbox.b().whileFalse(new NeckFollower(neckRotationSubsystem));
+    driverXbox.povLeft().whileTrue(new SubwooferPosition(neckRotationSubsystem));
+    driverXbox.povLeft().whileFalse(new NeckFollower(neckRotationSubsystem));
 
-    driverXbox.x().whileTrue(new IntakePosition(neckRotationSubsystem));
-    driverXbox.x().whileFalse(new NeckFollower(neckRotationSubsystem));
-
-    // driverXbox.define().whileTrue(new VisionNeckAngle(neckRotationSubsystem));
+    driverXbox.povRight().whileTrue(new IntakePosition(neckRotationSubsystem));
+    driverXbox.povRight().whileFalse(new NeckFollower(neckRotationSubsystem));
 
     // driverXbox.define().whileTrue(new ClimberUp(climberSubsystem));
     // driverXbox.define().whileFalse(new ClimberStop(climberSubsystem));
@@ -96,17 +98,20 @@ public class RobotContainer
 
 
     // Auxiliary Controller
-    auxXbox.rightBumper().whileTrue(new BeakIntake(beakSubsystem)); // Start Intake
-    auxXbox.rightBumper().whileFalse(new BeakIntakeStop(beakSubsystem)); // Stop Intake
+    driverXbox.rightBumper().whileTrue(new BeakIntake(beakSubsystem)); // Start Intake
+    driverXbox.rightBumper().whileFalse(new BeakIntakeStop(beakSubsystem)); // Stop Intake
 
-    auxXbox.leftBumper().whileTrue(new BeakOuttake(beakSubsystem)); // Start Outtake
-    auxXbox.leftBumper().whileFalse(new BeakIntakeStop(beakSubsystem)); // Stop Outtake
+    driverXbox.leftBumper().whileTrue(new BeakOuttake(beakSubsystem)); // Start Outtake
+    driverXbox.leftBumper().whileFalse(new BeakIntakeStop(beakSubsystem)); // Stop Outtake
 
-    auxXbox.x().whileTrue(new BeakShooter(beakSubsystem)); // Start Shooter
-    auxXbox.x().whileFalse(new BeakShooterStop(beakSubsystem)); // Stop Shooter
+    driverXbox.x().whileTrue(new BeakShooter(beakSubsystem)); // Start Shooter
+    driverXbox.x().whileFalse(new BeakShooterStop(beakSubsystem)); // Stop Shooter
 
-    auxXbox.y().whileTrue(new AmpPosition(neckRotationSubsystem)); // Start Shooter
-    auxXbox.y().whileFalse(new NeckFollower(neckRotationSubsystem)); // Stop Shooter
+    driverXbox.y().whileTrue(new AmpPosition(neckRotationSubsystem)); // Start Shooter
+    driverXbox.y().whileFalse(new NeckFollower(neckRotationSubsystem)); // Stop Shooter
+
+    driverXbox.a().whileTrue(new VisionNeckAngle(neckRotationSubsystem));
+    driverXbox.a().whileFalse(new NeckFollower(neckRotationSubsystem));
 
     // auxXbox.define().whileTrue(new ExtensionIn(neckExtensionSubsystem));
     // auxXbox.define().whileFalse(new ExtensionStop(neckExtensionSubsystem));
