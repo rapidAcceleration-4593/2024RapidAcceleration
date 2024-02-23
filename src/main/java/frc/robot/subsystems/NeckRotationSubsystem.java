@@ -13,18 +13,18 @@ import frc.robot.LimelightHelpers;
 
 public class NeckRotationSubsystem extends SubsystemBase {
 
-    private final CANSparkMax leftGearbox1;
-    private final CANSparkMax leftGearbox2;
-    private final CANSparkMax rightGearbox1;
-    private final CANSparkMax rightGearbox2;
+    public final CANSparkMax leftGearbox1;
+    public final CANSparkMax leftGearbox2;
+    public final CANSparkMax rightGearbox1;
+    public final CANSparkMax rightGearbox2;
 
     private final Encoder neckEncoder;
     private final DigitalInput bottomLimitSwitch;
 
-    private int neckGoalAngle;
-    private int lastNeckGoalAngle;
+    public int neckGoalAngle = 0;
+    public int lastNeckGoalAngle = neckGoalAngle;
 
-    private final PIDController neckRotateController;
+    public static final PIDController neckRotateController = new PIDController(0.0, 0.0, 0.0);;
 
     public NeckRotationSubsystem() {
         // Initialize Motor Objects to CAN SparkMAX ID
@@ -35,11 +35,6 @@ public class NeckRotationSubsystem extends SubsystemBase {
 
         neckEncoder = Constants.neckEncoder;
         bottomLimitSwitch = new DigitalInput(1);
-
-        neckGoalAngle = 0;
-        lastNeckGoalAngle = neckGoalAngle;
-
-        neckRotateController = new PIDController(0.0, 0.0, 0.0);
     }
 
     public void NeckUp() {
@@ -117,10 +112,10 @@ public class NeckRotationSubsystem extends SubsystemBase {
             p = 0.00005;
             i = 0.00001;
             d = 0.0;
-        } else if (neckEncoder.get() > neckGoalAngle - 2 && neckEncoder.get() < neckGoalAngle + 2) {
+        } else if (neckEncoder.get() > neckGoalAngle - 3 && neckEncoder.get() < neckGoalAngle + 2) {
             // Close Controller
             p = 0.00005;
-            i = 0.001;
+            i = 0.00075;
             d = 0.0;
         } else if (neckEncoder.get() < neckGoalAngle) {
             // Up Controller

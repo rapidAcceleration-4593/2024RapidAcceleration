@@ -16,13 +16,13 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.NeckExtensionSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.commands.AutoCommands.ShooterAuto;
 import frc.robot.commands.BeakCommands.*;
 // import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.NeckRotationCommands.*;
 // import frc.robot.commands.NeckExtensionCommands.*;
 import frc.robot.commands.NeckRotationCommands.ManualControl.*;
 import frc.robot.commands.NeckRotationCommands.PresetPositions.*;
-import frc.robot.commands.swervedrive.auto.AutoBalanceCommand;
 
 import java.io.File;
 
@@ -42,7 +42,7 @@ public class RobotContainer
   public BeakSubsystem beakSubsystem;
   public ClimberSubsystem climberSubsystem;
   public VisionSubsystem visionSubsystem;
-  public NeckRotationSubsystem neckRotationSubsystem;
+  public static NeckRotationSubsystem neckRotationSubsystem;
   public NeckExtensionSubsystem neckExtensionSubsystem;
 
   CommandXboxController driverXbox = new CommandXboxController(0);
@@ -57,7 +57,13 @@ public class RobotContainer
     neckRotationSubsystem = new NeckRotationSubsystem();
     neckExtensionSubsystem = new NeckExtensionSubsystem();
 
-    NamedCommands.registerCommand("testing", new SubwooferPosition(neckRotationSubsystem));
+    NamedCommands.registerCommand("SubwooferPosition", new SubwooferPosition(neckRotationSubsystem));
+    NamedCommands.registerCommand("Follower", new NeckFollower(neckRotationSubsystem));
+    NamedCommands.registerCommand("IntakePosition", new IntakePosition(neckRotationSubsystem));
+    NamedCommands.registerCommand("Shooter", new ShooterAuto(beakSubsystem));
+    NamedCommands.registerCommand("ShooterStop", new BeakShooterStop(beakSubsystem));
+    NamedCommands.registerCommand("Intake", new BeakIntake(beakSubsystem));
+    NamedCommands.registerCommand("IntakeStop", new BeakIntakeStop(beakSubsystem));
 
     // Configure the trigger bindings
     configureBindings();
@@ -130,7 +136,7 @@ public class RobotContainer
   {
     // An example command will be run in autonomous
     // return drivebase.getAutonomousCommand("Forward", true);
-    return new PathPlannerAuto("First Auto");
+    return new PathPlannerAuto("FirstAuto");
   }
 
   public void setMotorBrake(boolean brake)

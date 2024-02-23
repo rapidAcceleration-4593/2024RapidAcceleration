@@ -44,7 +44,8 @@ public class BeakSubsystem extends SubsystemBase {
         if (intakeLimitSwitch.get()) {
             intakeMotor.set(-1.0);
         } else {
-            intakeMotor.set(0.0);
+            // intakeMotor.set(0.0);
+            BeakIntakeStop();
         }
     }
     
@@ -90,5 +91,10 @@ public class BeakSubsystem extends SubsystemBase {
         shooterTimer.stop();
         shooterTimer.reset();
         shooterTimerStarted = false;
+    }
+
+    public void ShooterAuto() {
+        shooterTopMotor.set(0.75);
+        shooterBottomMotor.set(0.75);
     }
 }

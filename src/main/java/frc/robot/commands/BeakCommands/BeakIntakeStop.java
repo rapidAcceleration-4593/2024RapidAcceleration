@@ -12,7 +12,13 @@ public class BeakIntakeStop extends Command {
         addRequirements(beakSubsystem);
     }
 
-    public void execute() {
+    @Override
+    public void initialize() {
         beakSubsystem.BeakIntakeStop();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return true;
     }
 }

@@ -12,7 +12,13 @@ public class BeakShooterStop extends Command {
         addRequirements(beakSubsystem);
     }
     
-    public void execute() {
+    @Override
+    public void initialize() {
         beakSubsystem.BeakShooterStop();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return true;
     }
 }
