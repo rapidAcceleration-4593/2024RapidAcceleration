@@ -7,8 +7,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 
 public class NeckRotationSubsystem extends SubsystemBase {
@@ -19,10 +19,10 @@ public class NeckRotationSubsystem extends SubsystemBase {
     private final CANSparkMax rightGearbox2;
 
     private final Encoder neckEncoder;
+    private final DigitalInput bottomLimitSwitch;
+
     private int neckGoalAngle;
     private int lastNeckGoalAngle;
-
-    private DigitalInput bottomLimitSwitch;
 
     private final PIDController neckRotateController;
 
@@ -33,26 +33,27 @@ public class NeckRotationSubsystem extends SubsystemBase {
         rightGearbox1 = new CANSparkMax(8, MotorType.kBrushless);
         rightGearbox2 = new CANSparkMax(9, MotorType.kBrushless);
 
-        neckEncoder = new Encoder(8, 9);
-        neckGoalAngle = 0;
-
+        neckEncoder = Constants.neckEncoder;
         bottomLimitSwitch = new DigitalInput(1);
+
+        neckGoalAngle = 0;
+        lastNeckGoalAngle = neckGoalAngle;
 
         neckRotateController = new PIDController(0.0, 0.0, 0.0);
     }
 
     public void NeckUp() {
+        NeckSetRotateSpeed(0.16);
+        
         neckGoalAngle = neckEncoder.get();
         lastNeckGoalAngle = neckGoalAngle;
-
-        NeckSetRotateSpeed(0.16);
     }
 
     public void NeckDown() {
+        NeckSetRotateSpeed(-0.06);
+
         neckGoalAngle = neckEncoder.get();
         lastNeckGoalAngle = neckGoalAngle;
-        
-        NeckSetRotateSpeed(-0.06);
     }
 
     public void IntakePosition() {
@@ -66,17 +67,19 @@ public class NeckRotationSubsystem extends SubsystemBase {
     }
 
     public void AmpPosition() {
-        neckGoalAngle = 200;
+        neckGoalAngle = 210;
         lastNeckGoalAngle = neckGoalAngle;
     }
 
     public void NeckFollower() {
-        updatePIDConstants();
-        applyPIDController(lastNeckGoalAngle);
-
         if (!bottomLimitSwitch.get()) {
             neckEncoder.reset();
         }
+
+        updatePIDConstants();
+        
+        double neckRotationSpeed = neckRotateController.calculate(neckEncoder.get(), lastNeckGoalAngle);
+        NeckSetRotateSpeed(neckRotationSpeed);
     }
 
     public void VisionNeckAngle() {
@@ -137,11 +140,6 @@ public class NeckRotationSubsystem extends SubsystemBase {
         }
 
         neckRotateController.setPID(p, i, d);
-    }
-
-    private void applyPIDController(double goal) {
-        double neckRotationSpeed = neckRotateController.calculate(neckEncoder.get(), goal);
-        NeckSetRotateSpeed(neckRotationSpeed);
     }
 
     private void NeckSetRotateSpeed(double speed) {

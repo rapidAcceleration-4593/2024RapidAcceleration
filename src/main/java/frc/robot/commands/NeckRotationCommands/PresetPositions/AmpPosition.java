@@ -12,7 +12,13 @@ public class AmpPosition extends Command {
         addRequirements(neckSubsystem);
     }
 
-    public void execute() {
+    @Override
+    public void initialize() {
         neckSubsystem.AmpPosition();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return true;
     }
 }

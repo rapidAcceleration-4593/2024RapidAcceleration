@@ -12,7 +12,13 @@ public class SubwooferPosition extends Command {
         addRequirements(neckSubsystem);
     }
 
-    public void execute() {
+    @Override
+    public void initialize() {
         neckSubsystem.SubwooferPosition();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return true;
     }
 }

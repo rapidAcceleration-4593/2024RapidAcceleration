@@ -13,7 +13,12 @@ public class VisionNeckAngle extends Command {
     }
 
     @Override
-    public void execute() {
+    public void initialize() {
         neckSubsystem.VisionNeckAngle();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return true;
     }
 }

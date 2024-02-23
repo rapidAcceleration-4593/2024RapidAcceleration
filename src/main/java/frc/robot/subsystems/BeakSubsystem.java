@@ -2,10 +2,12 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-import edu.wpi.first.math.controller.PIDController;
+// import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class BeakSubsystem extends SubsystemBase {
     
@@ -18,7 +20,9 @@ public class BeakSubsystem extends SubsystemBase {
     private Timer shooterTimer;
     private boolean shooterTimerStarted;
 
-    private final PIDController shooterSpeedController;
+    private final Encoder neckEncoder;
+
+    // private final PIDController shooterSpeedController;
 
     public BeakSubsystem() {
         // Initialize Motor Objects to CAN SparkMAX ID
@@ -30,7 +34,9 @@ public class BeakSubsystem extends SubsystemBase {
         shooterTimer = new Timer();
         shooterTimerStarted = false;
 
-        shooterSpeedController = new PIDController(0.525, 0.7, 0.035);
+        neckEncoder = Constants.neckEncoder;
+
+        // shooterSpeedController = new PIDController(0.525, 0.7, 0.035);
     }
 
     // Intake, Outtake, and Shooter
@@ -51,16 +57,21 @@ public class BeakSubsystem extends SubsystemBase {
     }
 
     public void BeakShooter() {
-        double desiredVelocity = 3.25;
+        // double desiredVelocity = 3.25;
         double currentVelocity = shooterTopMotor.getEncoder().getVelocity();
 
-        double adjustedSpeed = shooterSpeedController.calculate(currentVelocity, desiredVelocity);
+        // double adjustedSpeed = shooterSpeedController.calculate(currentVelocity, desiredVelocity);
 
         System.out.println("<-------------------->");
         System.out.println("Shooter Velocity: " + currentVelocity);
 
-        shooterTopMotor.set(0.75);
-        shooterBottomMotor.set(0.75);
+        if (neckEncoder.get() >= 200) {
+            shooterTopMotor.set(0.25);
+            shooterBottomMotor.set(0.25);
+        } else {
+            shooterTopMotor.set(0.75);
+            shooterBottomMotor.set(0.75);
+        }
 
         if (!shooterTimerStarted) {
             shooterTimer.start();

@@ -12,7 +12,13 @@ public class IntakePosition extends Command {
         addRequirements(neckSubsystem);
     }
     
-    public void execute() {
+    @Override
+    public void initialize() {
         neckSubsystem.IntakePosition();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return true;
     }
 }

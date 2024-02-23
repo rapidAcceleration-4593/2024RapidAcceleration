@@ -22,11 +22,12 @@ import frc.robot.commands.NeckRotationCommands.*;
 // import frc.robot.commands.NeckExtensionCommands.*;
 import frc.robot.commands.NeckRotationCommands.ManualControl.*;
 import frc.robot.commands.NeckRotationCommands.PresetPositions.*;
-import frc.robot.commands.VisionCommands.VisionSwerveAlign;
+import frc.robot.commands.swervedrive.auto.AutoBalanceCommand;
 
 import java.io.File;
 
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -38,11 +39,11 @@ public class RobotContainer
   // Define the robot's subsystems and commands
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
 
-  public BeakSubsystem beakSubsystem = new BeakSubsystem();
-  public ClimberSubsystem climberSubsystem = new ClimberSubsystem();
-  public VisionSubsystem visionSubsystem = new VisionSubsystem(drivebase);
-  public NeckRotationSubsystem neckRotationSubsystem = new NeckRotationSubsystem();
-  public NeckExtensionSubsystem neckExtensionSubsystem = new NeckExtensionSubsystem();
+  public BeakSubsystem beakSubsystem;
+  public ClimberSubsystem climberSubsystem;
+  public VisionSubsystem visionSubsystem;
+  public NeckRotationSubsystem neckRotationSubsystem;
+  public NeckExtensionSubsystem neckExtensionSubsystem;
 
   CommandXboxController driverXbox = new CommandXboxController(0);
   CommandXboxController auxXbox = new CommandXboxController(1);
@@ -50,7 +51,13 @@ public class RobotContainer
   // The container for the robot. Contains subsystems, OI devices, and commands.
   public RobotContainer()
   {
-    NamedCommands.registerCommand("test", new InstantCommand(() -> drivebase.zeroGyro()));
+    beakSubsystem = new BeakSubsystem();
+    climberSubsystem = new ClimberSubsystem();
+    visionSubsystem = new VisionSubsystem(drivebase);
+    neckRotationSubsystem = new NeckRotationSubsystem();
+    neckExtensionSubsystem = new NeckExtensionSubsystem();
+
+    NamedCommands.registerCommand("testing", new SubwooferPosition(neckRotationSubsystem));
 
     // Configure the trigger bindings
     configureBindings();
@@ -74,8 +81,8 @@ public class RobotContainer
   private void configureBindings()
   {
     // Driver Controller
-    driverXbox.back().onTrue((new InstantCommand(() -> drivebase.zeroGyro()))); // Reset field orientation
-    driverXbox.start().whileTrue(new VisionSwerveAlign(visionSubsystem)); // Align with AprilTag
+    driverXbox.back().onTrue((new InstantCommand(() -> drivebase.zeroGyro())));
+    driverXbox.start().whileTrue(new VisionSwerveAlign(visionSubsystem));
 
     driverXbox.povUp().whileTrue(new NeckUp(neckRotationSubsystem));
     driverXbox.povUp().whileFalse(new NeckFollower(neckRotationSubsystem));
@@ -83,48 +90,47 @@ public class RobotContainer
     driverXbox.povDown().whileTrue(new NeckDown(neckRotationSubsystem));
     driverXbox.povDown().whileFalse(new NeckFollower(neckRotationSubsystem));
 
-    driverXbox.povLeft().whileTrue(new SubwooferPosition(neckRotationSubsystem));
+    driverXbox.povLeft().onTrue(new SubwooferPosition(neckRotationSubsystem));
     driverXbox.povLeft().whileFalse(new NeckFollower(neckRotationSubsystem));
 
-    driverXbox.povRight().whileTrue(new IntakePosition(neckRotationSubsystem));
+    driverXbox.povRight().onTrue(new IntakePosition(neckRotationSubsystem));
     driverXbox.povRight().whileFalse(new NeckFollower(neckRotationSubsystem));
 
-    // driverXbox.define().whileTrue(new ClimberUp(climberSubsystem));
-    // driverXbox.define().whileFalse(new ClimberStop(climberSubsystem));
-    
-    // driverXbox.define().whileTrue(new ClimberDown(climberSubsystem));
-    // driverXbox.define().whileFalse(new ClimberStop(climberSubsystem));
+    driverXbox.y().onTrue(new AmpPosition(neckRotationSubsystem));
+    driverXbox.y().whileFalse(new NeckFollower(neckRotationSubsystem));
 
+    driverXbox.b().onTrue(new VisionNeckAngle(neckRotationSubsystem));
+    driverXbox.b().whileFalse(new NeckFollower(neckRotationSubsystem));
 
+    driverXbox.rightBumper().whileTrue(new BeakIntake(beakSubsystem));
+    driverXbox.rightBumper().whileFalse(new BeakIntakeStop(beakSubsystem));
 
-    // Auxiliary Controller
-    driverXbox.rightBumper().whileTrue(new BeakIntake(beakSubsystem)); // Start Intake
-    driverXbox.rightBumper().whileFalse(new BeakIntakeStop(beakSubsystem)); // Stop Intake
+    driverXbox.leftBumper().whileTrue(new BeakOuttake(beakSubsystem));
+    driverXbox.leftBumper().whileFalse(new BeakIntakeStop(beakSubsystem));
 
-    driverXbox.leftBumper().whileTrue(new BeakOuttake(beakSubsystem)); // Start Outtake
-    driverXbox.leftBumper().whileFalse(new BeakIntakeStop(beakSubsystem)); // Stop Outtake
+    driverXbox.x().whileTrue(new BeakShooter(beakSubsystem));
+    driverXbox.x().whileFalse(new BeakShooterStop(beakSubsystem));
 
-    driverXbox.x().whileTrue(new BeakShooter(beakSubsystem)); // Start Shooter
-    driverXbox.x().whileFalse(new BeakShooterStop(beakSubsystem)); // Stop Shooter
-
-    driverXbox.y().whileTrue(new AmpPosition(neckRotationSubsystem)); // Start Shooter
-    driverXbox.y().whileFalse(new NeckFollower(neckRotationSubsystem)); // Stop Shooter
-
-    driverXbox.a().whileTrue(new VisionNeckAngle(neckRotationSubsystem));
-    driverXbox.a().whileFalse(new NeckFollower(neckRotationSubsystem));
 
     // auxXbox.define().whileTrue(new ExtensionIn(neckExtensionSubsystem));
     // auxXbox.define().whileFalse(new ExtensionStop(neckExtensionSubsystem));
 
     // auxXbox.define().whileTrue(new ExtensionOut(neckExtensionSubsystem));
     // auxXbox.define().whileFalse(new ExtensionStop(neckExtensionSubsystem));
+
+    // driverXbox.define().whileTrue(new ClimberUp(climberSubsystem));
+    // driverXbox.define().whileFalse(new ClimberStop(climberSubsystem));
+    
+    // driverXbox.define().whileTrue(new ClimberDown(climberSubsystem));
+    // driverXbox.define().whileFalse(new ClimberStop(climberSubsystem));
   }
 
   // Use this method to pass the autonomous command to the main class
   public Command getAutonomousCommand()
   {
     // An example command will be run in autonomous
-    return drivebase.getAutonomousCommand("Forward", true);
+    // return drivebase.getAutonomousCommand("Forward", true);
+    return new PathPlannerAuto("First Auto");
   }
 
   public void setMotorBrake(boolean brake)
