@@ -39,14 +39,14 @@ public class RobotContainer
   // Define the robot's subsystems and commands
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
 
-  public BeakSubsystem beakSubsystem;
-  public ClimberSubsystem climberSubsystem;
-  public VisionSubsystem visionSubsystem;
-  public static NeckRotationSubsystem neckRotationSubsystem;
-  public NeckExtensionSubsystem neckExtensionSubsystem;
+  private final BeakSubsystem beakSubsystem;
+  private final ClimberSubsystem climberSubsystem;
+  private final VisionSubsystem visionSubsystem;
+  private final NeckRotationSubsystem neckRotationSubsystem;
+  private final NeckExtensionSubsystem neckExtensionSubsystem;
 
-  CommandXboxController driverXbox = new CommandXboxController(0);
-  CommandXboxController auxXbox = new CommandXboxController(1);
+  private final CommandXboxController driverXbox;
+  private final CommandXboxController auxXbox;
 
   // The container for the robot. Contains subsystems, OI devices, and commands.
   public RobotContainer()
@@ -56,6 +56,9 @@ public class RobotContainer
     visionSubsystem = new VisionSubsystem(drivebase);
     neckRotationSubsystem = new NeckRotationSubsystem();
     neckExtensionSubsystem = new NeckExtensionSubsystem();
+
+    driverXbox = new CommandXboxController(0);
+    auxXbox = new CommandXboxController(1);
 
     NamedCommands.registerCommand("SubwooferPosition", new SubwooferPosition(neckRotationSubsystem));
     NamedCommands.registerCommand("Follower", new NeckFollower(neckRotationSubsystem));

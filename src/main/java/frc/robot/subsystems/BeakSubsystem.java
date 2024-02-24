@@ -1,13 +1,13 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 // import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.BeakConstants;
+import frc.robot.Constants.NeckRotationConstants;
 
 public class BeakSubsystem extends SubsystemBase {
     
@@ -16,7 +16,7 @@ public class BeakSubsystem extends SubsystemBase {
     private final CANSparkMax shooterTopMotor;
     private final CANSparkMax shooterBottomMotor;
 
-    private DigitalInput intakeLimitSwitch;
+    private final DigitalInput intakeLimitSwitch;
     private Timer shooterTimer;
     private boolean shooterTimerStarted;
 
@@ -26,15 +26,15 @@ public class BeakSubsystem extends SubsystemBase {
 
     public BeakSubsystem() {
         // Initialize Motor Objects to CAN SparkMAX ID
-        intakeMotor = new CANSparkMax(14, MotorType.kBrushless);
-        shooterTopMotor = new CANSparkMax(13, MotorType.kBrushless);
-        shooterBottomMotor = new CANSparkMax(15, MotorType.kBrushless);
+        intakeMotor = BeakConstants.intakeMotor;
+        shooterTopMotor = BeakConstants.shooterTopMotor;
+        shooterBottomMotor = BeakConstants.shooterBottomMotor;
 
-        intakeLimitSwitch = new DigitalInput(0);
+        intakeLimitSwitch = BeakConstants.intakeLimitSwitch;
         shooterTimer = new Timer();
         shooterTimerStarted = false;
 
-        neckEncoder = Constants.neckEncoder;
+        neckEncoder = NeckRotationConstants.neckEncoder;
 
         // shooterSpeedController = new PIDController(0.525, 0.7, 0.035);
     }

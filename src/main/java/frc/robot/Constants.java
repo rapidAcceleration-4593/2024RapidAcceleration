@@ -4,8 +4,12 @@
 
 package frc.robot;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import swervelib.math.Matter;
 import swervelib.parser.PIDFConfig;
@@ -21,7 +25,25 @@ public final class Constants
   public static final Matter CHASSIS    = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
 
-  public final static Encoder neckEncoder = new Encoder(8, 9);
+  public static final class NeckRotationConstants {
+    public final static CANSparkMax leftGearbox1 = new CANSparkMax(19, MotorType.kBrushless);
+    public final static CANSparkMax leftGearbox2 = new CANSparkMax(20, MotorType.kBrushless);
+    public final static CANSparkMax rightGearbox1 = new CANSparkMax(8, MotorType.kBrushless);
+    public final static CANSparkMax rightGearbox2 = new CANSparkMax(9, MotorType.kBrushless);
+    public final static DigitalInput bottomLimitSwitch = new DigitalInput(1);
+    public final static Encoder neckEncoder = new Encoder(8, 9);
+  }
+
+  public static final class BeakConstants {
+    public final static CANSparkMax intakeMotor = new CANSparkMax(14, MotorType.kBrushless);
+    public final static CANSparkMax shooterTopMotor = new CANSparkMax(13, MotorType.kBrushless);
+    public final static CANSparkMax shooterBottomMotor = new CANSparkMax(15, MotorType.kBrushless);
+    public final static DigitalInput intakeLimitSwitch = new DigitalInput(0);
+  }
+
+  public static final class ClimberConstants {
+    public final static CANSparkMax climberMotor = new CANSparkMax(10, MotorType.kBrushless);
+  }
 
   public static final class Auton
   {

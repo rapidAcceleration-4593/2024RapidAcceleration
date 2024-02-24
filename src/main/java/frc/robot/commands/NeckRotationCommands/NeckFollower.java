@@ -16,4 +16,9 @@ public class NeckFollower extends Command {
     public void execute() {
         neckSubsystem.NeckFollower();
     }
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 }

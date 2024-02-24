@@ -1,22 +1,20 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
+import frc.robot.Constants.NeckRotationConstants;
 
 public class NeckRotationSubsystem extends SubsystemBase {
 
-    public final CANSparkMax leftGearbox1;
-    public final CANSparkMax leftGearbox2;
-    public final CANSparkMax rightGearbox1;
-    public final CANSparkMax rightGearbox2;
+    private final CANSparkMax leftGearbox1;
+    private final CANSparkMax leftGearbox2;
+    private final CANSparkMax rightGearbox1;
+    private final CANSparkMax rightGearbox2;
 
     private final Encoder neckEncoder;
     private final DigitalInput bottomLimitSwitch;
@@ -24,17 +22,17 @@ public class NeckRotationSubsystem extends SubsystemBase {
     public int neckGoalAngle = 0;
     public int lastNeckGoalAngle = neckGoalAngle;
 
-    public static final PIDController neckRotateController = new PIDController(0.0, 0.0, 0.0);;
+    public final PIDController neckRotateController = new PIDController(0.0, 0.0, 0.0);;
 
     public NeckRotationSubsystem() {
         // Initialize Motor Objects to CAN SparkMAX ID
-        leftGearbox1 = new CANSparkMax(19, MotorType.kBrushless);
-        leftGearbox2 = new CANSparkMax(20, MotorType.kBrushless);
-        rightGearbox1 = new CANSparkMax(8, MotorType.kBrushless);
-        rightGearbox2 = new CANSparkMax(9, MotorType.kBrushless);
+        leftGearbox1 = NeckRotationConstants.leftGearbox1;
+        leftGearbox2 = NeckRotationConstants.leftGearbox2;
+        rightGearbox1 = NeckRotationConstants.rightGearbox1;
+        rightGearbox2 = NeckRotationConstants.rightGearbox2;
 
-        neckEncoder = Constants.neckEncoder;
-        bottomLimitSwitch = new DigitalInput(1);
+        neckEncoder = NeckRotationConstants.neckEncoder;
+        bottomLimitSwitch = NeckRotationConstants.bottomLimitSwitch;
     }
 
     public void NeckUp() {
