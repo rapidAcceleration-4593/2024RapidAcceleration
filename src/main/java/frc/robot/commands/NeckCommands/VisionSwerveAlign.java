@@ -1,4 +1,4 @@
-package frc.robot.commands.NeckRotationCommands;
+package frc.robot.commands.NeckCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.VisionSubsystem;

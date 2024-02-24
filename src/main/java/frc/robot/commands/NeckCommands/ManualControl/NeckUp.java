@@ -1,13 +1,13 @@
-package frc.robot.commands.NeckRotationCommands.ManualControl;
+package frc.robot.commands.NeckCommands.ManualControl;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.NeckRotationSubsystem;
+import frc.robot.subsystems.NeckSubsystem;
 
 public class NeckUp extends Command {
     
-    private final NeckRotationSubsystem neckSubsystem;
+    private final NeckSubsystem neckSubsystem;
 
-    public NeckUp(NeckRotationSubsystem neckSubsystem) {
+    public NeckUp(NeckSubsystem neckSubsystem) {
         this.neckSubsystem = neckSubsystem;
         addRequirements(neckSubsystem);
     }

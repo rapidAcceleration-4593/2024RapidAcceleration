@@ -10,19 +10,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.subsystems.NeckRotationSubsystem;
+import frc.robot.subsystems.NeckSubsystem;
 import frc.robot.subsystems.BeakSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.NeckExtensionSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.commands.AutoCommands.ShooterAuto;
 import frc.robot.commands.BeakCommands.*;
-// import frc.robot.commands.ClimberCommands.*;
-import frc.robot.commands.NeckRotationCommands.*;
-// import frc.robot.commands.NeckExtensionCommands.*;
-import frc.robot.commands.NeckRotationCommands.ManualControl.*;
-import frc.robot.commands.NeckRotationCommands.PresetPositions.*;
+import frc.robot.commands.ClimberCommands.*;
+import frc.robot.commands.NeckCommands.*;
+import frc.robot.commands.NeckCommands.PresetPositions.*;
 
 import java.io.File;
 
@@ -42,8 +39,7 @@ public class RobotContainer
   private final BeakSubsystem beakSubsystem;
   private final ClimberSubsystem climberSubsystem;
   private final VisionSubsystem visionSubsystem;
-  private final NeckRotationSubsystem neckRotationSubsystem;
-  private final NeckExtensionSubsystem neckExtensionSubsystem;
+  private final NeckSubsystem neckSubsystem;
 
   private final CommandXboxController driverXbox;
   private final CommandXboxController auxXbox;
@@ -54,15 +50,14 @@ public class RobotContainer
     beakSubsystem = new BeakSubsystem();
     climberSubsystem = new ClimberSubsystem();
     visionSubsystem = new VisionSubsystem(drivebase);
-    neckRotationSubsystem = new NeckRotationSubsystem();
-    neckExtensionSubsystem = new NeckExtensionSubsystem();
+    neckSubsystem = new NeckSubsystem();
 
     driverXbox = new CommandXboxController(0);
     auxXbox = new CommandXboxController(1);
 
-    NamedCommands.registerCommand("SubwooferPosition", new SubwooferPosition(neckRotationSubsystem));
-    NamedCommands.registerCommand("Follower", new NeckFollower(neckRotationSubsystem));
-    NamedCommands.registerCommand("IntakePosition", new IntakePosition(neckRotationSubsystem));
+    NamedCommands.registerCommand("SubwooferPosition", new SubwooferPosition(neckSubsystem));
+    NamedCommands.registerCommand("Follower", new NeckFollower(neckSubsystem));
+    NamedCommands.registerCommand("IntakePosition", new IntakePosition(neckSubsystem));
     NamedCommands.registerCommand("Shooter", new ShooterAuto(beakSubsystem));
     NamedCommands.registerCommand("ShooterStop", new BeakShooterStop(beakSubsystem));
     NamedCommands.registerCommand("Intake", new BeakIntake(beakSubsystem));
@@ -93,45 +88,34 @@ public class RobotContainer
     driverXbox.back().onTrue((new InstantCommand(() -> drivebase.zeroGyro())));
     driverXbox.start().whileTrue(new VisionSwerveAlign(visionSubsystem));
 
-    driverXbox.povUp().whileTrue(new NeckUp(neckRotationSubsystem));
-    driverXbox.povUp().whileFalse(new NeckFollower(neckRotationSubsystem));
+    driverXbox.povUp().onTrue(new AmpPosition(neckSubsystem));
+    driverXbox.povUp().whileFalse(new NeckFollower(neckSubsystem));
 
-    driverXbox.povDown().whileTrue(new NeckDown(neckRotationSubsystem));
-    driverXbox.povDown().whileFalse(new NeckFollower(neckRotationSubsystem));
+    driverXbox.povDown().onTrue(new IntakePosition(neckSubsystem));
+    driverXbox.povDown().whileFalse(new NeckFollower(neckSubsystem));
 
-    driverXbox.povLeft().onTrue(new SubwooferPosition(neckRotationSubsystem));
-    driverXbox.povLeft().whileFalse(new NeckFollower(neckRotationSubsystem));
+    driverXbox.povLeft().onTrue(new SubwooferPosition(neckSubsystem));
+    driverXbox.povLeft().whileFalse(new NeckFollower(neckSubsystem));
 
-    driverXbox.povRight().onTrue(new IntakePosition(neckRotationSubsystem));
-    driverXbox.povRight().whileFalse(new NeckFollower(neckRotationSubsystem));
-
-    driverXbox.y().onTrue(new AmpPosition(neckRotationSubsystem));
-    driverXbox.y().whileFalse(new NeckFollower(neckRotationSubsystem));
-
-    driverXbox.b().onTrue(new VisionNeckAngle(neckRotationSubsystem));
-    driverXbox.b().whileFalse(new NeckFollower(neckRotationSubsystem));
-
-    driverXbox.rightBumper().whileTrue(new BeakIntake(beakSubsystem));
-    driverXbox.rightBumper().whileFalse(new BeakIntakeStop(beakSubsystem));
-
-    driverXbox.leftBumper().whileTrue(new BeakOuttake(beakSubsystem));
-    driverXbox.leftBumper().whileFalse(new BeakIntakeStop(beakSubsystem));
-
-    driverXbox.x().whileTrue(new BeakShooter(beakSubsystem));
-    driverXbox.x().whileFalse(new BeakShooterStop(beakSubsystem));
+    driverXbox.b().onTrue(new VisionNeckAngle(neckSubsystem));
+    driverXbox.b().whileFalse(new NeckFollower(neckSubsystem));
 
 
-    // auxXbox.define().whileTrue(new ExtensionIn(neckExtensionSubsystem));
-    // auxXbox.define().whileFalse(new ExtensionStop(neckExtensionSubsystem));
+    // Auxilary Controller
+    auxXbox.rightBumper().whileTrue(new BeakIntake(beakSubsystem));
+    auxXbox.rightBumper().whileFalse(new BeakIntakeStop(beakSubsystem));
 
-    // auxXbox.define().whileTrue(new ExtensionOut(neckExtensionSubsystem));
-    // auxXbox.define().whileFalse(new ExtensionStop(neckExtensionSubsystem));
+    auxXbox.leftBumper().whileTrue(new BeakOuttake(beakSubsystem));
+    auxXbox.leftBumper().whileFalse(new BeakIntakeStop(beakSubsystem));
 
-    // driverXbox.define().whileTrue(new ClimberUp(climberSubsystem));
-    // driverXbox.define().whileFalse(new ClimberStop(climberSubsystem));
+    auxXbox.x().whileTrue(new BeakShooter(beakSubsystem));
+    auxXbox.x().whileFalse(new BeakShooterStop(beakSubsystem));
+
+    auxXbox.povUp().whileTrue(new ClimberUp(climberSubsystem));
+    auxXbox.povUp().whileFalse(new ClimberStop(climberSubsystem));
     
-    // driverXbox.define().whileTrue(new ClimberDown(climberSubsystem));
-    // driverXbox.define().whileFalse(new ClimberStop(climberSubsystem));
+    auxXbox.povDown().whileTrue(new ClimberDown(climberSubsystem));
+    auxXbox.povDown().whileFalse(new ClimberStop(climberSubsystem));
   }
 
   // Use this method to pass the autonomous command to the main class

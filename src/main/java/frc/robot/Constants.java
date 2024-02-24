@@ -31,7 +31,14 @@ public final class Constants
     public final static CANSparkMax rightGearbox1 = new CANSparkMax(8, MotorType.kBrushless);
     public final static CANSparkMax rightGearbox2 = new CANSparkMax(9, MotorType.kBrushless);
     public final static DigitalInput bottomLimitSwitch = new DigitalInput(1);
+    // public final static DigitalInput topLimitSwitch = new DigitalInput(0);
     public final static Encoder neckEncoder = new Encoder(8, 9);
+  }
+
+  public static final class NeckExtensionConstants {
+    // public final static CANSparkMax neckExtensionMotor = new CANSparkMax(0, MotorType.kBrushless);
+    // public final static DigitalInput extensionTopLimitSwitch = new DigitalInput(0);
+    // public final static DigitalInput extensionBottomLimitSwitch = new DigitalInput(0);
   }
 
   public static final class BeakConstants {
