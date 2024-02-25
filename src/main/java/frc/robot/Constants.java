@@ -38,8 +38,8 @@ public final class Constants
 
   public static final class NeckExtensionConstants {
     public final static CANSparkMax neckExtensionMotor = new CANSparkMax(23, MotorType.kBrushless);
-    // public final static DigitalInput extensionTopLimitSwitch = new DigitalInput(5);
-    public final static DigitalInput extensionBottomLimitSwitch = new DigitalInput(2);
+    // public final static DigitalInput extensionTopLimitSwitch = new DigitalInput();
+    public final static DigitalInput extensionBottomLimitSwitch = new DigitalInput(4);
     public final static DutyCycleEncoder throughBoreEncoder = new DutyCycleEncoder(3);
   }
 
