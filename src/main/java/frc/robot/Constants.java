@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import swervelib.math.Matter;
 import swervelib.parser.PIDFConfig;
@@ -30,21 +31,22 @@ public final class Constants
     public final static CANSparkMax leftGearbox2 = new CANSparkMax(20, MotorType.kBrushless);
     public final static CANSparkMax rightGearbox1 = new CANSparkMax(8, MotorType.kBrushless);
     public final static CANSparkMax rightGearbox2 = new CANSparkMax(9, MotorType.kBrushless);
-    public final static DigitalInput bottomLimitSwitch = new DigitalInput(1);
     // public final static DigitalInput topLimitSwitch = new DigitalInput(0);
+    public final static DigitalInput bottomLimitSwitch = new DigitalInput(1);
     public final static Encoder neckEncoder = new Encoder(8, 9);
   }
 
   public static final class NeckExtensionConstants {
-    // public final static CANSparkMax neckExtensionMotor = new CANSparkMax(0, MotorType.kBrushless);
-    // public final static DigitalInput extensionTopLimitSwitch = new DigitalInput(0);
-    // public final static DigitalInput extensionBottomLimitSwitch = new DigitalInput(0);
+    public final static CANSparkMax neckExtensionMotor = new CANSparkMax(23, MotorType.kBrushless);
+    // public final static DigitalInput extensionTopLimitSwitch = new DigitalInput(5);
+    public final static DigitalInput extensionBottomLimitSwitch = new DigitalInput(2);
+    public final static DutyCycleEncoder throughBoreEncoder = new DutyCycleEncoder(3);
   }
 
   public static final class BeakConstants {
-    public final static CANSparkMax intakeMotor = new CANSparkMax(14, MotorType.kBrushless);
+    public final static CANSparkMax intakeMotor = new CANSparkMax(15, MotorType.kBrushless);
     public final static CANSparkMax shooterTopMotor = new CANSparkMax(13, MotorType.kBrushless);
-    public final static CANSparkMax shooterBottomMotor = new CANSparkMax(15, MotorType.kBrushless);
+    public final static CANSparkMax shooterBottomMotor = new CANSparkMax(14, MotorType.kBrushless);
     public final static DigitalInput intakeLimitSwitch = new DigitalInput(0);
   }
 

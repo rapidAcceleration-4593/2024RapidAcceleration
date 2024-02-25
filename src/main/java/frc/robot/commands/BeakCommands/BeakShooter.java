@@ -12,6 +12,7 @@ public class BeakShooter extends Command {
         addRequirements(beakSubsystem);
     }
 
+    @Override
     public void execute() {
         beakSubsystem.BeakShooter();
     }

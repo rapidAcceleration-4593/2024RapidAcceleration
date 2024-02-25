@@ -12,7 +12,13 @@ public class ClimberDown extends Command {
         addRequirements(climberSubsystem);
     }
 
-    public void execute() {
+    @Override
+    public void initialize() {
         climberSubsystem.ClimberDown();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return true;
     }
 }

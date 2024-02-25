@@ -4,9 +4,11 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
+import frc.robot.Constants.NeckExtensionConstants;
 import frc.robot.Constants.NeckRotationConstants;
 
 public class NeckSubsystem extends SubsystemBase {
@@ -15,9 +17,14 @@ public class NeckSubsystem extends SubsystemBase {
     private final CANSparkMax leftGearbox2;
     private final CANSparkMax rightGearbox1;
     private final CANSparkMax rightGearbox2;
+    private final CANSparkMax neckExtensionMotor;
+
+    // private final DigitalInput extensionTopLimitSwitch;
+    private final DigitalInput extensionBottomLimitSwitch;
+    private final DigitalInput bottomLimitSwitch;
 
     private final Encoder neckEncoder;
-    private final DigitalInput bottomLimitSwitch;
+    private final DutyCycleEncoder throughBoreEncoder;
 
     public int neckGoalAngle = 0;
     public int lastNeckGoalAngle = neckGoalAngle;
@@ -30,9 +37,14 @@ public class NeckSubsystem extends SubsystemBase {
         leftGearbox2 = NeckRotationConstants.leftGearbox2;
         rightGearbox1 = NeckRotationConstants.rightGearbox1;
         rightGearbox2 = NeckRotationConstants.rightGearbox2;
+        neckExtensionMotor = NeckExtensionConstants.neckExtensionMotor;
+
+        // extensionTopLimitSwitch = NeckExtensionConstants.extensionTopLimitSwitch;
+        extensionBottomLimitSwitch = NeckExtensionConstants.extensionBottomLimitSwitch;
+        bottomLimitSwitch = NeckRotationConstants.bottomLimitSwitch;
 
         neckEncoder = NeckRotationConstants.neckEncoder;
-        bottomLimitSwitch = NeckRotationConstants.bottomLimitSwitch;
+        throughBoreEncoder = NeckExtensionConstants.throughBoreEncoder;
     }
 
     public void NeckUp() {
@@ -54,13 +66,18 @@ public class NeckSubsystem extends SubsystemBase {
         lastNeckGoalAngle = neckGoalAngle;
     }
 
+    public void DrivingPosition() {
+        neckGoalAngle = 0;
+        lastNeckGoalAngle = neckGoalAngle;
+    }
+
     public void SubwooferPosition() {
-        neckGoalAngle = 80;
+        neckGoalAngle = 50;
         lastNeckGoalAngle = neckGoalAngle;
     }
 
     public void AmpPosition() {
-        neckGoalAngle = 210;
+        neckGoalAngle = 200;
         lastNeckGoalAngle = neckGoalAngle;
     }
 
@@ -69,7 +86,9 @@ public class NeckSubsystem extends SubsystemBase {
             neckEncoder.reset();
         }
 
+
         updatePIDConstants();
+        updateExtensionAngle();
         
         double neckRotationSpeed = neckRotateController.calculate(neckEncoder.get(), lastNeckGoalAngle);
         NeckSetRotateSpeed(neckRotationSpeed);
@@ -88,12 +107,17 @@ public class NeckSubsystem extends SubsystemBase {
         }
     }
 
-    private int visionSetAngle(double distance) {
-        int angle = 0;
-        if (distance > 3.5 && distance < 8) {
-            angle = (int) (0.666667*Math.pow(distance, 3) + -15.0303*Math.pow(distance, 2) + 109.106 * distance + -145.079);
+    private void updateExtensionAngle() {
+        if (neckGoalAngle == 0 || neckGoalAngle == 220) {
+            // extend out
+            // System.out.println("Absolute Position: " + throughBoreEncoder.getAbsolutePosition());
+        } else if (neckEncoder.get() > 30 && neckEncoder.get() < 220) {
+            // extend in
+            // ExtendIn();
+            // System.out.println("Absolute Position: " + throughBoreEncoder.getAbsolutePosition());
+        } else {
+            ExtendStop();
         }
-        return angle;
     }
 
     private void updatePIDConstants() {
@@ -113,7 +137,7 @@ public class NeckSubsystem extends SubsystemBase {
         } else if (neckEncoder.get() > neckGoalAngle - 3 && neckEncoder.get() < neckGoalAngle + 2) {
             // Close Controller
             p = 0.00005;
-            i = 0.00075;
+            i = 0.0005;
             d = 0.0;
         } else if (neckEncoder.get() < neckGoalAngle) {
             // Up Controller
@@ -135,6 +159,14 @@ public class NeckSubsystem extends SubsystemBase {
         neckRotateController.setPID(p, i, d);
     }
 
+    private int visionSetAngle(double distance) {
+        int angle = 0;
+        if (distance > 3.5 && distance < 8) {
+            angle = (int) (0.666667*Math.pow(distance, 3) + -15.0303*Math.pow(distance, 2) + 109.106 * distance + -145.079);
+        }
+        return angle;
+    }
+
     private void NeckSetRotateSpeed(double speed) {
         leftGearbox1.set(speed);
         leftGearbox2.follow(leftGearbox1, false);
@@ -145,5 +177,24 @@ public class NeckSubsystem extends SubsystemBase {
         System.out.println("Encoder Value: " + neckEncoder.get());
         System.out.println("Set Value: " + lastNeckGoalAngle);
         System.out.println("Power: " + speed);
+        System.out.println("Limit Switch: Not " + bottomLimitSwitch.get());
+        System.out.println("Absolute Position: " + throughBoreEncoder.get());
+    }
+
+
+    public void ExtendIn() {
+        // if (extensionBottomLimitSwitch.get()) {
+            neckExtensionMotor.set(0.25);
+        // } else {
+        //     neckExtensionMotor.set(0.0);
+        // }
+    }
+
+    public void ExtendOut() {
+        neckExtensionMotor.set(-0.25);
+    }
+
+    public void ExtendStop() {
+        neckExtensionMotor.set(0.0);
     }
 }

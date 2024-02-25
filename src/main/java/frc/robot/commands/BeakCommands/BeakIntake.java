@@ -13,12 +13,7 @@ public class BeakIntake extends Command {
     }
 
     @Override
-    public void initialize() {
+    public void execute() {
         beakSubsystem.BeakIntake();
-    }
-
-    @Override
-    public boolean isFinished() {
-        return true;
     }
 }

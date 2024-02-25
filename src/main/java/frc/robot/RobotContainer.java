@@ -18,6 +18,7 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.commands.AutoCommands.ShooterAuto;
 import frc.robot.commands.BeakCommands.*;
 import frc.robot.commands.ClimberCommands.*;
+import frc.robot.commands.ExtensionCommands.*;
 import frc.robot.commands.NeckCommands.*;
 import frc.robot.commands.NeckCommands.PresetPositions.*;
 
@@ -97,6 +98,9 @@ public class RobotContainer
     driverXbox.povLeft().onTrue(new SubwooferPosition(neckSubsystem));
     driverXbox.povLeft().whileFalse(new NeckFollower(neckSubsystem));
 
+    driverXbox.povRight().onTrue(new DrivingPosition(neckSubsystem));
+    driverXbox.povRight().whileFalse(new NeckFollower(neckSubsystem));
+
     driverXbox.b().onTrue(new VisionNeckAngle(neckSubsystem));
     driverXbox.b().whileFalse(new NeckFollower(neckSubsystem));
 
@@ -114,8 +118,14 @@ public class RobotContainer
     auxXbox.povUp().whileTrue(new ClimberUp(climberSubsystem));
     auxXbox.povUp().whileFalse(new ClimberStop(climberSubsystem));
     
-    auxXbox.povDown().whileTrue(new ClimberDown(climberSubsystem));
-    auxXbox.povDown().whileFalse(new ClimberStop(climberSubsystem));
+    // auxXbox.povDown().whileTrue(new ClimberDown(climberSubsystem));
+    // auxXbox.povDown().whileFalse(new ClimberStop(climberSubsystem));
+
+    auxXbox.y().whileTrue(new ExtendOut(neckSubsystem));
+    auxXbox.y().whileFalse(new ExtendStop(neckSubsystem));
+
+    auxXbox.a().whileTrue(new ExtendIn(neckSubsystem));
+    auxXbox.a().whileFalse(new ExtendStop(neckSubsystem));
   }
 
   // Use this method to pass the autonomous command to the main class

@@ -13,12 +13,7 @@ public class BeakShooterStop extends Command {
     }
     
     @Override
-    public void initialize() {
+    public void execute() {
         beakSubsystem.BeakShooterStop();
-    }
-
-    @Override
-    public boolean isFinished() {
-        return true;
     }
 }
