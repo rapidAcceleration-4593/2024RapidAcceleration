@@ -11,16 +11,14 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.NeckSubsystem;
+import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.BeakSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.commands.AutoCommands.ShooterAuto;
 import frc.robot.commands.BeakCommands.*;
 import frc.robot.commands.ClimberCommands.*;
-import frc.robot.commands.ExtensionCommands.*;
 import frc.robot.commands.NeckCommands.*;
-import frc.robot.commands.NeckCommands.ManualControl.NeckUp;
 import frc.robot.commands.NeckCommands.PresetPositions.*;
 
 import java.io.File;
@@ -65,14 +63,7 @@ public class RobotContainer
     NamedCommands.registerCommand("Intake", new BeakIntake(beakSubsystem));
     NamedCommands.registerCommand("IntakeStop", new BeakIntakeStop(beakSubsystem));
 
-    // Configure the trigger bindings
     configureBindings();
-
-    // Applies deadbands and inverts controls because joysticks
-    // are back-right positive while robot
-    // controls are front-left positive
-    // left stick controls translation
-    // right stick controls the angular velocity of the robot
 
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
         () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
@@ -82,8 +73,6 @@ public class RobotContainer
         drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
   }
 
-  
-  // Use this method to define your trigger->command mappings
   private void configureBindings()
   {
     // Driver Controller
@@ -91,22 +80,10 @@ public class RobotContainer
     driverXbox.start().whileTrue(new VisionSwerveAlign(visionSubsystem));
 
     driverXbox.povUp().onTrue(new AmpPosition(neckSubsystem));
-    driverXbox.povUp().whileFalse(new NeckFollower(neckSubsystem));
-
     driverXbox.povDown().onTrue(new IntakePosition(neckSubsystem));
-    driverXbox.povDown().whileFalse(new NeckFollower(neckSubsystem));
-
     driverXbox.povLeft().onTrue(new SubwooferPosition(neckSubsystem));
-    driverXbox.povLeft().whileFalse(new NeckFollower(neckSubsystem));
-
-
     driverXbox.povRight().onTrue(new DrivingPosition(neckSubsystem));
-    driverXbox.povRight().whileFalse(new NeckFollower(neckSubsystem));
-
     driverXbox.b().onTrue(new VisionNeckAngle(neckSubsystem));
-    driverXbox.b().whileFalse(new NeckFollower(neckSubsystem));
-
-    // driverXbox.a().whileTrue(new NeckUp(neckSubsystem));
 
 
     // Auxilary Controller
@@ -124,12 +101,6 @@ public class RobotContainer
     
     auxXbox.povDown().whileTrue(new ClimberDown(climberSubsystem));
     auxXbox.povDown().whileFalse(new ClimberStop(climberSubsystem));
-
-    // auxXbox.y().whileTrue(new ExtendOut(neckSubsystem));
-    // auxXbox.y().whileFalse(new ExtendStop(neckSubsystem));
-
-    // auxXbox.a().whileTrue(new ExtendIn(neckSubsystem));
-    // auxXbox.a().whileFalse(new ExtendStop(neckSubsystem));
   }
 
   // Use this method to pass the autonomous command to the main class

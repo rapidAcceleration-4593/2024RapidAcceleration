@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
-import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 public class VisionSubsystem extends SubsystemBase {
 
@@ -24,9 +23,9 @@ public class VisionSubsystem extends SubsystemBase {
         // Initialize Swerve
         this.swerve = swerve;
 
-        translationControllerX = new PIDController(0.7, 0.0, 0.0);
-        translationControllerY = new PIDController(0.7, 0.0, 0.0);
-        rotationController = new PIDController(0.4, 0.0, 0.01);
+        translationControllerX = new PIDController(1.2, 0.0, 0.0);
+        translationControllerY = new PIDController(1, 0.0, 0.0);
+        rotationController = new PIDController(0.7, 0.0, 0.01);
 
         translationDeadband = 0.01;
         rotationDeadband = 0.01;
