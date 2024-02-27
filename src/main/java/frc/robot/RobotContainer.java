@@ -80,10 +80,19 @@ public class RobotContainer
     driverXbox.start().whileTrue(new VisionSwerveAlign(visionSubsystem));
 
     driverXbox.povUp().onTrue(new AmpPosition(neckSubsystem));
+    driverXbox.povUp().whileFalse(new NeckFollower(neckSubsystem));
+
     driverXbox.povDown().onTrue(new IntakePosition(neckSubsystem));
+    driverXbox.povDown().whileFalse(new NeckFollower(neckSubsystem));
+
     driverXbox.povLeft().onTrue(new SubwooferPosition(neckSubsystem));
+    driverXbox.povLeft().whileFalse(new NeckFollower(neckSubsystem));
+
     driverXbox.povRight().onTrue(new DrivingPosition(neckSubsystem));
+    driverXbox.povRight().whileFalse(new NeckFollower(neckSubsystem));
+
     driverXbox.b().onTrue(new VisionNeckAngle(neckSubsystem));
+    driverXbox.b().whileFalse(new NeckFollower(neckSubsystem));
 
 
     // Auxilary Controller

@@ -68,7 +68,7 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     public void AmpPosition() {
-        neckGoalAngle = 210;
+        neckGoalAngle = 200;
         lastNeckGoalAngle = neckGoalAngle;
     }
 
@@ -78,43 +78,64 @@ public class NeckSubsystem extends SubsystemBase {
         }
 
         // Everything down
-        if (neckGoalAngle < 30 && neckEncoder.get() >= 30) {
-            if (throughBoreEncoder.get() > -0.75) {
-                // Extended in, so extend out
-                ExtendOut();
-            } else {
-                // Extended out, so move arm
-                updatePIDConstants();
-            }
-        }
+        // if (neckGoalAngle < 30 && neckEncoder.get() >= 30) {
+        //     if (throughBoreEncoder.get() > -0.75) {
+        //         // Extended in, so extend out
+        //         ExtendOut();
+        //     } else {
+        //         // Extended out, so move arm
+        //         updatePIDConstants();
+        //     }
+        // }
 
-        // Intake -> Middle
-        if (neckGoalAngle > 30 && neckGoalAngle < 200 && neckEncoder.get() <= 30) {
-            if (throughBoreEncoder.get() < -0.75) {
-                // Extended out, so move up
-                updatePIDConstants();
+        // // Intake -> Middle
+        // if (neckGoalAngle > 30 && neckGoalAngle < 200 && neckEncoder.get() <= 30) {
+        //     if (throughBoreEncoder.get() < -0.75) {
+        //         // Extended out, so move up
+        //         updatePIDConstants();
 
-                if (neckEncoder.get() > 30) {
-                    ExtendIn();
-                }
-            }
-        }
+        //         if (neckEncoder.get() > 30) {
+        //             ExtendIn();
+        //         }
+        //     }
+        // }
 
-        // Intake -> Amp
-        if (neckGoalAngle >= 200 && neckEncoder.get() <= 30 && throughBoreEncoder.get() < -0.75) {
+        // // Intake -> Amp
+        // if (neckGoalAngle >= 200 && neckEncoder.get() <= 30 && throughBoreEncoder.get() < -0.75) {
+        //     updatePIDConstants();
+        // }
+
+        // // Middle -> Amp
+        // if (neckGoalAngle >= 200 && neckEncoder.get() >= 30 && neckEncoder.get() < 200) {
+        //     if (throughBoreEncoder.get() > -0.75) {
+        //         ExtendOut();
+        //     }
+        //     updatePIDConstants();
+        // }
+
+        updateExtensionAngle();
+
+        if (neckGoalAngle < 30 && neckEncoder.get() >= 30 && throughBoreEncoder.get() > -0.75) {
+            // dont go down yet
+        } else if (neckGoalAngle < 30 && neckEncoder.get() >= 30 && throughBoreEncoder.get() < -0.75) {
+            // now you can go down
             updatePIDConstants();
-        }
-
-        // Middle -> Amp
-        if (neckGoalAngle >= 200 && neckEncoder.get() >= 30 && neckEncoder.get() < 200) {
-            if (throughBoreEncoder.get() > -0.75) {
-                ExtendOut();
-            }
+        } else {
             updatePIDConstants();
         }
         
         double neckRotationSpeed = neckRotateController.calculate(neckEncoder.get(), lastNeckGoalAngle);
         NeckSetRotateSpeed(neckRotationSpeed);
+    }
+
+    private void updateExtensionAngle() {
+        if (neckGoalAngle == 0 || neckGoalAngle == 200) {
+            ExtendOut();
+        } else if (neckEncoder.get() > 30 && neckEncoder.get() < 200) {
+            ExtendIn();
+        } else {
+            ExtendStop();
+        }
     }
 
     public void VisionNeckAngle() {
@@ -136,18 +157,18 @@ public class NeckSubsystem extends SubsystemBase {
         // Calculate PID Constants based on the neck encoder value
         if (neckEncoder.get() <= 30 && neckGoalAngle <= 30) {
             // Bottom Controller
-            p = 0.0013;
-            i = 0.0;
+            p = 0.0015;
+            i = 0.0005;
             d = 0.0;
-        } else if (neckEncoder.get() >= 195 && neckGoalAngle >= 195) {
+        } else if (neckEncoder.get() >= 190 && neckGoalAngle >= 190) {
             // Top Controller
             p = 0.00005;
-            i = 0.00005;
+            i = 0.00015;
             d = 0.0;
         } else if (neckEncoder.get() > neckGoalAngle - 3 && neckEncoder.get() < neckGoalAngle + 2) {
             // Close Controller
             p = 0.00005;
-            i = 0.0005;
+            i = 0.00075;
             d = 0.0;
         } else if (neckEncoder.get() < neckGoalAngle) {
             // Up Controller
@@ -172,7 +193,7 @@ public class NeckSubsystem extends SubsystemBase {
     private int visionSetAngle(double distance) {
         int angle = 0;
         if (distance > 3.5 && distance < 8) {
-            angle = (int) (0.666667*Math.pow(distance, 3) + -15.0303*Math.pow(distance, 2) + 109.106 * distance + -145.079);
+            angle = (int) (0.666667*Math.pow(distance, 3) + -15.0303*Math.pow(distance, 2) + 109.106 * distance + -185.079);
         }
         return angle;
     }
@@ -201,7 +222,7 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     public void ExtendOut() {
-        if (throughBoreEncoder.get() <= -1.25) {
+        if (throughBoreEncoder.get() <= -1.1) {
             neckExtensionMotor.set(0.0);
         } else {
             neckExtensionMotor.set(-0.5);
@@ -218,13 +239,13 @@ public class NeckSubsystem extends SubsystemBase {
             throughBoreEncoder.reset();
         }
 
-        if (!intakeLimitSwitch.get() && !intakeDrivingHold) {
-            DrivingPosition();
-            intakeDrivingHold = true;
-        } else if (intakeLimitSwitch.get()) {
-            intakeDrivingHold = false;
-        }
+        // if (!intakeLimitSwitch.get() && !intakeDrivingHold) {
+        //     DrivingPosition();
+        //     intakeDrivingHold = true;
+        // } else if (intakeLimitSwitch.get()) {
+        //     intakeDrivingHold = false;
+        // }
 
-        NeckFollower();
+        // NeckFollower();
     }
 }
