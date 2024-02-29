@@ -18,13 +18,12 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.commands.AutoCommands.ShooterAuto;
 import frc.robot.commands.BeakCommands.*;
 import frc.robot.commands.ClimberCommands.*;
+import frc.robot.commands.ExtensionCommands.*;
 import frc.robot.commands.NeckCommands.*;
 import frc.robot.commands.NeckCommands.PresetPositions.*;
-
-import java.io.File;
-
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import java.io.File;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -110,6 +109,14 @@ public class RobotContainer
     
     auxXbox.povDown().whileTrue(new ClimberDown(climberSubsystem));
     auxXbox.povDown().whileFalse(new ClimberStop(climberSubsystem));
+
+
+
+    auxXbox.y().whileTrue(new ExtendOut(neckSubsystem));
+    auxXbox.y().whileFalse(new ExtendStop(neckSubsystem));
+
+    auxXbox.a().whileTrue(new ExtendIn(neckSubsystem));
+    auxXbox.a().whileFalse(new ExtendStop(neckSubsystem));
   }
 
   // Use this method to pass the autonomous command to the main class

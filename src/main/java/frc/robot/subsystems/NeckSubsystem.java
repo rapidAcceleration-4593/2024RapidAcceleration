@@ -11,7 +11,6 @@ import frc.robot.LimelightHelpers;
 import frc.robot.Constants.BeakConstants;
 import frc.robot.Constants.NeckExtensionConstants;
 import frc.robot.Constants.NeckRotationConstants;
-import frc.robot.commands.ExtensionCommands.ExtendStop;
 
 public class NeckSubsystem extends SubsystemBase {
 
@@ -34,7 +33,7 @@ public class NeckSubsystem extends SubsystemBase {
     public int lastNeckGoalAngle = neckGoalAngle;
 
     public final PIDController neckRotateController = new PIDController(0.0, 0.0, 0.0);
-    public final PIDController neckRotateDownInit = new PIDController(0.00001, 0.0, 0.0);
+    public final PIDController neckRotateDownInit = new PIDController(0.0, 0.0, 0.0);
 
     public boolean neckInitialized = false;
 
@@ -57,13 +56,36 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     public void NeckDownInit() {
-        double bottomGoal = -100;
-        double neckRotationSpeed = neckRotateDownInit.calculate(neckEncoder.get(), bottomGoal);
+        double bottomGoal = -290;
 
         if (!neckInitialized) {
-            NeckSetRotateSpeed(neckRotationSpeed);
-            // ExtendOut();
+            double p, i, d;
 
+            if (neckEncoder.get() <= 0 && neckEncoder.get() >= -150) {
+                p = 0.0015;
+                i = 0.0;
+                d = 0.0;
+            } else if (neckEncoder.get() < -150) {
+                p = 0.0007;
+                i = 0.0;
+                d = 0.0;
+            } else {
+                p = 0.0;
+                i = 0.0;
+                d = 0.0;
+            }
+
+            neckRotateDownInit.setPID(p, i, d);
+            double neckRotationSpeed = neckRotateDownInit.calculate(neckEncoder.get(), bottomGoal);
+            
+            if (extensionTopLimitSwitch.get()) {
+                ExtendOut();
+            } else {
+                ExtendStop();
+                NeckSetRotateSpeed(neckRotationSpeed);
+            }
+            
+            System.out.println("<-------------------->");
             System.out.println("Speed: " + neckRotationSpeed);
             System.out.println("Encoder Value: " + neckEncoder.get());
             System.out.println("Set Value: " + bottomGoal);
@@ -86,7 +108,7 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     public void SubwooferPosition() {
-        neckGoalAngle = 50;
+        neckGoalAngle = 80;
         lastNeckGoalAngle = neckGoalAngle;
     }
 
@@ -101,54 +123,49 @@ public class NeckSubsystem extends SubsystemBase {
                 neckEncoder.reset();
             }
 
-            // Everything down
+            // Down Method
             if (neckGoalAngle < 30 && neckEncoder.get() >= 30) {
-                if (!extensionBottomLimitSwitch.get()) {
+                if (extensionTopLimitSwitch.get() == true) {
                     // Extended in, so extend out
                     ExtendOut();
-                } else if (!extensionTopLimitSwitch.get()) {
+                } else if (extensionTopLimitSwitch.get() == false) {
                     // Extended out, so move arm
+                    ExtendStop();
                     updatePIDConstants();
                 }
             }
 
-            // Intake -> Middle
-            if (neckGoalAngle > 30 && neckGoalAngle < 200 && neckEncoder.get() <= 30) {
+            // Intake -> Middle Method
+            if (lastNeckGoalAngle > 30 && lastNeckGoalAngle < 200) {
                 if (!extensionTopLimitSwitch.get()) {
                     // Extended out, so move up
                     updatePIDConstants();
+                }
 
-                    if (neckEncoder.get() > 30) {
-                        ExtendIn();
-                    }
+                if (neckEncoder.get() > 30 && neckEncoder.get() < 150) {
+                    ExtendIn();
                 }
             }
 
-            // Intake -> Amp
-            if (neckGoalAngle >= 200 && neckEncoder.get() <= 30 && !extensionTopLimitSwitch.get()) {
-                updatePIDConstants();
-            }
+            System.out.println("Extension Top: " + extensionTopLimitSwitch.get());
+            System.out.println("Encoder: " + neckEncoder.get());
+            System.out.println("Goal: " + lastNeckGoalAngle);
 
-            // Middle -> Amp
-            if (neckGoalAngle >= 200 && neckEncoder.get() >= 30 && neckEncoder.get() < 200) {
-                if (!extensionBottomLimitSwitch.get()) {
-                    ExtendOut();
-                }
-                updatePIDConstants();
-            }
-        }
-    }
+            // Intake -> Amp Method
+            // if (neckGoalAngle >= 200 && neckEncoder.get() <= 30 && !extensionTopLimitSwitch.get()) {
+            //     updatePIDConstants();
+            // }
 
-    public void VisionNeckAngle() {
-        boolean hasTargets = LimelightHelpers.getTV("");
+            // // Middle -> Amp Method
+            // if (neckGoalAngle >= 200 && neckEncoder.get() >= 30 && neckEncoder.get() < 200) {
+            //     if (!extensionBottomLimitSwitch.get()) {
+            //         ExtendOut();
+            //     }
+            //     updatePIDConstants();
+            // }
 
-        if (hasTargets && LimelightHelpers.getFiducialID("") == 4) {
-            Pose3d target = LimelightHelpers.getTargetPose3d_CameraSpace("");
-            
-            System.out.println("Z Distance: " + target.getZ());
-
-            neckGoalAngle = visionSetAngle(target.getZ());
-            lastNeckGoalAngle = neckGoalAngle;
+            double neckRotationSpeed = neckRotateController.calculate(neckEncoder.get(), lastNeckGoalAngle);
+            NeckSetRotateSpeed(neckRotationSpeed);
         }
     }
 
@@ -181,11 +198,6 @@ public class NeckSubsystem extends SubsystemBase {
             p = 0.001;
             i = 0.0;
             d = 0.0;
-        } else if (!topLimitSwitch.get()) {
-            // Tippity Top Controller
-            p = 0.0;
-            i = 0.0;
-            d = 0.0;
         } else {
             // Default Controller
             p = 0.0;
@@ -194,6 +206,19 @@ public class NeckSubsystem extends SubsystemBase {
         }
 
         neckRotateController.setPID(p, i, d);
+    }
+
+    public void VisionNeckAngle() {
+        boolean hasTargets = LimelightHelpers.getTV("");
+
+        if (hasTargets && LimelightHelpers.getFiducialID("") == 4) {
+            Pose3d target = LimelightHelpers.getTargetPose3d_CameraSpace("");
+            
+            System.out.println("Z Distance: " + target.getZ());
+
+            neckGoalAngle = visionSetAngle(target.getZ());
+            lastNeckGoalAngle = neckGoalAngle;
+        }
     }
 
     private int visionSetAngle(double distance) {
@@ -219,7 +244,7 @@ public class NeckSubsystem extends SubsystemBase {
 
     public void ExtendIn() {
         if (extensionBottomLimitSwitch.get()) {
-            neckExtensionMotor.set(0.5);
+            neckExtensionMotor.set(0.35);
         } else {
             ExtendStop();
         }
@@ -227,7 +252,7 @@ public class NeckSubsystem extends SubsystemBase {
 
     public void ExtendOut() {
         if (extensionTopLimitSwitch.get()) {
-            neckExtensionMotor.set(-0.5);
+            neckExtensionMotor.set(-0.35);
         } else {
             ExtendStop();
         }
@@ -239,10 +264,5 @@ public class NeckSubsystem extends SubsystemBase {
 
     public void periodic() {
         NeckDownInit();
-
-        System.out.println("<-------------------->");
-        System.out.println("Top Limit Switch Value: " + topLimitSwitch.get());
-        System.out.println("Top Extension Limit Switch Value: " + extensionTopLimitSwitch.get());
-        System.out.println("Bottom Extension Limit Switch Value: " + extensionBottomLimitSwitch.get());
     }
 }
