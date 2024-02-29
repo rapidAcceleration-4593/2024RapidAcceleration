@@ -253,5 +253,9 @@ public class NeckSubsystem extends SubsystemBase {
             DrivingPosition();
             drivingPositionSet = true;
         }
+
+        if (intakeLimitSwitch.get()) {
+            drivingPositionSet = false;
+        }
     }
 }
