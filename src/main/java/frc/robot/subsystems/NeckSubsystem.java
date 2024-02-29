@@ -257,5 +257,9 @@ public class NeckSubsystem extends SubsystemBase {
         if (intakeLimitSwitch.get()) {
             drivingPositionSet = false;
         }
+
+        if (!extensionBottomLimitSwitch.get()) {
+            throughBoreEncoder.reset();
+        }
     }
 }
