@@ -18,7 +18,6 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.commands.AutoCommands.ShooterAuto;
 import frc.robot.commands.BeakCommands.*;
 import frc.robot.commands.ClimberCommands.*;
-import frc.robot.commands.ExtensionCommands.*;
 import frc.robot.commands.NeckCommands.*;
 import frc.robot.commands.NeckCommands.PresetPositions.*;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -55,7 +54,6 @@ public class RobotContainer
     auxXbox = new CommandXboxController(1);
 
     NamedCommands.registerCommand("SubwooferPosition", new SubwooferPosition(neckSubsystem));
-    NamedCommands.registerCommand("Follower", new NeckFollower(neckSubsystem));
     NamedCommands.registerCommand("IntakePosition", new IntakePosition(neckSubsystem));
     NamedCommands.registerCommand("Shooter", new ShooterAuto(beakSubsystem));
     NamedCommands.registerCommand("ShooterStop", new BeakShooterStop(beakSubsystem));
@@ -79,20 +77,10 @@ public class RobotContainer
     driverXbox.start().whileTrue(new VisionSwerveAlign(visionSubsystem));
 
     driverXbox.povUp().onTrue(new AmpPosition(neckSubsystem));
-    driverXbox.povUp().whileFalse(new NeckFollower(neckSubsystem));
-
     driverXbox.povDown().onTrue(new IntakePosition(neckSubsystem));
-    driverXbox.povDown().whileFalse(new NeckFollower(neckSubsystem));
-
     driverXbox.povLeft().onTrue(new SubwooferPosition(neckSubsystem));
-    driverXbox.povLeft().whileFalse(new NeckFollower(neckSubsystem));
-
     driverXbox.povRight().onTrue(new DrivingPosition(neckSubsystem));
-    driverXbox.povRight().whileFalse(new NeckFollower(neckSubsystem));
-
     driverXbox.b().onTrue(new VisionNeckAngle(neckSubsystem));
-    driverXbox.b().whileFalse(new NeckFollower(neckSubsystem));
-
 
     // Auxilary Controller
     auxXbox.rightBumper().whileTrue(new BeakShooter(beakSubsystem));
@@ -109,14 +97,6 @@ public class RobotContainer
     
     auxXbox.povDown().whileTrue(new ClimberDown(climberSubsystem));
     auxXbox.povDown().whileFalse(new ClimberStop(climberSubsystem));
-
-
-
-    auxXbox.y().whileTrue(new ExtendOut(neckSubsystem));
-    auxXbox.y().whileFalse(new ExtendStop(neckSubsystem));
-
-    auxXbox.a().whileTrue(new ExtendIn(neckSubsystem));
-    auxXbox.a().whileFalse(new ExtendStop(neckSubsystem));
   }
 
   // Use this method to pass the autonomous command to the main class

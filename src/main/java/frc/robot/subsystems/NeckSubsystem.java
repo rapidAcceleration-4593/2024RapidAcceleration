@@ -37,6 +37,7 @@ public class NeckSubsystem extends SubsystemBase {
 
     public boolean neckInitialized = false;
     public boolean startedAtTop = false;
+    public boolean drivingPositionSet = false;
 
     public NeckSubsystem() {
         // Initialize Motor Objects to CAN SparkMAX ID
@@ -122,7 +123,7 @@ public class NeckSubsystem extends SubsystemBase {
         lastNeckGoalAngle = neckGoalAngle;
     }
 
-    public void NeckFollower() {
+    private void NeckFollower() {
         if (neckInitialized) {
             if (!bottomLimitSwitch.get()) {
                 neckEncoder.reset();
@@ -246,5 +247,11 @@ public class NeckSubsystem extends SubsystemBase {
 
     public void periodic() {
         NeckDownInit();
+        NeckFollower();
+
+        if (!intakeLimitSwitch.get() && !drivingPositionSet) {
+            DrivingPosition();
+            drivingPositionSet = true;
+        }
     }
 }

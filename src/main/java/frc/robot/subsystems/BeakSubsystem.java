@@ -22,8 +22,6 @@ public class BeakSubsystem extends SubsystemBase {
 
     private final Encoder neckEncoder;
 
-    // private final PIDController shooterSpeedController;
-
     public BeakSubsystem() {
         // Initialize Motor Objects to CAN SparkMAX ID
         intakeMotor = BeakConstants.intakeMotor;
@@ -35,8 +33,6 @@ public class BeakSubsystem extends SubsystemBase {
         shooterTimerStarted = false;
 
         neckEncoder = NeckRotationConstants.neckEncoder;
-
-        // shooterSpeedController = new PIDController(0.525, 0.7, 0.035);
     }
 
     // Intake, Outtake, and Shooter
@@ -57,14 +53,6 @@ public class BeakSubsystem extends SubsystemBase {
     }
 
     public void BeakShooter() {
-        // double desiredVelocity = 3.25;
-        double currentVelocity = shooterTopMotor.getEncoder().getVelocity();
-
-        // double adjustedSpeed = shooterSpeedController.calculate(currentVelocity, desiredVelocity);
-
-        System.out.println("<-------------------->");
-        System.out.println("Shooter Velocity: " + currentVelocity);
-
         if (neckEncoder.get() >= 200) {
             shooterTopMotor.set(0.25);
             shooterBottomMotor.set(0.25);
