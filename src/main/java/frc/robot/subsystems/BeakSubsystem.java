@@ -84,4 +84,8 @@ public class BeakSubsystem extends SubsystemBase {
         shooterTopMotor.set(0.75);
         shooterBottomMotor.set(0.75);
     }
+
+    public void IntakeAuto() {
+        intakeMotor.set(-1.0);
+    }
 }

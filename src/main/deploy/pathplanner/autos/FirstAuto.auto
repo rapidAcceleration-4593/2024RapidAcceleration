@@ -12,6 +12,24 @@
     "data": {
       "commands": [
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 6.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SubwooferPosition"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.75
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "Shooter"
@@ -32,50 +50,97 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 1.5
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "ShooterStop"
+            "name": "ShooterIntakeStop"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "IntakeStop"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "ForwardMiddleNote"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              }
-            ]
+            "name": "IntakePosition"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "IntakeStop"
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.7
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ForwardMiddleNote"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShooterIntakeStop"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "ForwardSubwoofer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SubwooferPosition"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.75
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shooter"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShooterIntakeStop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakePosition"
           }
         }
       ]

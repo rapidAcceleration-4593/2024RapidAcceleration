@@ -15,7 +15,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.BeakSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.commands.AutoCommands.ShooterAuto;
+import frc.robot.commands.AutoCommands.*;
 import frc.robot.commands.BeakCommands.*;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.NeckCommands.*;
@@ -56,9 +56,8 @@ public class RobotContainer
     NamedCommands.registerCommand("SubwooferPosition", new SubwooferPosition(neckSubsystem));
     NamedCommands.registerCommand("IntakePosition", new IntakePosition(neckSubsystem));
     NamedCommands.registerCommand("Shooter", new ShooterAuto(beakSubsystem));
-    NamedCommands.registerCommand("ShooterStop", new BeakShooterStop(beakSubsystem));
-    NamedCommands.registerCommand("Intake", new BeakIntake(beakSubsystem));
-    NamedCommands.registerCommand("IntakeStop", new BeakIntakeStop(beakSubsystem));
+    NamedCommands.registerCommand("ShooterIntakeStop", new ShooterStopAuto(beakSubsystem));
+    NamedCommands.registerCommand("Intake", new IntakeAuto(beakSubsystem));
 
     configureBindings();
 
