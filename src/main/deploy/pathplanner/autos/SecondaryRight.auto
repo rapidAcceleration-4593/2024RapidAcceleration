@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3,
-      "y": 5.55
+      "x": 0.7,
+      "y": 6.65
     },
-    "rotation": 0
+    "rotation": 60.0
   },
   "command": {
     "type": "sequential",
@@ -74,73 +74,19 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.7
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ForwardMiddleNote"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ShooterIntakeStop"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ForwardSubwoofer"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SubwooferPosition"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
             "waitTime": 1.75
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Shooter"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.5
+            "pathName": "PastLineRight"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "ShooterIntakeStop"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "IntakePosition"
           }
         }
       ]

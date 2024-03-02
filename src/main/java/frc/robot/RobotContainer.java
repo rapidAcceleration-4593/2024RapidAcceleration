@@ -55,6 +55,8 @@ public class RobotContainer
 
     NamedCommands.registerCommand("SubwooferPosition", new SubwooferPosition(neckSubsystem));
     NamedCommands.registerCommand("IntakePosition", new IntakePosition(neckSubsystem));
+    NamedCommands.registerCommand("VisionAngle", new VisionNeckAngle(neckSubsystem));
+
     NamedCommands.registerCommand("Shooter", new ShooterAuto(beakSubsystem));
     NamedCommands.registerCommand("ShooterIntakeStop", new ShooterStopAuto(beakSubsystem));
     NamedCommands.registerCommand("Intake", new IntakeAuto(beakSubsystem));
@@ -101,9 +103,9 @@ public class RobotContainer
   // Use this method to pass the autonomous command to the main class
   public Command getAutonomousCommand()
   {
-    // An example command will be run in autonomous
-    // return drivebase.getAutonomousCommand("Forward", true);
-    return new PathPlannerAuto("FirstAuto");
+    return new PathPlannerAuto("PrimaryMiddle");
+    // return new PathPlannerAuto("SecondaryLeft");
+    // return new PathPlannerAuto("SecondaryRight");
   }
 
   public void setMotorBrake(boolean brake)
