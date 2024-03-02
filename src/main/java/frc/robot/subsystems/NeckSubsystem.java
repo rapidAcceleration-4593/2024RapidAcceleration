@@ -39,7 +39,7 @@ public class NeckSubsystem extends SubsystemBase {
     public boolean startedAtTop = false;
     public boolean drivingPositionSet = false;
     public boolean bottomLimitSwitchLastState = false;
-    public int extensionState;
+    public int extensionState = 1;
 
     public NeckSubsystem() {
         // Initialize Motor Objects to CAN SparkMAX ID
@@ -173,14 +173,16 @@ public class NeckSubsystem extends SubsystemBase {
             NeckSetRotateSpeed(neckRotationSpeed);
 
             lastNeckGoalAngle = goal;
+
+            neckInitialized = true;
         }
     }
 
     private void evaluateExtension() {
-        if (!extensionTopLimitSwitch.get() || throughBoreEncoder.get() < -1.3) {
+        if (!extensionTopLimitSwitch.get()) {
             // Extended Out
             extensionState = 1;
-        } else if (!extensionBottomLimitSwitch.get() || throughBoreEncoder.get() == 0) {
+        } else if (!extensionBottomLimitSwitch.get()) {
             // Extended In
             extensionState = 2;
         } else {
@@ -301,8 +303,15 @@ public class NeckSubsystem extends SubsystemBase {
 
         if (topLimitSwitch.get()) {
             if (neckEncoder.get() >= 195) {
-                NeckSetRotateSpeed(0.03);
+                NeckSetRotateSpeed(0.08);
             }
         }
+
+        // System.out.println("<-------------->");
+        // System.out.println("Intake: " + intakeLimitSwitch.get());
+        // System.out.println("Extension Top: " + extensionTopLimitSwitch.get());
+        // System.out.println("Extension Bottom: " + extensionBottomLimitSwitch.get());
+        // System.out.println("Top: " + topLimitSwitch.get());
+        // System.out.println("Bottom: " + bottomLimitSwitch.get());
     }
 }
