@@ -38,6 +38,7 @@ public class NeckSubsystem extends SubsystemBase {
     public boolean neckInitialized = false;
     public boolean drivingPositionSet = false;
     private boolean initializeTimerStarted = false;
+    public boolean bottomLimitSwitchState = false;
     public int extensionState = 1;
 
     private Timer initializeTimer = new Timer();
@@ -64,7 +65,7 @@ public class NeckSubsystem extends SubsystemBase {
         double goal = -175;
         double neckRotationSpeed;
 
-        if (!neckInitialized && !extensionBottomLimitSwitch.get() && (RobotBase.isSimulation() || RobotBase.isReal())) {
+        if (!neckInitialized && !extensionBottomLimitSwitch.get() && bottomLimitSwitch.get() && (RobotBase.isSimulation() || RobotBase.isReal())) {
             double p, i, d;
 
             if (neckEncoder.get() > goal - 3 && neckEncoder.get() < goal + 2) {
@@ -115,7 +116,7 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     public void SubwooferPosition() {
-        neckGoalAngle = 50;
+        neckGoalAngle = 55;
         lastNeckGoalAngle = neckGoalAngle;
     }
 
@@ -179,13 +180,13 @@ public class NeckSubsystem extends SubsystemBase {
         // Calculate PID Constants based on the neck encoder value
         if (neckEncoder.get() <= 30 && neckEncoder.get() > 12 && neckGoalAngle <= 30) {
             // Bottom Controller
-            p = 0.0035;
-            i = 0.002;
+            p = 0.00375;
+            i = 0.00225;
             d = 0.0;
-        } else if (neckEncoder.get() > neckGoalAngle - 3 && neckEncoder.get() < neckGoalAngle + 2) {
+        } else if (neckEncoder.get() > neckGoalAngle - 4 && neckEncoder.get() < neckGoalAngle + 3) {
             // Close Controller
-            p = 0.00005;
-            i = 0.00075;
+            p = 0.0001;
+            i = 0.0013;
             d = 0.0;
         } else if (neckEncoder.get() < neckGoalAngle) {
             // Up Controller
@@ -215,8 +216,8 @@ public class NeckSubsystem extends SubsystemBase {
             
             System.out.println("Z Distance: " + target.getZ());
 
-            neckGoalAngle = visionSetAngle(target.getZ());
-            lastNeckGoalAngle = neckGoalAngle;
+            // neckGoalAngle = visionSetAngle(target.getZ());
+            // lastNeckGoalAngle = neckGoalAngle;
         }
     }
 
@@ -247,6 +248,22 @@ public class NeckSubsystem extends SubsystemBase {
         neckExtensionMotor.set(0.0);
     }
 
+    public void NeckUp() {
+        NeckSetRotateSpeed(0.16);
+        neckGoalAngle = neckEncoder.get();
+        lastNeckGoalAngle = neckGoalAngle;
+    }
+
+    public void NeckDown() {
+        NeckSetRotateSpeed(-0.05);
+        neckGoalAngle = neckEncoder.get();
+        lastNeckGoalAngle = neckGoalAngle;
+    }
+
+    public void NeckStop() {
+        NeckSetRotateSpeed(0.0);
+    }
+
     public void periodic() {
         NeckDownInit();
         NeckFollower();
@@ -258,15 +275,19 @@ public class NeckSubsystem extends SubsystemBase {
         }
 
         if (!bottomLimitSwitch.get()) {
-            neckEncoder.reset();
+            if (!bottomLimitSwitchState) {
+                neckEncoder.reset();
+                bottomLimitSwitchState = true;
+            }
             neckInitialized = true;
         } else {
+            bottomLimitSwitchState = false;
             if ((neckEncoder.get() <= 12 && neckEncoder.get() > 0 && lastNeckGoalAngle == 0) || (neckEncoder.get() <= -210 && lastNeckGoalAngle < 200)) {
                 NeckSetRotateSpeed(-0.05);
             }
         }
 
-        if (!intakeLimitSwitch.get() && neckEncoder.get() <= 30 && initializeTimer.get() >= 15) {
+        if (!intakeLimitSwitch.get() && neckEncoder.get() <= 30) { //  && initializeTimer.get() >= 15
             if (!drivingPositionSet) {
                 SubwooferPosition();
                 drivingPositionSet = true;
@@ -279,6 +300,8 @@ public class NeckSubsystem extends SubsystemBase {
             throughBoreEncoder.reset();
         }
 
+        System.out.println("<--------------->");
+        System.out.println("Goal:" + lastNeckGoalAngle);
         System.out.println("Encoder Value: " + neckEncoder.get());
     }
 }

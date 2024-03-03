@@ -37,7 +37,11 @@ public class BeakSubsystem extends SubsystemBase {
 
     // Intake, Outtake, and Shooter
     public void BeakIntake() {
-        intakeMotor.set(-1.0);
+        if (!intakeLimitSwitch.get()) {
+            BeakIntakeStop();
+        } else {
+            intakeMotor.set(-1.0);
+        }
     }
     
     public void BeakOuttake() {
@@ -83,11 +87,5 @@ public class BeakSubsystem extends SubsystemBase {
 
     public void IntakeAuto() {
         intakeMotor.set(-1.0);
-    }
-
-    public void periodic() {
-        if (!intakeLimitSwitch.get()) {
-            BeakIntakeStop();
-        }
     }
 }
