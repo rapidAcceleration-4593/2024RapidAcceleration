@@ -80,7 +80,6 @@ public class RobotContainer
     driverXbox.povUp().onTrue(new AmpPosition(neckSubsystem));
     driverXbox.povDown().onTrue(new IntakePosition(neckSubsystem));
     driverXbox.povLeft().onTrue(new SubwooferPosition(neckSubsystem));
-    driverXbox.povRight().onTrue(new DrivingPosition(neckSubsystem));
     driverXbox.b().onTrue(new VisionNeckAngle(neckSubsystem));
 
     // Auxilary Controller
@@ -103,7 +102,8 @@ public class RobotContainer
   // Use this method to pass the autonomous command to the main class
   public Command getAutonomousCommand()
   {
-    return new PathPlannerAuto("PrimaryMiddle");
+    return new PathPlannerAuto("Test");
+    // return new PathPlannerAuto("PrimaryMiddle");
     // return new PathPlannerAuto("SecondaryLeft");
     // return new PathPlannerAuto("SecondaryRight");
   }
