@@ -6,12 +6,11 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
-import frc.robot.Constants.BeakConstants;
-import frc.robot.Constants.NeckExtensionConstants;
-import frc.robot.Constants.NeckRotationConstants;
+import frc.robot.Constants.*;
 
 public class NeckSubsystem extends SubsystemBase {
 
@@ -38,14 +37,13 @@ public class NeckSubsystem extends SubsystemBase {
 
     public boolean neckInitialized = false;
     public boolean drivingPositionSet = false;
-    public boolean bottomLimitSwitchLastState = false;
+    private boolean initializeTimerStarted = false;
     public int extensionState = 1;
 
-    private Timer initializeTimer;
-    private boolean initializeTimerStarted = false;
+    private Timer initializeTimer = new Timer();
+    
 
     public NeckSubsystem() {
-        // Initialize Motor Objects to CAN SparkMAX ID
         leftGearbox1 = NeckRotationConstants.leftGearbox1;
         leftGearbox2 = NeckRotationConstants.leftGearbox2;
         rightGearbox1 = NeckRotationConstants.rightGearbox1;
@@ -60,18 +58,16 @@ public class NeckSubsystem extends SubsystemBase {
 
         neckEncoder = NeckRotationConstants.neckEncoder;
         throughBoreEncoder = NeckExtensionConstants.throughBoreEncoder;
-
-        initializeTimer = new Timer();
     }
 
     public void NeckDownInit() {
         double goal = -175;
+        double neckRotationSpeed;
 
-        if (!neckInitialized) {
+        if (!neckInitialized && !extensionBottomLimitSwitch.get() && (RobotBase.isSimulation() || RobotBase.isReal())) {
             double p, i, d;
 
             if (neckEncoder.get() > goal - 3 && neckEncoder.get() < goal + 2) {
-                // Close Controller
                 p = 0.000075;
                 i = 0.00075;
                 d = 0.0;
@@ -90,7 +86,6 @@ public class NeckSubsystem extends SubsystemBase {
             }
 
             neckRotateDownInit.setPID(p, i, d);
-            double neckRotationSpeed;
 
             if (!initializeTimerStarted && neckEncoder.get() <= -170 && neckEncoder.get() >= -175) {
                 initializeTimer.start();
@@ -111,20 +106,6 @@ public class NeckSubsystem extends SubsystemBase {
                 neckRotationSpeed = neckRotateDownInit.calculate(neckEncoder.get(), goal);
                 NeckSetRotateSpeed(neckRotationSpeed);
             }
-            
-            System.out.println("<-------------------->");
-            System.out.println("Encoder Value: " + neckEncoder.get());
-            System.out.println("Set Value: " + goal);
-
-            // if (!bottomLimitSwitch.get()) {
-            //     if (bottomLimitSwitchLastState == false) {
-            //         neckEncoder.reset();
-            //         bottomLimitSwitchLastState = true;
-            //     }
-            //     neckInitialized = true;
-            // } else {
-            //     bottomLimitSwitchLastState = false;
-            // }
         }
     }
 
@@ -146,7 +127,7 @@ public class NeckSubsystem extends SubsystemBase {
     private void NeckFollower() {
         int goal = lastNeckGoalAngle;
 
-        if (neckInitialized || !bottomLimitSwitch.get()) {
+        if (neckInitialized) {
             evaluateExtension();
 
             if (neckGoalAngle < 30) {
@@ -176,8 +157,6 @@ public class NeckSubsystem extends SubsystemBase {
             NeckSetRotateSpeed(neckRotationSpeed);
 
             lastNeckGoalAngle = goal;
-
-            neckInitialized = true;
         }
     }
 
@@ -254,11 +233,6 @@ public class NeckSubsystem extends SubsystemBase {
         leftGearbox2.follow(leftGearbox1, false);
         rightGearbox1.follow(leftGearbox1, true);
         rightGearbox2.follow(leftGearbox1, true);
-
-        System.out.println("<-------------------->");
-        System.out.println("Encoder Value: " + neckEncoder.get());
-        System.out.println("Set Value: " + lastNeckGoalAngle);
-        System.out.println("Power: " + speed);
     }
 
     public void ExtendIn() {
@@ -277,6 +251,21 @@ public class NeckSubsystem extends SubsystemBase {
         NeckDownInit();
         NeckFollower();
 
+        if (topLimitSwitch.get()) {
+            if (neckEncoder.get() >= 195 && neckEncoder.get() < 270) {
+                NeckSetRotateSpeed(0.01);
+            }
+        }
+
+        if (!bottomLimitSwitch.get()) {
+            neckEncoder.reset();
+            neckInitialized = true;
+        } else {
+            if ((neckEncoder.get() <= 12 && neckEncoder.get() > 0 && lastNeckGoalAngle == 0) || (neckEncoder.get() <= -210 && lastNeckGoalAngle < 200)) {
+                NeckSetRotateSpeed(-0.05);
+            }
+        }
+
         if (!intakeLimitSwitch.get() && neckEncoder.get() <= 30 && initializeTimer.get() >= 15) {
             if (!drivingPositionSet) {
                 SubwooferPosition();
@@ -290,28 +279,6 @@ public class NeckSubsystem extends SubsystemBase {
             throughBoreEncoder.reset();
         }
 
-        if (!bottomLimitSwitch.get()) {
-            neckEncoder.reset();
-            neckInitialized = true;
-        } else {
-            if (neckEncoder.get() <= 12 && neckEncoder.get() > 0 && lastNeckGoalAngle == 0) {
-                NeckSetRotateSpeed(-0.05);
-            } else if (neckEncoder.get() <= -210 && lastNeckGoalAngle < 200) {
-                NeckSetRotateSpeed(-0.05);
-            }
-        }
-
-        if (topLimitSwitch.get()) {
-            if (neckEncoder.get() >= 195 && neckEncoder.get() < 270) {
-                NeckSetRotateSpeed(0.01);
-            }
-        }
-
-        // System.out.println("<-------------->");
-        // System.out.println("Intake: " + intakeLimitSwitch.get());
-        // System.out.println("Extension Top: " + extensionTopLimitSwitch.get());
-        // System.out.println("Extension Bottom: " + extensionBottomLimitSwitch.get());
-        // System.out.println("Top: " + topLimitSwitch.get());
-        // System.out.println("Bottom: " + bottomLimitSwitch.get());
+        System.out.println("Encoder Value: " + neckEncoder.get());
     }
 }
