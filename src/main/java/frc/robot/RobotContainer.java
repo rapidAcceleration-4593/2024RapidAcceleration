@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.MatchConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.NeckSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -31,8 +32,7 @@ import java.io.File;
  */
 public class RobotContainer
 {
-  // Define the robot's subsystems and commands
-  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+  private final SwerveSubsystem drivebase;
 
   private final BeakSubsystem beakSubsystem;
   private final ClimberSubsystem climberSubsystem;
@@ -42,9 +42,12 @@ public class RobotContainer
   private final CommandXboxController driverXbox;
   private final CommandXboxController auxXbox;
 
-  // The container for the robot. Contains subsystems, OI devices, and commands.
+  private final String autoName;
+
   public RobotContainer()
   {
+    drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+
     beakSubsystem = new BeakSubsystem();
     climberSubsystem = new ClimberSubsystem();
     visionSubsystem = new VisionSubsystem(drivebase);
@@ -53,13 +56,15 @@ public class RobotContainer
     driverXbox = new CommandXboxController(0);
     auxXbox = new CommandXboxController(1);
 
-    NamedCommands.registerCommand("SubwooferPosition", new SubwooferPosition(neckSubsystem));
+    autoName = MatchConstants.autoName;
+
     NamedCommands.registerCommand("IntakePosition", new IntakePosition(neckSubsystem));
+    NamedCommands.registerCommand("SubwooferPosition", new SubwooferPosition(neckSubsystem));
     NamedCommands.registerCommand("VisionAngle", new VisionNeckAngle(neckSubsystem));
 
+    NamedCommands.registerCommand("Intake", new IntakeAuto(beakSubsystem));
     NamedCommands.registerCommand("Shooter", new ShooterAuto(beakSubsystem));
     NamedCommands.registerCommand("ShooterIntakeStop", new ShooterStopAuto(beakSubsystem));
-    NamedCommands.registerCommand("Intake", new IntakeAuto(beakSubsystem));
 
     configureBindings();
 
@@ -102,10 +107,7 @@ public class RobotContainer
   // Use this method to pass the autonomous command to the main class
   public Command getAutonomousCommand()
   {
-    return new PathPlannerAuto("Test");
-    // return new PathPlannerAuto("PrimaryMiddle");
-    // return new PathPlannerAuto("SecondaryLeft");
-    // return new PathPlannerAuto("SecondaryRight");
+    return new PathPlannerAuto(autoName);
   }
 
   public void setMotorBrake(boolean brake)

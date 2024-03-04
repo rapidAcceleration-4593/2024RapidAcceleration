@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-// import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
@@ -11,36 +10,33 @@ import frc.robot.Constants.NeckRotationConstants;
 
 public class BeakSubsystem extends SubsystemBase {
     
-    // Intake, Outtake, and Shooter
     private final CANSparkMax intakeMotor;
     private final CANSparkMax shooterTopMotor;
     private final CANSparkMax shooterBottomMotor;
 
     private final DigitalInput intakeLimitSwitch;
+    private final Encoder neckEncoder;
+
     private Timer shooterTimer;
     private boolean shooterTimerStarted;
 
-    private final Encoder neckEncoder;
-
     public BeakSubsystem() {
-        // Initialize Motor Objects to CAN SparkMAX ID
         intakeMotor = BeakConstants.intakeMotor;
         shooterTopMotor = BeakConstants.shooterTopMotor;
         shooterBottomMotor = BeakConstants.shooterBottomMotor;
 
         intakeLimitSwitch = BeakConstants.intakeLimitSwitch;
+        neckEncoder = NeckRotationConstants.neckEncoder;
+
         shooterTimer = new Timer();
         shooterTimerStarted = false;
-
-        neckEncoder = NeckRotationConstants.neckEncoder;
     }
 
-    // Intake, Outtake, and Shooter
     public void BeakIntake() {
-        if (!intakeLimitSwitch.get()) {
-            BeakIntakeStop();
-        } else {
+        if (intakeLimitSwitch.get()) {
             intakeMotor.set(-1.0);
+        } else {
+            BeakIntakeStop();
         }
     }
     
@@ -81,8 +77,8 @@ public class BeakSubsystem extends SubsystemBase {
     }
 
     public void ShooterAuto() {
-        shooterTopMotor.set(0.75);
-        shooterBottomMotor.set(0.75);
+        shooterTopMotor.set(1.0);
+        shooterBottomMotor.set(1.0);
     }
 
     public void IntakeAuto() {
