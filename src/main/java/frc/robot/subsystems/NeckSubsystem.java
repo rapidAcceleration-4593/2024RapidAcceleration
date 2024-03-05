@@ -91,7 +91,7 @@ public class NeckSubsystem extends SubsystemBase {
 
             double neckRotationSpeed = neckRotateDownInit.calculate(neckEncoder.get(), neckAutoGoalAngle);
             NeckSetRotateSpeed(neckRotationSpeed);
-        } else {
+        } else if (!neckInitialized && bottomLimitSwitch.get()) {
             System.out.println("Robot Not Initialized Properly");
             
             // Extend Out (if needed), fixed speed to bottom limit switch
@@ -113,7 +113,7 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     public void AmpPosition() {
-        if (neckInitialized) {
+        if (neckInitialized && lastNeckGoalAngle != 0) {
             neckGoalAngle = 270;
             lastNeckGoalAngle = neckGoalAngle;
         }
@@ -177,14 +177,14 @@ public class NeckSubsystem extends SubsystemBase {
             p = 0.00375;
             i = 0.00225;
             d = 0.0;
-        } else if (neckEncoder.get() > neckGoalAngle - 4 && neckEncoder.get() < neckGoalAngle + 3) {
+        } else if (neckEncoder.get() > neckGoalAngle - 4 && neckEncoder.get() < neckGoalAngle + 3 && neckGoalAngle > 5) {
             // Close Controller
-            p = 0.0001;
+            p = 0.00005;
             i = 0.0013;
-            d = 0.0;
-        } else if (neckEncoder.get() < neckGoalAngle && neckEncoder.get() < 195) {
+            d = 0.0012;
+        } else if (neckEncoder.get() < neckGoalAngle && neckEncoder.get() < 235) {
             // Up Controller
-            p = 0.002;
+            p = 0.0019;
             i = 0.0075;
             d = 0.0002;
         } else if (neckEncoder.get() > neckGoalAngle && neckEncoder.get() > 30) {
@@ -290,8 +290,8 @@ public class NeckSubsystem extends SubsystemBase {
         NeckFollower();
 
         if (topLimitSwitch.get()) {
-            if (neckEncoder.get() >= 195 && neckEncoder.get() < 275) {
-                NeckSetRotateSpeed(0.01);
+            if (neckEncoder.get() >= 235 && neckEncoder.get() < 280) {
+                NeckSetRotateSpeed(0.015);
             }
         }
 

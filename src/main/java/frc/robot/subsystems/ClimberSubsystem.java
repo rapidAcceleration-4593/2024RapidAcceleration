@@ -6,21 +6,26 @@ import frc.robot.Constants.ClimberConstants;
 
 public class ClimberSubsystem extends SubsystemBase {
     
+    // Define Empty CANSparkMax Motor Controller Object
     private final CANSparkMax climberMotor;
 
     public ClimberSubsystem() {
+        // Initialize Empty Object to IDs specified in the Constants.java File
         climberMotor = ClimberConstants.climberMotor;
     }
 
     public void ClimberUp() {
+        // Run Climber Up when command is called
         climberMotor.set(1.0);
     }
 
     public void ClimberDown() {
+        // Run Climber Down when command is called
         climberMotor.set(-1.0);
     }
 
     public void ClimberStop() {
+        // When no other climber commands are called, stop driving the motor
         climberMotor.set(0.0);
     }
 }

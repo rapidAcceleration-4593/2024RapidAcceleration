@@ -22,12 +22,12 @@ import swervelib.parser.PIDFConfig;
  */
 public final class Constants
 {
-  public static final double ROBOT_MASS = (100) * 0.453592; // 10 lbs * kg per pound
+  public static final double ROBOT_MASS = (120) * 0.453592; // 10 lbs * kg per pound
   public static final Matter CHASSIS    = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
 
   public static final class MatchConstants {
-    public static final boolean runNeckInitialization = true;
+    public static final boolean runNeckInitialization = false;
     public static final int speakerAprilTagID = 4;
     public static final String autoName = "PrimaryMiddle"; // PrimaryMiddle OR SecondaryLeft OR SecondaryRight
   }
