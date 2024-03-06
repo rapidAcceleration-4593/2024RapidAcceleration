@@ -75,7 +75,7 @@ public class NeckSubsystem extends SubsystemBase {
                 initializeTimer.start();
             }
 
-            if (initializeTimer.get() >= 1.25) {
+            if (initializeTimer.get() >= 0.8) {
                 if (extensionState != 1) {
                     ExtendOut();
                     neckAutoGoalAngle = -175;
@@ -177,7 +177,12 @@ public class NeckSubsystem extends SubsystemBase {
             p = 0.00375;
             i = 0.00225;
             d = 0.0;
-        } else if (neckEncoder.get() > neckGoalAngle - 4 && neckEncoder.get() < neckGoalAngle + 3 && neckGoalAngle > 5) {
+        } else if (neckGoalAngle < 5 && neckEncoder.get() < 5) {
+            // Default Controller
+            p = 0.0;
+            i = 0.0;
+            d = 0.0;
+        } else if (neckEncoder.get() > neckGoalAngle - 4 && neckEncoder.get() < neckGoalAngle + 3) {
             // Close Controller
             p = 0.00005;
             i = 0.0013;

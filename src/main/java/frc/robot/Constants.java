@@ -27,9 +27,9 @@ public final class Constants
   public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
 
   public static final class MatchConstants {
-    public static final boolean runNeckInitialization = false;
+    public static final boolean runNeckInitialization = true;
     public static final int speakerAprilTagID = 4;
-    public static final String autoName = "PrimaryMiddle"; // PrimaryMiddle OR SecondaryLeft OR SecondaryRight
+    public static final String autoName = "SecondaryRight"; // PrimaryMiddle OR SecondaryLeft OR SecondaryRight
   }
 
   public static final class NeckRotationConstants {

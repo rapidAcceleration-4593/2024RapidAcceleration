@@ -14,19 +14,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SubwooferPosition"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.75
+            "waitTime": 0.6
           }
         },
         {
@@ -50,7 +38,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.5
+            "waitTime": 0.75
           }
         },
         {
@@ -60,15 +48,9 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "IntakePosition"
-          }
-        },
-        {
           "type": "wait",
           "data": {
-            "waitTime": 7.0
+            "waitTime": 6.0
           }
         },
         {
