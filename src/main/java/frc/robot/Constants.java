@@ -28,8 +28,7 @@ public final class Constants
 
   public static final class MatchConstants {
     public static final boolean runNeckInitialization = true;
-    public static final int speakerAprilTagID = 4;
-    public static final String autoName = "SecondaryRight"; // PrimaryMiddle OR SecondaryLeft OR SecondaryRight
+    public static final String autoName = "PrimaryMiddle"; // PrimaryMiddle OR SourceSide OR AmpSide OR NoMove OR ScoreNoMove
   }
 
   public static final class NeckRotationConstants {

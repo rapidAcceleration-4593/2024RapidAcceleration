@@ -20,6 +20,7 @@ import frc.robot.commands.AutoCommands.*;
 import frc.robot.commands.BeakCommands.*;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.NeckCommands.*;
+import frc.robot.commands.NeckCommands.ManualControl.*;
 import frc.robot.commands.NeckCommands.PresetPositions.*;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -87,7 +88,14 @@ public class RobotContainer
     driverXbox.povLeft().onTrue(new SubwooferPosition(neckSubsystem));
     driverXbox.b().onTrue(new VisionNeckAngle(neckSubsystem));
 
+    driverXbox.y().whileTrue(new NeckUp(neckSubsystem));
+    driverXbox.y().whileFalse(new NeckStop(neckSubsystem));
+    driverXbox.a().whileTrue(new NeckDown(neckSubsystem));
+    driverXbox.a().whileFalse(new NeckStop(neckSubsystem));
+
     // Auxilary Controller
+    auxXbox.back().onTrue(new ToggleManualControl(neckSubsystem));
+
     auxXbox.rightBumper().whileTrue(new BeakShooter(beakSubsystem));
     auxXbox.rightBumper().whileFalse(new BeakShooterStop(beakSubsystem));
 

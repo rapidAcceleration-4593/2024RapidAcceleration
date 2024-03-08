@@ -36,9 +36,9 @@ public class NeckSubsystem extends SubsystemBase {
     private boolean initializeTimerStarted = false;
     private boolean bottomLimitSwitchState = false;
     private boolean runNeckInitialization;
+    private boolean manualControlEnabled = false;
 
     private int extensionState = 1;
-    private int speakerAprilTagID;
 
     private int neckGoalAngle = 0;
     private int neckAutoGoalAngle = 0;
@@ -63,12 +63,10 @@ public class NeckSubsystem extends SubsystemBase {
         throughBoreEncoder = NeckExtensionConstants.throughBoreEncoder;
 
         runNeckInitialization = MatchConstants.runNeckInitialization;
-
-        speakerAprilTagID = MatchConstants.speakerAprilTagID;
     }
 
     public void NeckDownInit() {
-        if (!neckInitialized && runNeckInitialization && !extensionBottomLimitSwitch.get() && bottomLimitSwitch.get() && topLimitSwitch.get()) {
+        if (!neckInitialized && runNeckInitialization && !extensionBottomLimitSwitch.get() && bottomLimitSwitch.get()) { // && topLimitSwitch.get()
             evaluateExtension();
 
             if (!initializeTimerStarted && neckEncoder.get() <= -170 && neckEncoder.get() >= -175) {
@@ -91,29 +89,36 @@ public class NeckSubsystem extends SubsystemBase {
 
             double neckRotationSpeed = neckRotateDownInit.calculate(neckEncoder.get(), neckAutoGoalAngle);
             NeckSetRotateSpeed(neckRotationSpeed);
-        } else if (!neckInitialized && bottomLimitSwitch.get()) {
+        } else {if (!neckInitialized && bottomLimitSwitch.get()) {
             System.out.println("Robot Not Initialized Properly");
             
             // Extend Out (if needed), fixed speed to bottom limit switch
-        }
+        }}
     }
 
     public void IntakePosition() {
-        if (neckInitialized && intakeLimitSwitch.get() && lastNeckGoalAngle != 270) {
+        if (neckInitialized && intakeLimitSwitch.get() && lastNeckGoalAngle != 270 && !manualControlEnabled) {
             neckGoalAngle = 0;
             lastNeckGoalAngle = neckGoalAngle;
         }
     }
 
-    public void SubwooferPosition() {
-        if (neckInitialized) {
+    private void DrivingPosition() {
+        if (neckInitialized && !manualControlEnabled) {
             neckGoalAngle = 55;
             lastNeckGoalAngle = neckGoalAngle;
         }
     }
 
+    public void SubwooferPosition() {
+        if (neckInitialized && !manualControlEnabled) {
+            neckGoalAngle = 75;
+            lastNeckGoalAngle = neckGoalAngle;
+        }
+    }
+
     public void AmpPosition() {
-        if (neckInitialized && lastNeckGoalAngle != 0) {
+        if (neckInitialized && lastNeckGoalAngle != 0 && !manualControlEnabled) {
             neckGoalAngle = 270;
             lastNeckGoalAngle = neckGoalAngle;
         }
@@ -122,7 +127,7 @@ public class NeckSubsystem extends SubsystemBase {
     private void NeckFollower() {
         int goal = lastNeckGoalAngle;
 
-        if (neckInitialized) {
+        if (neckInitialized) { // && !manualControlEnabled
             evaluateExtension();
 
             if (neckGoalAngle < 30) {
@@ -156,10 +161,10 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     private void evaluateExtension() {
-        if (!extensionTopLimitSwitch.get()) {
+        if (!extensionTopLimitSwitch.get()) { //  || throughBoreEncoder.get() <= -0.5
             // Extended Out
             extensionState = 1;
-        } else if (!extensionBottomLimitSwitch.get()) {
+        } else if (!extensionBottomLimitSwitch.get()) { //  || throughBoreEncoder.get() >= -0.2
             // Extended In
             extensionState = 2;
         } else {
@@ -178,7 +183,7 @@ public class NeckSubsystem extends SubsystemBase {
             i = 0.00225;
             d = 0.0;
         } else if (neckGoalAngle < 5 && neckEncoder.get() < 5) {
-            // Default Controller
+            // Ground Controller
             p = 0.0;
             i = 0.0;
             d = 0.0;
@@ -186,7 +191,7 @@ public class NeckSubsystem extends SubsystemBase {
             // Close Controller
             p = 0.00005;
             i = 0.0013;
-            d = 0.0012;
+            d = 0.0008;
         } else if (neckEncoder.get() < neckGoalAngle && neckEncoder.get() < 235) {
             // Up Controller
             p = 0.0019;
@@ -237,7 +242,7 @@ public class NeckSubsystem extends SubsystemBase {
     public void VisionNeckAngle() {
         boolean hasTargets = LimelightHelpers.getTV("");
 
-        if (hasTargets && LimelightHelpers.getFiducialID("") == speakerAprilTagID) {
+        if (hasTargets && (LimelightHelpers.getFiducialID("") == 4 || LimelightHelpers.getFiducialID("") == 7)) {
             Pose3d target = LimelightHelpers.getTargetPose3d_CameraSpace("");
             
             System.out.println("Z Distance: " + target.getZ());
@@ -249,8 +254,8 @@ public class NeckSubsystem extends SubsystemBase {
 
     private int visionSetAngle(double distance) {
         int angle = 0;
-        if (distance > 3.3 && distance < 10) {
-            angle = (int) (-349.351*Math.pow(distance, -0.854219) + 180.059);
+        if (distance > 3.3 && distance < 13) {
+            angle = (int) (-349.351*Math.pow(distance, -0.854219) + 200.0);
         }
         return angle;
     }
@@ -274,25 +279,51 @@ public class NeckSubsystem extends SubsystemBase {
         neckExtensionMotor.set(0.0);
     }
 
+    
+    public void ToggleManualControl() {
+        if (manualControlEnabled) {
+            manualControlEnabled = false;
+        } else {
+            manualControlEnabled = true;
+        }
+    }
+
     public void NeckUp() {
-        NeckSetRotateSpeed(0.16);
-        neckGoalAngle = neckEncoder.get();
-        lastNeckGoalAngle = neckGoalAngle;
+        if (manualControlEnabled) {
+            NeckSetRotateSpeed(0.16);
+            neckGoalAngle = neckEncoder.get();
+            lastNeckGoalAngle = neckGoalAngle;
+        }
     }
 
     public void NeckDown() {
-        NeckSetRotateSpeed(-0.05);
-        neckGoalAngle = neckEncoder.get();
-        lastNeckGoalAngle = neckGoalAngle;
+        if (manualControlEnabled) {
+            NeckSetRotateSpeed(-0.06);
+            neckGoalAngle = neckEncoder.get();
+            lastNeckGoalAngle = neckGoalAngle;
+        }
     }
 
     public void NeckStop() {
-        NeckSetRotateSpeed(0.0);
+        if (manualControlEnabled) {
+            NeckSetRotateSpeed(0.0);
+        }
     }
 
     public void periodic() {
         NeckDownInit();
-        NeckFollower();
+
+        if (!manualControlEnabled) {
+            NeckFollower();
+        } else {
+            evaluateExtension();
+            
+            if (extensionState != 1) {
+                ExtendOut();
+            } else {
+                ExtendStop();
+            }
+        }
 
         if (topLimitSwitch.get()) {
             if (neckEncoder.get() >= 235 && neckEncoder.get() < 280) {
@@ -313,9 +344,9 @@ public class NeckSubsystem extends SubsystemBase {
             }
         }
 
-        if (!intakeLimitSwitch.get() && neckEncoder.get() <= 30) { //  && initializeTimer.get() >= 15
+        if (!intakeLimitSwitch.get() && neckEncoder.get() <= 30 && initializeTimer.get() >= 15) {
             if (!drivingPositionSet) {
-                SubwooferPosition();
+                DrivingPosition();
                 drivingPositionSet = true;
             }
         } else {
@@ -329,5 +360,15 @@ public class NeckSubsystem extends SubsystemBase {
         System.out.println("<--------------->");
         System.out.println("Goal:" + lastNeckGoalAngle);
         System.out.println("Encoder Value: " + neckEncoder.get());
+
+        System.out.println("Top Limit Switch: " + topLimitSwitch.get());
+        System.out.println("Bottom Limit Switch: " + bottomLimitSwitch.get());
+        System.out.println("Extension Top Limit Switch: " + extensionTopLimitSwitch.get());
+        System.out.println("Extension Bottom Limit Switch: " + extensionBottomLimitSwitch.get());
+        System.out.println("Intake Limit Switch: " + intakeLimitSwitch.get());
+
+        System.out.println("Through Bore Encoder: " + throughBoreEncoder.get());
+
+        System.out.println("Manual Control Enabled: " + manualControlEnabled);
     }
 }
