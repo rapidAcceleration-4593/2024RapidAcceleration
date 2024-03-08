@@ -290,17 +290,25 @@ public class NeckSubsystem extends SubsystemBase {
 
     public void NeckUp() {
         if (manualControlEnabled) {
-            NeckSetRotateSpeed(0.16);
-            neckGoalAngle = neckEncoder.get();
-            lastNeckGoalAngle = neckGoalAngle;
+            if (topLimitSwitch.get()) {
+                NeckSetRotateSpeed(0.16);
+                neckGoalAngle = neckEncoder.get();
+                lastNeckGoalAngle = neckGoalAngle;
+            } else {
+                NeckStop();
+            }
         }
     }
 
     public void NeckDown() {
         if (manualControlEnabled) {
-            NeckSetRotateSpeed(-0.06);
-            neckGoalAngle = neckEncoder.get();
-            lastNeckGoalAngle = neckGoalAngle;
+            if (bottomLimitSwitch.get()) {
+                NeckSetRotateSpeed(-0.06);
+                neckGoalAngle = neckEncoder.get();
+                lastNeckGoalAngle = neckGoalAngle;
+            } else {
+                NeckStop();
+            }
         }
     }
 
@@ -315,6 +323,34 @@ public class NeckSubsystem extends SubsystemBase {
 
         if (!manualControlEnabled) {
             NeckFollower();
+
+            if (topLimitSwitch.get()) {
+                if (neckEncoder.get() >= 235 && neckEncoder.get() < 280) {
+                    NeckSetRotateSpeed(0.015);
+                }
+            }
+
+            if (!bottomLimitSwitch.get()) {
+                if (!bottomLimitSwitchState) {
+                    neckEncoder.reset();
+                    bottomLimitSwitchState = true;
+                }
+                neckInitialized = true;
+            } else {
+                bottomLimitSwitchState = false;
+                if ((neckEncoder.get() <= 12 && neckEncoder.get() > 0 && lastNeckGoalAngle == 0) || (neckEncoder.get() <= -210 && lastNeckGoalAngle < 200)) {
+                    NeckSetRotateSpeed(-0.05);
+                }
+            }
+
+            if (!intakeLimitSwitch.get() && neckEncoder.get() <= 30 && initializeTimer.get() >= 15) {
+                if (!drivingPositionSet) {
+                    DrivingPosition();
+                    drivingPositionSet = true;
+                }
+            } else {
+                drivingPositionSet = false;
+            }
         } else {
             evaluateExtension();
             
@@ -323,34 +359,6 @@ public class NeckSubsystem extends SubsystemBase {
             } else {
                 ExtendStop();
             }
-        }
-
-        if (topLimitSwitch.get()) {
-            if (neckEncoder.get() >= 235 && neckEncoder.get() < 280) {
-                NeckSetRotateSpeed(0.015);
-            }
-        }
-
-        if (!bottomLimitSwitch.get()) {
-            if (!bottomLimitSwitchState) {
-                neckEncoder.reset();
-                bottomLimitSwitchState = true;
-            }
-            neckInitialized = true;
-        } else {
-            bottomLimitSwitchState = false;
-            if ((neckEncoder.get() <= 12 && neckEncoder.get() > 0 && lastNeckGoalAngle == 0) || (neckEncoder.get() <= -210 && lastNeckGoalAngle < 200)) {
-                NeckSetRotateSpeed(-0.05);
-            }
-        }
-
-        if (!intakeLimitSwitch.get() && neckEncoder.get() <= 30 && initializeTimer.get() >= 15) {
-            if (!drivingPositionSet) {
-                DrivingPosition();
-                drivingPositionSet = true;
-            }
-        } else {
-            drivingPositionSet = false;
         }
 
         if (!extensionBottomLimitSwitch.get()) {
