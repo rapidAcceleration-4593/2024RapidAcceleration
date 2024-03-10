@@ -100,6 +100,9 @@ public class NeckSubsystem extends SubsystemBase {
         if (neckInitialized && intakeLimitSwitch.get() && lastNeckGoalAngle != 270 && !manualControlEnabled) {
             neckGoalAngle = 0;
             lastNeckGoalAngle = neckGoalAngle;
+        // } else if (!intakeLimitSwitch.get() && lastNeckGoalAngle != 270 && !manualControlEnabled) {
+        //     neckGoalAngle = 55;
+        //     lastNeckGoalAngle = neckGoalAngle;
         }
     }
 
@@ -112,7 +115,7 @@ public class NeckSubsystem extends SubsystemBase {
 
     public void SubwooferPosition() {
         if (neckInitialized && !manualControlEnabled) {
-            neckGoalAngle = 75;
+            neckGoalAngle = 80;
             lastNeckGoalAngle = neckGoalAngle;
         }
     }
@@ -161,7 +164,7 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     private void evaluateExtension() {
-        if (!extensionTopLimitSwitch.get()) { //  || throughBoreEncoder.get() <= -0.5
+        if (!extensionTopLimitSwitch.get() || throughBoreEncoder.get() <= -1) {
             // Extended Out
             extensionState = 1;
         } else if (!extensionBottomLimitSwitch.get()) { //  || throughBoreEncoder.get() >= -0.2
@@ -177,12 +180,13 @@ public class NeckSubsystem extends SubsystemBase {
         double p, i, d;
 
         // Calculate PID Constants based on the neck encoder value
-        if (neckEncoder.get() <= 30 && neckEncoder.get() > 12 && neckGoalAngle <= 30) {
-            // Bottom Controller
-            p = 0.00375;
-            i = 0.00225;
-            d = 0.0;
-        } else if (neckGoalAngle < 5 && neckEncoder.get() < 5) {
+        // if (neckEncoder.get() <= 30 && neckEncoder.get() > 12 && neckGoalAngle <= 30) {
+        //     // Bottom Controller
+        //     p = 0.007;
+        //     i = 0.0045;
+        //     d = 0.0;
+        // } 
+        if (neckGoalAngle < 5 && neckEncoder.get() < 5) {
             // Ground Controller
             p = 0.0;
             i = 0.0;
@@ -197,7 +201,7 @@ public class NeckSubsystem extends SubsystemBase {
             p = 0.0019;
             i = 0.0075;
             d = 0.0002;
-        } else if (neckEncoder.get() > neckGoalAngle && neckEncoder.get() > 30) {
+        } else if (neckEncoder.get() > neckGoalAngle && neckEncoder.get() > 25) {
             // Down Controller
             p = 0.0016;
             i = 0.0;
@@ -338,7 +342,7 @@ public class NeckSubsystem extends SubsystemBase {
                 neckInitialized = true;
             } else {
                 bottomLimitSwitchState = false;
-                if ((neckEncoder.get() <= 12 && neckEncoder.get() > 0 && lastNeckGoalAngle == 0) || (neckEncoder.get() <= -210 && lastNeckGoalAngle < 200)) {
+                if ((neckEncoder.get() <= 25 && neckEncoder.get() > 0 && lastNeckGoalAngle == 0) || (neckEncoder.get() <= -210 && lastNeckGoalAngle < 200)) {
                     NeckSetRotateSpeed(-0.05);
                 }
             }
@@ -375,7 +379,7 @@ public class NeckSubsystem extends SubsystemBase {
         System.out.println("Extension Bottom Limit Switch: " + extensionBottomLimitSwitch.get());
         System.out.println("Intake Limit Switch: " + intakeLimitSwitch.get());
 
-        System.out.println("Through Bore Encoder: " + throughBoreEncoder.get());
+        // System.out.println("Through Bore Encoder: " + throughBoreEncoder.get());
 
         System.out.println("Manual Control Enabled: " + manualControlEnabled);
     }
