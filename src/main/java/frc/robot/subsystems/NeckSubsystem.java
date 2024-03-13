@@ -89,7 +89,8 @@ public class NeckSubsystem extends SubsystemBase {
 
             double neckRotationSpeed = neckRotateDownInit.calculate(neckEncoder.get(), neckAutoGoalAngle);
             NeckSetRotateSpeed(neckRotationSpeed);
-        } else {if (!neckInitialized && bottomLimitSwitch.get()) {
+        } else {
+            if (!neckInitialized && bottomLimitSwitch.get()) {
             System.out.println("Robot Not Initialized Properly");
             
             // Extend Out (if needed), fixed speed to bottom limit switch
@@ -164,7 +165,7 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     private void evaluateExtension() {
-        if (!extensionTopLimitSwitch.get() || throughBoreEncoder.get() <= -1) {
+        if (!extensionTopLimitSwitch.get()) { // throughBoreEncoder.get() <= -1
             // Extended Out
             extensionState = 1;
         } else if (!extensionBottomLimitSwitch.get()) { //  || throughBoreEncoder.get() >= -0.2
@@ -179,19 +180,12 @@ public class NeckSubsystem extends SubsystemBase {
     private void updatePIDConstants() {
         double p, i, d;
 
-        // Calculate PID Constants based on the neck encoder value
-        // if (neckEncoder.get() <= 30 && neckEncoder.get() > 12 && neckGoalAngle <= 30) {
-        //     // Bottom Controller
-        //     p = 0.007;
-        //     i = 0.0045;
-        //     d = 0.0;
-        // } 
         if (neckGoalAngle < 5 && neckEncoder.get() < 5) {
             // Ground Controller
             p = 0.0;
             i = 0.0;
             d = 0.0;
-        } else if (neckEncoder.get() > neckGoalAngle - 4 && neckEncoder.get() < neckGoalAngle + 3) {
+        } else if (neckEncoder.get() > neckGoalAngle - 4 && neckEncoder.get() < neckGoalAngle + 3) { // && neckGoalAngle > 5 && neckEncoder.get() > 5
             // Close Controller
             p = 0.00005;
             i = 0.0013;
@@ -382,5 +376,30 @@ public class NeckSubsystem extends SubsystemBase {
         // System.out.println("Through Bore Encoder: " + throughBoreEncoder.get());
 
         System.out.println("Manual Control Enabled: " + manualControlEnabled);
+    }
+
+
+
+
+
+
+
+
+
+    private void RobotState() {
+        // Extension State Machine
+        if (!extensionTopLimitSwitch.get()) {
+            // Extended Out
+            extensionState = 1;
+        } else if (!extensionBottomLimitSwitch.get()) {
+            // Extended In
+            extensionState = 2;
+        } else {
+            // In motion
+            extensionState = 0;
+        }
+
+
+
     }
 }

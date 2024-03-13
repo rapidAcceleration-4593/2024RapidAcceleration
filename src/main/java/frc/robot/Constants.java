@@ -39,6 +39,7 @@ public final class Constants
     public final static DigitalInput topLimitSwitch = new DigitalInput(4);
     public final static DigitalInput bottomLimitSwitch = new DigitalInput(1);
     public final static Encoder neckEncoder = new Encoder(8, 9);
+    // public final static Encoder backupNeckEncoder = new Encoder(, );
   }
 
   public static final class NeckExtensionConstants {
