@@ -13,59 +13,40 @@ import frc.robot.Constants.*;
 
 public class NeckSubsystem extends SubsystemBase {
 
-    private final CANSparkMax leftGearbox1;
-    private final CANSparkMax leftGearbox2;
-    private final CANSparkMax rightGearbox1;
-    private final CANSparkMax rightGearbox2;
-    private final CANSparkMax neckExtensionMotor;
+    private final CANSparkMax leftGearbox1 = NeckRotationConstants.leftGearbox1;;
+    private final CANSparkMax leftGearbox2 = NeckRotationConstants.leftGearbox2;
+    private final CANSparkMax rightGearbox1 = NeckRotationConstants.rightGearbox1;
+    private final CANSparkMax rightGearbox2 = NeckRotationConstants.rightGearbox2;
+    private final CANSparkMax neckExtensionMotor = NeckExtensionConstants.neckExtensionMotor;
 
-    private final DigitalInput intakeLimitSwitch;
-    private final DigitalInput extensionTopLimitSwitch;
-    private final DigitalInput extensionBottomLimitSwitch;
-    private final DigitalInput topLimitSwitch;
-    private final DigitalInput bottomLimitSwitch;
+    private final DigitalInput intakeLimitSwitch = BeakConstants.intakeLimitSwitch;
+    private final DigitalInput extensionTopLimitSwitch = NeckExtensionConstants.extensionTopLimitSwitch;
+    private final DigitalInput extensionBottomLimitSwitch = NeckExtensionConstants.extensionBottomLimitSwitch;
+    private final DigitalInput topLimitSwitch = NeckRotationConstants.topLimitSwitch;
+    private final DigitalInput bottomLimitSwitch = NeckRotationConstants.bottomLimitSwitch;
 
-    public final PIDController neckRotateController = new PIDController(0.0, 0.0, 0.0);
-    public final PIDController neckRotateDownInit = new PIDController(0.0, 0.0, 0.0);
+    private final Encoder neckEncoder = NeckRotationConstants.neckEncoder;
+    private final Encoder backupNeckEncoder = NeckRotationConstants.backupNeckEncoder;
+    private final DutyCycleEncoder throughBoreEncoder = NeckExtensionConstants.throughBoreEncoder;
 
-    private final Encoder neckEncoder;
-    private final Encoder backupNeckEncoder;
-    private final DutyCycleEncoder throughBoreEncoder;
-
+    private boolean runNeckInitialization = MatchConstants.runNeckInitialization;;
     private boolean neckInitialized = false;
     private boolean drivingPositionSet = false;
     private boolean initializeTimerStarted = false;
     private boolean bottomLimitSwitchState = false;
-    private boolean runNeckInitialization;
     private boolean manualControlEnabled = false;
 
-    private int extensionState = 1;
+    public final PIDController neckRotateController = new PIDController(0.0, 0.0, 0.0);
+    public final PIDController neckRotateDownInit = new PIDController(0.0, 0.0, 0.0);
 
+    private int extensionState = 1;
     private int neckGoalAngle = 0;
     private int neckAutoGoalAngle = 0;
     private int lastNeckGoalAngle = neckGoalAngle;
 
     private Timer initializeTimer = new Timer();
 
-    public NeckSubsystem() {
-        leftGearbox1 = NeckRotationConstants.leftGearbox1;
-        leftGearbox2 = NeckRotationConstants.leftGearbox2;
-        rightGearbox1 = NeckRotationConstants.rightGearbox1;
-        rightGearbox2 = NeckRotationConstants.rightGearbox2;
-        neckExtensionMotor = NeckExtensionConstants.neckExtensionMotor;
-
-        intakeLimitSwitch = BeakConstants.intakeLimitSwitch;
-        extensionTopLimitSwitch = NeckExtensionConstants.extensionTopLimitSwitch;
-        extensionBottomLimitSwitch = NeckExtensionConstants.extensionBottomLimitSwitch;
-        topLimitSwitch = NeckRotationConstants.topLimitSwitch;
-        bottomLimitSwitch = NeckRotationConstants.bottomLimitSwitch;
-
-        neckEncoder = NeckRotationConstants.neckEncoder;
-        backupNeckEncoder = NeckRotationConstants.backupNeckEncoder;
-        throughBoreEncoder = NeckExtensionConstants.throughBoreEncoder;
-
-        runNeckInitialization = MatchConstants.runNeckInitialization;
-    }
+    public NeckSubsystem() {}
 
     public void NeckDownInit() {
         if (!neckInitialized && runNeckInitialization && bottomLimitSwitch.get()) {
@@ -260,13 +241,7 @@ public class NeckSubsystem extends SubsystemBase {
     public void ExtendOut() { neckExtensionMotor.set(-0.5); }
     public void ExtendStop() { neckExtensionMotor.set(0.0); }
     
-    public void ToggleManualControl() {
-        if (manualControlEnabled) {
-            manualControlEnabled = false;
-        } else {
-            manualControlEnabled = true;
-        }
-    }
+    public void ToggleManualControl() { manualControlEnabled = !manualControlEnabled; }
 
     public void NeckUp() {
         if (manualControlEnabled) {
