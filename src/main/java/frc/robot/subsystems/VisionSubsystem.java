@@ -17,7 +17,7 @@ public class VisionSubsystem extends SubsystemBase {
         // Initialize Swerve
         this.swerve = swerve;
 
-        rotationController = new PIDController(0.7, 0.0, 0.01);
+        rotationController = new PIDController(0.1, 0.0, 0.0);
         rotationDeadband = 0.01;
     }
 
