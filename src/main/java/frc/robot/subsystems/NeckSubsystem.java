@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
@@ -13,7 +12,7 @@ import frc.robot.Constants.*;
 
 public class NeckSubsystem extends SubsystemBase {
 
-    private final CANSparkMax leftGearbox1 = NeckRotationConstants.leftGearbox1;;
+    private final CANSparkMax leftGearbox1 = NeckRotationConstants.leftGearbox1;
     private final CANSparkMax leftGearbox2 = NeckRotationConstants.leftGearbox2;
     private final CANSparkMax rightGearbox1 = NeckRotationConstants.rightGearbox1;
     private final CANSparkMax rightGearbox2 = NeckRotationConstants.rightGearbox2;
@@ -46,66 +45,40 @@ public class NeckSubsystem extends SubsystemBase {
 
     private Timer initializeTimer = new Timer();
 
+    private enum NeckStates {
+        INITIALIZE,
+        INTAKE,
+        DRIVE,
+        SUBWOOFER,
+        VISION,
+        YEET,
+        AMP,
+        MANUAL_UP,
+        MANUAL_DOWN,
+        MANUAL_STOP
+    }
+
+    private NeckStates currentNeckState = NeckStates.INITIALIZE;
+
     public NeckSubsystem() {}
 
-    public void NeckDownInit() {
-        if (!neckInitialized && runNeckInitialization && bottomLimitSwitch.get()) {
-            evaluateExtension();
+    public void IntakePosition() { currentNeckState = NeckStates.INTAKE; }
+    private void DrivingPosition() { currentNeckState = NeckStates.DRIVE; }
+    public void SubwooferPosition() { currentNeckState = NeckStates.SUBWOOFER; }
+    public void VisionNeckAngle() { currentNeckState = NeckStates.VISION; }
+    public void YeetPosition() { currentNeckState = NeckStates.YEET; }
+    public void AmpPosition() { currentNeckState = NeckStates.AMP; }
 
-            if (!extensionBottomLimitSwitch.get()) {
-                if (!initializeTimerStarted && neckEncoder.get() <= -150 && neckEncoder.get() >= -190) {
-                    initializeTimer.start();
-                }
+    public void NeckUp() { currentNeckState = NeckStates.MANUAL_UP; }
+    public void NeckDown() { currentNeckState = NeckStates.MANUAL_DOWN; }
+    public void NeckStop() { currentNeckState = NeckStates.MANUAL_STOP; }
 
-                if (initializeTimer.get() >= 0.8) {
-                    if (extensionState != 1) {
-                        ExtendOut();
-                        neckAutoGoalAngle = -175;
-                    }
-                } else {
-                    neckAutoGoalAngle = -175;
-                }
-            }
+    public void EnableManualControl() { manualControlEnabled = true; }
+    public void DisableManualControl() { manualControlEnabled = false; }
 
-            if (extensionState == 1) {
-                ExtendStop();
-                neckAutoGoalAngle = -220;
-            }
-
-            updateAutoPIDConstants();
-
-            double neckRotationSpeed = neckRotateDownInit.calculate(neckEncoder.get(), neckAutoGoalAngle);
-            NeckSetRotateSpeed(neckRotationSpeed);
-        }
-    }
-
-    public void IntakePosition() {
-        if (neckInitialized && intakeLimitSwitch.get() && lastNeckGoalAngle != 270 && !manualControlEnabled) {
-            neckGoalAngle = 0;
-            lastNeckGoalAngle = neckGoalAngle;
-        }
-    }
-
-    private void DrivingPosition() {
-        if (neckInitialized && !manualControlEnabled) {
-            neckGoalAngle = 55;
-            lastNeckGoalAngle = neckGoalAngle;
-        }
-    }
-
-    public void SubwooferPosition() {
-        if (neckInitialized && !manualControlEnabled) {
-            neckGoalAngle = 80;
-            lastNeckGoalAngle = neckGoalAngle;
-        }
-    }
-
-    public void AmpPosition() {
-        if (neckInitialized && lastNeckGoalAngle != 0 && !manualControlEnabled) {
-            neckGoalAngle = 270;
-            lastNeckGoalAngle = neckGoalAngle;
-        }
-    }
+    public void ExtendIn() { neckExtensionMotor.set(0.5); }
+    public void ExtendOut() { neckExtensionMotor.set(-0.5); }
+    public void ExtendStop() { neckExtensionMotor.set(0.0); }
 
     private void NeckFollower() {
         int goal = lastNeckGoalAngle;
@@ -145,7 +118,7 @@ public class NeckSubsystem extends SubsystemBase {
         if (!extensionTopLimitSwitch.get()) { // throughBoreEncoder.get() <= -1
             // Extended Out
             extensionState = 1;
-        } else if (!extensionBottomLimitSwitch.get()) { //  || throughBoreEncoder.get() >= -0.2
+        } else if (!extensionBottomLimitSwitch.get()) { // || throughBoreEncoder.get() >= -0.2
             // Extended In
             extensionState = 2;
         } else {
@@ -209,19 +182,6 @@ public class NeckSubsystem extends SubsystemBase {
         neckRotateDownInit.setPID(p, i, d);
     }
 
-    public void VisionNeckAngle() {
-        boolean hasTargets = LimelightHelpers.getTV("");
-
-        if (hasTargets && (LimelightHelpers.getFiducialID("") == 4 || LimelightHelpers.getFiducialID("") == 7)) {
-            Pose3d target = LimelightHelpers.getTargetPose3d_CameraSpace("");
-            
-            System.out.println("Z Distance: " + target.getZ());
-
-            neckGoalAngle = visionSetAngle(target.getZ());
-            lastNeckGoalAngle = neckGoalAngle;
-        }
-    }
-
     private int visionSetAngle(double distance) {
         int angle = 0;
         if (distance > 3.3 && distance < 13) {
@@ -237,44 +197,9 @@ public class NeckSubsystem extends SubsystemBase {
         rightGearbox2.follow(leftGearbox1, true);
     }
 
-    public void ExtendIn() { neckExtensionMotor.set(0.5); }
-    public void ExtendOut() { neckExtensionMotor.set(-0.5); }
-    public void ExtendStop() { neckExtensionMotor.set(0.0); }
-    
-    public void ToggleManualControl() { manualControlEnabled = !manualControlEnabled; }
-
-    public void NeckUp() {
-        if (manualControlEnabled) {
-            if (topLimitSwitch.get()) {
-                NeckSetRotateSpeed(0.16);
-                neckGoalAngle = neckEncoder.get();
-                lastNeckGoalAngle = neckGoalAngle;
-            } else {
-                NeckStop();
-            }
-        }
-    }
-
-    public void NeckDown() {
-        if (manualControlEnabled) {
-            if (bottomLimitSwitch.get()) {
-                NeckSetRotateSpeed(-0.06);
-                neckGoalAngle = neckEncoder.get();
-                lastNeckGoalAngle = neckGoalAngle;
-            } else {
-                NeckStop();
-            }
-        }
-    }
-
-    public void NeckStop() {
-        if (manualControlEnabled) {
-            NeckSetRotateSpeed(0.0);
-        }
-    }
-
     public void periodic() {
-        NeckDownInit();
+        manageNeckStates();
+        evaluateEncoderFailure();
 
         if (!manualControlEnabled) {
             if (neckInitialized) {
@@ -336,5 +261,120 @@ public class NeckSubsystem extends SubsystemBase {
         // System.out.println("Through Bore Encoder: " + throughBoreEncoder.get());
 
         System.out.println("Manual Control Enabled: " + manualControlEnabled);
+    }
+
+
+    private void evaluateEncoderFailure() {
+        if ((neckEncoder.get() > backupNeckEncoder.get() + 10) || (neckEncoder.get() < backupNeckEncoder.get() - 10)) {
+            // Encoder Fail/Drift, Automatically Kick into Manual Control for Safety
+            manualControlEnabled = true;
+        } else {
+            manualControlEnabled = false;
+        }
+    }
+
+    private void manageNeckStates() {
+        switch (currentNeckState) {
+            case INITIALIZE:
+                if (!neckInitialized && runNeckInitialization && bottomLimitSwitch.get()) {
+                    evaluateExtension();
+
+                    if (!extensionBottomLimitSwitch.get()) {
+                        if (!initializeTimerStarted && neckEncoder.get() <= -150 && neckEncoder.get() >= -190) {
+                            initializeTimer.start();
+                        }
+
+                        if (initializeTimer.get() >= 0.8) {
+                            if (extensionState != 1) {
+                                ExtendOut();
+                                neckAutoGoalAngle = -175;
+                            }
+                        } else {
+                            neckAutoGoalAngle = -175;
+                        }
+                    }
+
+                    if (extensionState == 1) {
+                        ExtendStop();
+                        neckAutoGoalAngle = -220;
+                    }
+
+                    updateAutoPIDConstants();
+
+                    double neckRotationSpeed = neckRotateDownInit.calculate(neckEncoder.get(), neckAutoGoalAngle);
+                    NeckSetRotateSpeed(neckRotationSpeed);
+                }
+
+                if ((neckInitialized || !runNeckInitialization) && !bottomLimitSwitch.get()) {
+                    IntakePosition();
+                }
+                break;
+            case INTAKE:
+                if (neckInitialized && intakeLimitSwitch.get() && lastNeckGoalAngle != 270 && !manualControlEnabled) {
+                    neckGoalAngle = 0;
+                    lastNeckGoalAngle = neckGoalAngle;
+                }
+                break;
+            case DRIVE:
+                if (neckInitialized && !manualControlEnabled) {
+                    neckGoalAngle = 55;
+                    lastNeckGoalAngle = neckGoalAngle;
+                }
+                break;
+            case SUBWOOFER:
+                if (neckInitialized && !manualControlEnabled) {
+                    neckGoalAngle = 80;
+                    lastNeckGoalAngle = neckGoalAngle;
+                }
+                break;
+            case VISION:
+                boolean hasTargets = LimelightHelpers.getTV("");
+                if (hasTargets && (LimelightHelpers.getFiducialID("") == 4 || LimelightHelpers.getFiducialID("") == 7)) {
+                    neckGoalAngle = visionSetAngle(LimelightHelpers.getTargetPose3d_CameraSpace("").getZ());
+                    lastNeckGoalAngle = neckGoalAngle;
+                }
+                break;
+            case YEET:
+                if (neckInitialized && !manualControlEnabled) {
+                    neckGoalAngle = 120;
+                    lastNeckGoalAngle = neckGoalAngle;
+                }
+                break;
+            case AMP:
+                if (neckInitialized && lastNeckGoalAngle != 0 && !manualControlEnabled) {
+                    neckGoalAngle = 270;
+                    lastNeckGoalAngle = neckGoalAngle;
+                }
+                break;
+            case MANUAL_UP:
+                if (manualControlEnabled) {
+                    if (topLimitSwitch.get()) {
+                        NeckSetRotateSpeed(0.16);
+                        neckGoalAngle = neckEncoder.get();
+                        lastNeckGoalAngle = neckGoalAngle;
+                    } else {
+                        NeckStop();
+                    }
+                }
+                break;
+            case MANUAL_DOWN:
+                if (manualControlEnabled) {
+                    if (bottomLimitSwitch.get()) {
+                        NeckSetRotateSpeed(-0.06);
+                        neckGoalAngle = neckEncoder.get();
+                        lastNeckGoalAngle = neckGoalAngle;
+                    } else {
+                        NeckStop();
+                    }
+                }
+                break;
+            case MANUAL_STOP:
+                if (manualControlEnabled) {
+                    NeckSetRotateSpeed(0.0);
+                }
+                break;
+            default:
+                break;
+        }
     }
 }
