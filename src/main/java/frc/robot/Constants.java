@@ -50,9 +50,9 @@ public final class Constants
   }
 
   public static final class BeakConstants {
-    public final static CANSparkMax intakeMotor = new CANSparkMax(15, MotorType.kBrushless);
-    public final static CANSparkMax shooterTopMotor = new CANSparkMax(13, MotorType.kBrushless);
-    public final static CANSparkMax shooterBottomMotor = new CANSparkMax(14, MotorType.kBrushless);
+    public final static CANSparkMax intakeMotor = new CANSparkMax(13, MotorType.kBrushless);
+    public final static CANSparkMax shooterTopMotor = new CANSparkMax(14, MotorType.kBrushless);
+    public final static CANSparkMax shooterBottomMotor = new CANSparkMax(15, MotorType.kBrushless);
     public final static DigitalInput intakeLimitSwitch = new DigitalInput(0);
   }
 

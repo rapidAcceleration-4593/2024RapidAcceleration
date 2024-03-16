@@ -32,7 +32,7 @@ public class VisionSubsystem extends SubsystemBase {
                 rotationAdjust = 0.0;
             }
 
-            swerve.drive(new Translation2d(0.0, 0.0), rotationAdjust, false);
+            swerve.drive(new Translation2d(0.0, 0.0), -rotationAdjust, false);
         } else {
             swerve.drive(new Translation2d(0.0, 0.0), 0.0, false);
         }

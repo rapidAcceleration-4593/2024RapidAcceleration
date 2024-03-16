@@ -59,11 +59,11 @@ public class BeakSubsystem extends SubsystemBase {
     public void BeakShooter() {
         // If the arm angle is high enough for amp position, spin the motor down to 25%. If not, spin normally at full speed
         if (neckEncoder.get() >= 200) {
-            shooterTopMotor.set(0.25);
-            shooterBottomMotor.set(0.25);
+            shooterTopMotor.set(-0.25);
+            shooterBottomMotor.set(-0.25);
         } else {
-            shooterTopMotor.set(1.0);
-            shooterBottomMotor.set(1.0);
+            shooterTopMotor.set(-1.0);
+            shooterBottomMotor.set(-1.0);
         }
 
         // If the shooter timer has not started, then start the timer and set the variable to true
