@@ -46,7 +46,6 @@ public class NeckSubsystem extends SubsystemBase {
     private Timer initializeTimer = new Timer();
 
     private enum NeckStates {
-        INITIALIZE,
         INTAKE,
         DRIVE,
         SUBWOOFER,
@@ -58,12 +57,36 @@ public class NeckSubsystem extends SubsystemBase {
         MANUAL_STOP
     }
 
-    private NeckStates currentNeckState = NeckStates.INITIALIZE;
+    private NeckStates currentNeckState;
 
-    public NeckSubsystem() {}
+    private void NeckInitialization() {
+        if (!neckInitialized && runNeckInitialization && bottomLimitSwitch.get()) {
+            if (extensionState == 2) {
+                if (!initializeTimerStarted && neckEncoder.get() <= -150) {
+                    initializeTimer.start();
+                }
+
+                if (initializeTimer.get() >= 0.8) {
+                    if (extensionState != 1) {
+                        ExtendOut();
+                        neckAutoGoalAngle = -175;
+                    }
+                } else {
+                    neckAutoGoalAngle = -175;
+                }
+            } else if (extensionState == 1) {
+                ExtendStop();
+                neckAutoGoalAngle = -220;
+            }
+
+            UpdateAutoPIDConstants();
+
+            double neckRotationSpeed = neckRotateDownInit.calculate(neckEncoder.get(), neckAutoGoalAngle);
+            NeckSetRotateSpeed(neckRotationSpeed);
+        }
+    }
 
     public void IntakePosition() { currentNeckState = NeckStates.INTAKE; }
-    private void DrivingPosition() { currentNeckState = NeckStates.DRIVE; }
     public void SubwooferPosition() { currentNeckState = NeckStates.SUBWOOFER; }
     public void VisionNeckAngle() { currentNeckState = NeckStates.VISION; }
     public void YeetPosition() { currentNeckState = NeckStates.YEET; }
@@ -82,8 +105,6 @@ public class NeckSubsystem extends SubsystemBase {
 
     private void NeckFollower() {
         int goal = lastNeckGoalAngle;
-
-        evaluateExtension();
 
         if (neckGoalAngle < 30) {
             if (extensionState != 1) {
@@ -106,7 +127,7 @@ public class NeckSubsystem extends SubsystemBase {
             }
         }
 
-        updatePIDConstants();
+        UpdatePIDConstants();
 
         double neckRotationSpeed = neckRotateController.calculate(neckEncoder.get(), lastNeckGoalAngle);
         NeckSetRotateSpeed(neckRotationSpeed);
@@ -114,7 +135,7 @@ public class NeckSubsystem extends SubsystemBase {
         lastNeckGoalAngle = goal;
     }
 
-    private void evaluateExtension() {
+    private void EvaluateExtension() {
         if (!extensionTopLimitSwitch.get()) { // throughBoreEncoder.get() <= -1
             // Extended Out
             extensionState = 1;
@@ -127,7 +148,7 @@ public class NeckSubsystem extends SubsystemBase {
         }
     }
 
-    private void updatePIDConstants() {
+    private void UpdatePIDConstants() {
         double p, i, d;
 
         if (neckEncoder.get() > neckGoalAngle - 4 && neckEncoder.get() < neckGoalAngle + 3 && neckGoalAngle > 5 && neckEncoder.get() > 5) {
@@ -155,7 +176,7 @@ public class NeckSubsystem extends SubsystemBase {
         neckRotateController.setPID(p, i, d);
     }
 
-    private void updateAutoPIDConstants() {
+    private void UpdateAutoPIDConstants() {
         double p, i, d;
 
         if (neckEncoder.get() <= 0 && neckEncoder.get() > neckAutoGoalAngle - 3 && neckEncoder.get() < neckAutoGoalAngle + 2) {
@@ -182,7 +203,7 @@ public class NeckSubsystem extends SubsystemBase {
         neckRotateDownInit.setPID(p, i, d);
     }
 
-    private int visionSetAngle(double distance) {
+    private int VisionSetAngle(double distance) {
         int angle = 0;
         if (distance > 3.3 && distance < 13) {
             angle = (int) (-349.351*Math.pow(distance, -0.854219) + 200.0);
@@ -198,8 +219,19 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     public void periodic() {
-        manageNeckStates();
-        evaluateEncoderFailure();
+        EvaluateExtension();
+        // ManageEncoderFailure();
+
+        if (!neckInitialized && runNeckInitialization && bottomLimitSwitch.get()) {
+            NeckInitialization();
+        } else if (neckInitialized || !bottomLimitSwitch.get() || manualControlEnabled) {
+            neckInitialized = true;
+            ManageNeckStates();
+        }
+
+        if (extensionState == 2) {
+            throughBoreEncoder.reset();
+        }
 
         if (!manualControlEnabled) {
             if (neckInitialized) {
@@ -213,7 +245,7 @@ public class NeckSubsystem extends SubsystemBase {
 
                 if (!intakeLimitSwitch.get() && neckEncoder.get() <= 30) {
                     if (!drivingPositionSet) {
-                        DrivingPosition();
+                        currentNeckState = NeckStates.DRIVE;
                         drivingPositionSet = true;
                     }
                 } else {
@@ -226,7 +258,6 @@ public class NeckSubsystem extends SubsystemBase {
                     neckEncoder.reset();
                     bottomLimitSwitchState = true;
                 }
-                neckInitialized = true;
             } else {
                 bottomLimitSwitchState = false;
                 if ((neckEncoder.get() <= 25 && neckEncoder.get() > 0 && lastNeckGoalAngle == 0) || (neckEncoder.get() <= -210 && lastNeckGoalAngle < 200)) {
@@ -234,17 +265,11 @@ public class NeckSubsystem extends SubsystemBase {
                 }
             }
         } else {
-            evaluateExtension();
-            
             if (extensionState != 1) {
                 ExtendOut();
             } else {
                 ExtendStop();
             }
-        }
-
-        if (!extensionBottomLimitSwitch.get()) {
-            throughBoreEncoder.reset();
         }
 
         System.out.println("<--------------->");
@@ -263,85 +288,43 @@ public class NeckSubsystem extends SubsystemBase {
         System.out.println("Manual Control Enabled: " + manualControlEnabled);
     }
 
-
-    private void evaluateEncoderFailure() {
-        if ((neckEncoder.get() > backupNeckEncoder.get() + 10) || (neckEncoder.get() < backupNeckEncoder.get() - 10)) {
-            // Encoder Fail/Drift, Automatically Kick into Manual Control for Safety
-            manualControlEnabled = true;
-        } else {
-            manualControlEnabled = false;
-        }
-    }
-
-    private void manageNeckStates() {
+    private void ManageNeckStates() {
         switch (currentNeckState) {
-            case INITIALIZE:
-                if (!neckInitialized && runNeckInitialization && bottomLimitSwitch.get()) {
-                    evaluateExtension();
-
-                    if (!extensionBottomLimitSwitch.get()) {
-                        if (!initializeTimerStarted && neckEncoder.get() <= -150 && neckEncoder.get() >= -190) {
-                            initializeTimer.start();
-                        }
-
-                        if (initializeTimer.get() >= 0.8) {
-                            if (extensionState != 1) {
-                                ExtendOut();
-                                neckAutoGoalAngle = -175;
-                            }
-                        } else {
-                            neckAutoGoalAngle = -175;
-                        }
-                    }
-
-                    if (extensionState == 1) {
-                        ExtendStop();
-                        neckAutoGoalAngle = -220;
-                    }
-
-                    updateAutoPIDConstants();
-
-                    double neckRotationSpeed = neckRotateDownInit.calculate(neckEncoder.get(), neckAutoGoalAngle);
-                    NeckSetRotateSpeed(neckRotationSpeed);
-                }
-
-                if ((neckInitialized || !runNeckInitialization) && !bottomLimitSwitch.get()) {
-                    IntakePosition();
-                }
-                break;
             case INTAKE:
-                if (neckInitialized && intakeLimitSwitch.get() && lastNeckGoalAngle != 270 && !manualControlEnabled) {
+                if (!manualControlEnabled && intakeLimitSwitch.get() && lastNeckGoalAngle != 270) {
                     neckGoalAngle = 0;
                     lastNeckGoalAngle = neckGoalAngle;
                 }
                 break;
             case DRIVE:
-                if (neckInitialized && !manualControlEnabled) {
+                if (!manualControlEnabled) {
                     neckGoalAngle = 55;
                     lastNeckGoalAngle = neckGoalAngle;
                 }
                 break;
             case SUBWOOFER:
-                if (neckInitialized && !manualControlEnabled) {
+                if (!manualControlEnabled) {
                     neckGoalAngle = 80;
                     lastNeckGoalAngle = neckGoalAngle;
                 }
                 break;
             case VISION:
-                boolean hasTargets = LimelightHelpers.getTV("");
-                if (hasTargets && (LimelightHelpers.getFiducialID("") == 4 || LimelightHelpers.getFiducialID("") == 7)) {
-                    neckGoalAngle = visionSetAngle(LimelightHelpers.getTargetPose3d_CameraSpace("").getZ());
-                    lastNeckGoalAngle = neckGoalAngle;
+                if (!manualControlEnabled) {
+                    boolean hasTargets = LimelightHelpers.getTV("");
+                    if (hasTargets && (LimelightHelpers.getFiducialID("") == 4 || LimelightHelpers.getFiducialID("") == 7)) {
+                        neckGoalAngle = VisionSetAngle(LimelightHelpers.getTargetPose3d_CameraSpace("").getZ());
+                        lastNeckGoalAngle = neckGoalAngle;
+                    }
                 }
                 break;
             case YEET:
-                if (neckInitialized && !manualControlEnabled) {
+                if (!manualControlEnabled) {
                     neckGoalAngle = 120;
                     lastNeckGoalAngle = neckGoalAngle;
                 }
                 break;
             case AMP:
-                if (neckInitialized && lastNeckGoalAngle != 0 && !manualControlEnabled) {
+                if (!manualControlEnabled && lastNeckGoalAngle != 0) {
                     neckGoalAngle = 270;
                     lastNeckGoalAngle = neckGoalAngle;
                 }
@@ -375,6 +358,15 @@ public class NeckSubsystem extends SubsystemBase {
                 break;
             default:
                 break;
+        }
+    }
+
+    private void ManageEncoderFailure() {
+        if (Math.abs(neckEncoder.get() - backupNeckEncoder.get()) > 10) {
+            // Encoder Fail/Drift, Automatically Kick into Manual Control for Safety
+            manualControlEnabled = true;
+        } else {
+            manualControlEnabled = false;
         }
     }
 }
