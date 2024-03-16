@@ -86,11 +86,11 @@ public class NeckSubsystem extends SubsystemBase {
         }
     }
 
-    public void IntakePosition() { currentNeckState = NeckStates.INTAKE; }
+    public void IntakePosition() {  if (intakeLimitSwitch.get() && lastNeckGoalAngle != 270) { currentNeckState = NeckStates.INTAKE; }}
     public void SubwooferPosition() { currentNeckState = NeckStates.SUBWOOFER; }
     public void VisionNeckAngle() { currentNeckState = NeckStates.VISION; }
     public void YeetPosition() { currentNeckState = NeckStates.YEET; }
-    public void AmpPosition() { currentNeckState = NeckStates.AMP; }
+    public void AmpPosition() { if (lastNeckGoalAngle != 0) { currentNeckState = NeckStates.AMP; }}
 
     public void NeckUp() { currentNeckState = NeckStates.MANUAL_UP; }
     public void NeckDown() { currentNeckState = NeckStates.MANUAL_DOWN; }
@@ -291,7 +291,7 @@ public class NeckSubsystem extends SubsystemBase {
     private void ManageNeckStates() {
         switch (currentNeckState) {
             case INTAKE:
-                if (!manualControlEnabled && intakeLimitSwitch.get() && lastNeckGoalAngle != 270) {
+                if (!manualControlEnabled) {
                     neckGoalAngle = 0;
                     lastNeckGoalAngle = neckGoalAngle;
                 }
@@ -324,7 +324,7 @@ public class NeckSubsystem extends SubsystemBase {
                 }
                 break;
             case AMP:
-                if (!manualControlEnabled && lastNeckGoalAngle != 0) {
+                if (!manualControlEnabled) {
                     neckGoalAngle = 270;
                     lastNeckGoalAngle = neckGoalAngle;
                 }
@@ -362,8 +362,8 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     private void ManageEncoderFailure() {
-        if (Math.abs(neckEncoder.get() - backupNeckEncoder.get()) > 10) {
-            // Encoder Fail/Drift, Automatically Kick into Manual Control for Safety
+        int encoderDifference = Math.abs(neckEncoder.get()) - Math.abs(backupNeckEncoder.get());
+        if (Math.abs(encoderDifference) > 10) {
             manualControlEnabled = true;
         } else {
             manualControlEnabled = false;

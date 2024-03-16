@@ -58,6 +58,12 @@
           "data": {
             "pathName": "PastLineLeft"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ResetGyro"
+          }
         }
       ]
     }

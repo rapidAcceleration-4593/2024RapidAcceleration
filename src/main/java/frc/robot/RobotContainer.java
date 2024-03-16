@@ -67,6 +67,8 @@ public class RobotContainer
     NamedCommands.registerCommand("Shooter", new ShooterAuto(beakSubsystem));
     NamedCommands.registerCommand("ShooterIntakeStop", new ShooterStopAuto(beakSubsystem));
 
+    NamedCommands.registerCommand("ResetGyro", new InstantCommand(() -> drivebase.zeroGyro()));
+
     configureBindings();
 
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(

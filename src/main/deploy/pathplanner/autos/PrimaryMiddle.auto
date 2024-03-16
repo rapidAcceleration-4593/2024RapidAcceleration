@@ -124,6 +124,12 @@
           "data": {
             "pathName": "ForwardMore"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ResetGyro"
+          }
         }
       ]
     }
