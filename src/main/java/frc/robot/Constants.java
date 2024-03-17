@@ -28,7 +28,7 @@ public final class Constants
 
   public static final class MatchConstants {
     public static final boolean runNeckInitialization = true;
-    public static final String autoName = "SourceSide"; // PrimaryMiddle OR SourceSide OR AmpSide OR NoMove OR ScoreNoMove
+    public static final String autoName = "PrimaryMiddle"; // PrimaryMiddle OR SourceSide OR AmpSide OR NoMove OR ScoreNoMove
   }
 
   public static final class NeckRotationConstants {

@@ -52,21 +52,21 @@ public class NeckSubsystem extends SubsystemBase {
     private void NeckInitialization() {
         if (!neckInitialized && runNeckInitialization && bottomLimitSwitch.get()) {
             if (extensionState == 2) {
-                if (!initializeTimerStarted && neckEncoder.get() <= -170) {
+                if (!initializeTimerStarted && neckEncoder.get() <= -213) {
                     initializeTimer.start();
                 }
 
                 if (initializeTimer.get() >= 0.8) {
                     if (extensionState != 1) {
                         ExtendOut();
-                        neckAutoGoalAngle = -175;
+                        neckAutoGoalAngle = -223;
                     }
                 } else {
-                    neckAutoGoalAngle = -175;
+                    neckAutoGoalAngle = -223;
                 }
             } else if (extensionState == 1) {
                 ExtendStop();
-                neckAutoGoalAngle = -220;
+                neckAutoGoalAngle = -230;
             }
 
             UpdateAutoPIDConstants();
@@ -159,41 +159,19 @@ public class NeckSubsystem extends SubsystemBase {
     private void UpdatePIDConstants() {
         double p, i, d;
 
-        // double error = neckEncoder.get() - neckGoalAngle;
+        double error = neckEncoder.get() - neckGoalAngle;
 
-        // if (Math.abs(error) < 5) {
-        //     // Close Controller
-        //     p = 0.000065;
-        //     i = 0.0025;
-        //     d = 0.0;
-        // } else if (error < 0 && neckEncoder.get() < 200 && neckGoalAngle > 0) {
-        //     // Up Controller
-        //     p = 0.0018;
-        //     i = 0.0075;
-        //     d = 0.0002;
-        // } else if (error > 0 && neckEncoder.get() > 25) {
-        //     // Down Controller
-        //     p = 0.0016;
-        //     i = 0.0;
-        //     d = 0.0;
-        // } else {
-        //     // Default Controller
-        //     p = 0.0;
-        //     i = 0.0;
-        //     d = 0.0;
-        // }
-
-        if (neckEncoder.get() > neckGoalAngle - 5 && neckEncoder.get() < neckGoalAngle + 5 && neckGoalAngle > 5 && neckEncoder.get() > 5) {
+        if (Math.abs(error) < 5 && neckEncoder.get() > 25) {
             // Close Controller
-            p = 0.000065;
-            i = 0.0025;
-            d = 0.0;
-        } else if (neckEncoder.get() < neckGoalAngle && neckEncoder.get() < 200 && neckGoalAngle > 5) {
+            p = 0.00005;
+            i = 0.0013; // 0.0025
+            d = 0.0012;
+        } else if (error < 0 && neckEncoder.get() < 235 && neckGoalAngle > 0) {
             // Up Controller
-            p = 0.0018;
+            p = 0.0014; // 0.0018
             i = 0.0075;
             d = 0.0002;
-        } else if (neckEncoder.get() > neckGoalAngle && neckEncoder.get() > 25) {
+        } else if (error > 0 && neckEncoder.get() > 25) {
             // Down Controller
             p = 0.0016;
             i = 0.0;
@@ -211,17 +189,17 @@ public class NeckSubsystem extends SubsystemBase {
     private void UpdateAutoPIDConstants() {
         double p, i, d;
 
-        if (neckEncoder.get() <= 0 && neckEncoder.get() > neckAutoGoalAngle - 3 && neckEncoder.get() < neckAutoGoalAngle + 2) {
+        if (neckEncoder.get() <= 0 && neckEncoder.get() > neckAutoGoalAngle - 5 && neckEncoder.get() < neckAutoGoalAngle + 5) {
             // Close Controller
             p = 0.000075;
             i = 0.00075;
             d = 0.0;
-        } else if (neckEncoder.get() <= 0 && neckEncoder.get() >= -180 && neckAutoGoalAngle == -175) {
+        } else if (neckEncoder.get() <= 0 && neckEncoder.get() >= -227 && neckAutoGoalAngle == -223) {
             // Down to Subwoofer
             p = 0.0016;
             i = 0.0;
             d = 0.0;
-        } else if (neckEncoder.get() <= 0 && neckEncoder.get() < -170 && neckAutoGoalAngle == -220) {
+        } else if (neckEncoder.get() <= 0 && neckEncoder.get() < -227 && neckAutoGoalAngle == -230) {
             // Down to Intake
             p = 0.0015;
             i = 0.0001;
@@ -238,7 +216,7 @@ public class NeckSubsystem extends SubsystemBase {
     private int VisionSetAngle(double distance) {
         int angle = 0;
         if (distance > 3.3 && distance < 13) {
-            angle = (int) (-349.351*Math.pow(distance, -0.854219) + 180.059); // angle = (int) (-349.351*Math.pow(distance, -0.854219) + 200.0);
+            angle = (int) (-349.351*Math.pow(distance, -0.854219) + 175); // angle = (int) (-349.351*Math.pow(distance, -0.854219) + 200.0);
         }
         return angle;
     }
@@ -261,6 +239,14 @@ public class NeckSubsystem extends SubsystemBase {
             ManageNeckStates();
         }
 
+        if (topLimitSwitch.get() && neckGoalAngle == 270) {
+            if (neckEncoder.get() >= 235 && neckEncoder.get() < 325) {
+                NeckSetRotateSpeed(0.14);
+            }
+        } else if (!topLimitSwitch.get() && neckGoalAngle == 270) {
+            NeckSetRotateSpeed(0.0);
+        }
+
         if (extensionState == 2) {
             throughBoreEncoder.reset();
         }
@@ -281,10 +267,6 @@ public class NeckSubsystem extends SubsystemBase {
                 if (currentNeckState != NeckStates.VISION) {
                     visionAngleSet = false;
                 }
-            }
-
-            if ((topLimitSwitch.get() || neckEncoder.get() >= 200) && neckGoalAngle == 270) {
-                NeckSetRotateSpeed(0.0); // 0.01
             }
 
             if (!bottomLimitSwitch.get()) {
@@ -335,7 +317,7 @@ public class NeckSubsystem extends SubsystemBase {
                 lastNeckGoalAngle = neckGoalAngle;
                 break;
             case SUBWOOFER:
-                neckGoalAngle = 55; // 80
+                neckGoalAngle = 55;
                 lastNeckGoalAngle = neckGoalAngle;
                 break;
             case VISION:

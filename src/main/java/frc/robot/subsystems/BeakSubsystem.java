@@ -23,6 +23,8 @@ public class BeakSubsystem extends SubsystemBase {
     private Timer shooterTimer;
     private boolean shooterTimerStarted;
 
+    private boolean intakeIntaked = false;
+
     public BeakSubsystem() {
         // Define Empty Objects to IDs specified in the Constants.java File
         intakeMotor = BeakConstants.intakeMotor;
@@ -39,11 +41,7 @@ public class BeakSubsystem extends SubsystemBase {
     public void BeakIntake() {
         // If there isn't an intake limit switch, then set motor speed when command is called
         // If the intake limit switch is pressed, then stop the intake motor, regardless of if the command is called or not
-        if (intakeLimitSwitch.get()) {
-            intakeMotor.set(-1.0);
-        } else {
-            BeakIntakeStop();
-        }
+        intakeMotor.set(-1.0);
     }
     
     public void BeakOuttake() {
@@ -90,8 +88,8 @@ public class BeakSubsystem extends SubsystemBase {
 
     public void ShooterAuto() {
         // This command is only to be ran in auto, as this is an initialize command since auto doesn't accept execute commands
-        shooterTopMotor.set(1.0);
-        shooterBottomMotor.set(1.0);
+        shooterTopMotor.set(-1.0);
+        shooterBottomMotor.set(-1.0);
     }
 
     public void IntakeAuto() {
@@ -101,4 +99,13 @@ public class BeakSubsystem extends SubsystemBase {
 
     // The initialize() method marks the command start, and is called exactly once per time a command is scheduled
     // The execute() method is called repeatedly while the command is scheduled
+
+    public void periodic() {
+        if (!intakeLimitSwitch.get() && intakeIntaked == false) {
+            BeakIntakeStop();
+            intakeIntaked = true;
+        } else if (intakeLimitSwitch.get()) {
+            intakeIntaked = false;
+        }
+    }
 }
