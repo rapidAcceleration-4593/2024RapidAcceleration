@@ -3,9 +3,11 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.BeakConstants;
+import frc.robot.Constants.LEDConstants;
 import frc.robot.Constants.NeckRotationConstants;
 
 public class BeakSubsystem extends SubsystemBase {
@@ -22,8 +24,9 @@ public class BeakSubsystem extends SubsystemBase {
     // Define Timer for Delay Between Shooter and Intake Spinup
     private Timer shooterTimer;
     private boolean shooterTimerStarted;
-
     private boolean intakeIntaked = false;
+
+    private Relay SiccLEDs = LEDConstants.SiccLEDs;
 
     public BeakSubsystem() {
         // Define Empty Objects to IDs specified in the Constants.java File
@@ -106,6 +109,12 @@ public class BeakSubsystem extends SubsystemBase {
             intakeIntaked = true;
         } else if (intakeLimitSwitch.get()) {
             intakeIntaked = false;
+        }
+
+        if (!intakeLimitSwitch.get()) {
+            SiccLEDs.set(Relay.Value.kOn);
+        } else {
+            SiccLEDs.set(Relay.Value.kOff);
         }
     }
 }

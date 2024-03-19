@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Relay;
 import swervelib.math.Matter;
 import swervelib.parser.PIDFConfig;
 
@@ -58,6 +59,10 @@ public final class Constants
 
   public static final class ClimberConstants {
     public final static CANSparkMax climberMotor = new CANSparkMax(10, MotorType.kBrushless);
+  }
+
+  public static final class LEDConstants {
+    public final static Relay SiccLEDs = new Relay(0);
   }
 
   public static final class Auton
