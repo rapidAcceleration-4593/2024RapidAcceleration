@@ -127,7 +127,7 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     private void EvaluateExtension() {
-        if (!extensionTopLimitSwitch.get() || throughBoreEncoder.get() <= -1.0) { // || throughBoreEncoder.get() <= -1.0
+        if (!extensionTopLimitSwitch.get()) { // || throughBoreEncoder.get() <= -1.0
             currentExtensionState = ExtensionStates.OUT;
         } else if (!extensionBottomLimitSwitch.get()) { // || throughBoreEncoder.get() >= -0.2
             currentExtensionState = ExtensionStates.IN;
@@ -146,19 +146,16 @@ public class NeckSubsystem extends SubsystemBase {
             p = 0.008;
             i = 0.003;
             d = 0.0;
-            System.out.println("Close");
         } else if (error < 0 && neckEncoder.get() < 235 && neckGoalAngle > 0) {
             // Up Controller
             p = 0.0015;
             i = 0.0075;
             d = 0.0002;
-            System.out.println("Up");
         } else if (error > 0 && neckEncoder.get() > 25) {
             // Down Controller
             p = 0.0016;
             i = 0.0;
             d = 0.0;
-            System.out.println("Down");
         } else {
             // Default Controller
             p = 0.0;
@@ -199,7 +196,7 @@ public class NeckSubsystem extends SubsystemBase {
     private int VisionSetAngle(double distance) {
         int angle = 0;
         if (distance > 3.3 && distance < 13) {
-            angle = (int) (-349.351*Math.pow(distance, -0.854219) + 172); // 200.0
+            angle = (int) (-349.351*Math.pow(distance, -0.854219) + 172.0);
         }
         return angle;
     }
@@ -257,7 +254,7 @@ public class NeckSubsystem extends SubsystemBase {
             } else {
                 bottomLimitSwitchState = false;
                 if ((neckEncoder.get() <= 25 && neckEncoder.get() > 0 && lastNeckGoalAngle == 0) || (neckEncoder.get() <= -210 && lastNeckGoalAngle < 200)) {
-                    NeckSetRotateSpeed(-0.05);
+                    NeckSetRotateSpeed(-0.07);
                 }
             }
         } else {
@@ -296,7 +293,7 @@ public class NeckSubsystem extends SubsystemBase {
                 lastNeckGoalAngle = neckGoalAngle;
                 break;
             case SUBWOOFER:
-                neckGoalAngle = 55; // 80 
+                neckGoalAngle = 55;
                 lastNeckGoalAngle = neckGoalAngle;
                 break;
             case VISION:
