@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.55,
+      "y": 2.05
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "AssholeMove1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "YeetPosition"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "AssholeMove2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "AssholeMove3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakePosition"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

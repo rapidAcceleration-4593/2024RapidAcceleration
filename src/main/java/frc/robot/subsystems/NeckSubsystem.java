@@ -88,7 +88,7 @@ public class NeckSubsystem extends SubsystemBase {
     public void NeckStop() { if (manualControlEnabled) { currentNeckState = NeckStates.MANUAL_STOP; }}
 
     public void EnableManualControl() { manualControlEnabled = true; }
-    public void DisableManualControl() { if (Math.abs(Math.abs(neckEncoder.get()) - Math.abs(backupNeckEncoder.get())) < 5 && !bottomLimitSwitch.get()) { manualControlEnabled = false; currentNeckState = NeckStates.INTAKE; }}
+    public void DisableManualControl() { if (Math.abs(Math.abs(neckEncoder.get()) - Math.abs(backupNeckEncoder.get())) < 5 && !bottomLimitSwitch.get()) { currentNeckState = NeckStates.INTAKE; manualControlEnabled = false; }}
     
     public void ExtendIn() { neckExtensionMotor.set(0.5); }
     public void ExtendOut() { neckExtensionMotor.set(-0.5); }
@@ -127,7 +127,7 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     private void EvaluateExtension() {
-        if (!extensionTopLimitSwitch.get()) { // || throughBoreEncoder.get() <= -1.0
+        if (!extensionTopLimitSwitch.get() || throughBoreEncoder.get() <= -1.0) { // || throughBoreEncoder.get() <= -1.0
             currentExtensionState = ExtensionStates.OUT;
         } else if (!extensionBottomLimitSwitch.get()) { // || throughBoreEncoder.get() >= -0.2
             currentExtensionState = ExtensionStates.IN;
@@ -149,7 +149,7 @@ public class NeckSubsystem extends SubsystemBase {
             System.out.println("Close");
         } else if (error < 0 && neckEncoder.get() < 235 && neckGoalAngle > 0) {
             // Up Controller
-            p = 0.0015; // 0.0018
+            p = 0.0015;
             i = 0.0075;
             d = 0.0002;
             System.out.println("Up");
