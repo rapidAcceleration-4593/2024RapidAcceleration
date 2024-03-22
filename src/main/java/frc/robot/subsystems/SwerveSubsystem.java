@@ -35,7 +35,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends SubsystemBase
 {
   private final SwerveDrive swerveDrive; // Swerve drive object.
-  public        double      maximumSpeed = Units.feetToMeters(14.5); // Maximum speed of the robot in meters per second, used to limit acceleration.
+  public        double      maximumSpeed = Units.feetToMeters(17.0); // Maximum speed of the robot in meters per second, used to limit acceleration. 14.5
 
   // Initialize SwerveDrive class with the directory provided.
   public SwerveSubsystem(File directory)

@@ -16,11 +16,11 @@
     },
     {
       "anchor": {
-        "x": 1.45,
+        "x": 1.4,
         "y": 5.55
       },
       "prevControl": {
-        "x": 2.45,
+        "x": 2.4000000000000004,
         "y": 5.55
       },
       "nextControl": null,
@@ -43,7 +43,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "2NoteAuto",
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0

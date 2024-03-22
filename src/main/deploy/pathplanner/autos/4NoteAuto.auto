@@ -1,0 +1,61 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.7509152340259092,
+      "y": 6.65
+    },
+    "rotation": 60.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Shooter"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TowardAmpNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "AmpNoteBack"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ForwardMiddleNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ForwardSubwoofer"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "TowardPodiumNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "PodiumNoteBack"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

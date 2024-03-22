@@ -49,7 +49,7 @@
     "rotateFast": true
   },
   "reversed": false,
-  "folder": null,
+  "folder": "2NoteAuto",
   "previewStartingState": null,
   "useDefaultConstraints": true
 }

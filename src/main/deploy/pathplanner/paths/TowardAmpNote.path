@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.05,
-        "y": 7.45
+        "x": 0.75,
+        "y": 6.65
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.049999999999998,
-        "y": 7.45
+        "x": 1.7281476007338057,
+        "y": 6.85791169081776
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.5,
-        "y": 7.45
+        "x": 2.5,
+        "y": 6.95
       },
       "prevControl": {
-        "x": 5.5,
-        "y": 7.45
+        "x": 1.5151922469877923,
+        "y": 6.77635182233307
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,21 +32,21 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
     "rotation": 0,
-    "rotateFast": false
+    "rotateFast": true
   },
   "reversed": false,
-  "folder": "AssholeAuto",
+  "folder": "4NoteAuto",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": 60.0,
     "velocity": 0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
