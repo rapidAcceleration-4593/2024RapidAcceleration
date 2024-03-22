@@ -29,7 +29,7 @@ public final class Constants
 
   public static final class MatchConstants {
     public static final boolean runNeckInitialization = true;
-    public static final String autoName = "3NoteAuto";
+    public static final String autoName = "3NoteAuto"; // 3NoteAuto, 2NoteAuto, SourceSide, AmpSide, AssholeAuto, NoScoreNoMove, ScoreNoMove, SpinToWin 
   }
 
   public static final class NeckRotationConstants {
