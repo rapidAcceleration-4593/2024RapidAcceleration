@@ -38,13 +38,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShooterIntakeStop"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
+            "name": "StopAll"
           }
         },
         {
@@ -56,25 +50,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ForwardMiddleNote"
+            "pathName": "SubwooferToMiddleNote"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "ShooterIntakeStop"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SubwooferPosition"
+            "name": "StopAll"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "ForwardSubwoofer"
+            "pathName": "MiddleNoteToSubwoofer"
           }
         },
         {
@@ -86,7 +74,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.6
           }
         },
         {
@@ -98,19 +86,13 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.75
+            "waitTime": 0.5
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "ShooterIntakeStop"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "IntakePosition"
+            "name": "StopAll"
           }
         },
         {
@@ -122,25 +104,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "AmpMoveCollect"
+            "pathName": "SubwooferToTopNote"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "ShooterIntakeStop"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SubwooferPosition"
+            "name": "StopAll"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "AmpMoveBack"
+            "pathName": "TopNoteToSubwoofer"
           }
         },
         {
@@ -152,7 +128,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.6
           }
         },
         {
@@ -164,19 +140,13 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.75
+            "waitTime": 0.5
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "ShooterIntakeStop"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "IntakePosition"
+            "name": "StopAll"
           }
         }
       ]

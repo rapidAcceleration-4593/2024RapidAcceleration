@@ -1,20 +1,20 @@
 package frc.robot.commands.AutoCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.BeakSubsystem;
+import frc.robot.subsystems.PrimarySubsystem;
 
 public class IntakeAuto extends Command {
     
-    private final BeakSubsystem beakSubsystem;
+    private final PrimarySubsystem primarySubsystem;
 
-    public IntakeAuto(BeakSubsystem beakSubsystem) {
-        this.beakSubsystem = beakSubsystem;
-        addRequirements(beakSubsystem);
+    public IntakeAuto(PrimarySubsystem primarySubsystem) {
+        this.primarySubsystem = primarySubsystem;
+        addRequirements(primarySubsystem);
     }
 
     @Override
     public void initialize() {
-        beakSubsystem.IntakeAuto();
+        primarySubsystem.IntakeAuto();
     }
 
     @Override

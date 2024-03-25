@@ -11,19 +11,16 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.MatchConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.subsystems.NeckSubsystem;
-import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.BeakSubsystem;
-import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.*;
 import frc.robot.commands.AutoCommands.*;
-import frc.robot.commands.BeakCommands.*;
 import frc.robot.commands.ClimberCommands.*;
-import frc.robot.commands.NeckCommands.*;
-import frc.robot.commands.NeckCommands.ManualControl.*;
-import frc.robot.commands.NeckCommands.PresetPositions.*;
+import frc.robot.commands.PrimaryCommands.*;
+import frc.robot.commands.PrimaryCommands.Intake.*;
+import frc.robot.commands.PrimaryCommands.ManualControl.*;
+import frc.robot.commands.PrimaryCommands.PresetPositions.*;
+import frc.robot.commands.PrimaryCommands.Shooter.*;
+
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import java.io.File;
 
 /**
@@ -33,50 +30,59 @@ import java.io.File;
  */
 public class RobotContainer
 {
-  private final SwerveSubsystem drivebase;
+  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
 
-  private final BeakSubsystem beakSubsystem;
-  private final ClimberSubsystem climberSubsystem;
-  private final VisionSubsystem visionSubsystem;
-  private final NeckSubsystem neckSubsystem;
+  private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem(drivebase);
+  private final PrimarySubsystem primarySubsystem = new PrimarySubsystem();
 
-  private final CommandXboxController driverXbox;
-  private final CommandXboxController auxXbox;
+  private final CommandXboxController driverXbox = new CommandXboxController(0);
+  private final CommandXboxController auxXbox = new CommandXboxController(1);
 
-  private final String autoName;
+  private final String autoName = MatchConstants.autoName;
 
   public RobotContainer()
   {
-    drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+    NamedCommands.registerCommand("IntakePosition", new IntakePosition(primarySubsystem));
+    NamedCommands.registerCommand("VisionAngle", new VisionNeckAngle(primarySubsystem));
 
-    beakSubsystem = new BeakSubsystem();
-    climberSubsystem = new ClimberSubsystem();
-    visionSubsystem = new VisionSubsystem(drivebase);
-    neckSubsystem = new NeckSubsystem();
-
-    driverXbox = new CommandXboxController(0);
-    auxXbox = new CommandXboxController(1);
-
-    autoName = MatchConstants.autoName;
-
-    NamedCommands.registerCommand("IntakePosition", new IntakePosition(neckSubsystem));
-    NamedCommands.registerCommand("SubwooferPosition", new SubwooferPosition(neckSubsystem));
-    NamedCommands.registerCommand("VisionAngle", new VisionNeckAngle(neckSubsystem));
-
-    NamedCommands.registerCommand("Intake", new IntakeAuto(beakSubsystem));
-    NamedCommands.registerCommand("Shooter", new ShooterAuto(beakSubsystem));
-    NamedCommands.registerCommand("ShooterIntakeStop", new ShooterStopAuto(beakSubsystem));
+    NamedCommands.registerCommand("Shooter", new ShooterAuto(primarySubsystem));
+    NamedCommands.registerCommand("Intake", new IntakeAuto(primarySubsystem));
+    NamedCommands.registerCommand("StopAll", new StopAllAuto(primarySubsystem));
 
     NamedCommands.registerCommand("ResetGyro", new InstantCommand(() -> drivebase.zeroGyro()));
 
     configureBindings();
 
+    // Applies deadbands and inverts controls because joysticks
+    // are back-right positive while robot
+    // controls are front-left positive
+    // left stick controls translation
+    // right stick controls the desired angle NOT angular rotation
+    // Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
+    //     () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
+    //     () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
+    //     () -> driverXbox.getRightX(),
+    //     () -> driverXbox.getRightY());
+
+    // Applies deadbands and inverts controls because joysticks
+    // are back-right positive while robot
+    // controls are front-left positive
+    // left stick controls translation
+    // right stick controls the angular velocity of the robot
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
         () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
         () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-        () -> driverXbox.getRightX());
+        () -> driverXbox.getRightX() * 0.5);
 
-        drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    // Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
+    //     () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
+    //     () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
+    //     () -> driverXbox.getRawAxis(2));
+
+    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    // drivebase.setDefaultCommand(
+    //     !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
   }
 
   private void configureBindings()
@@ -85,29 +91,28 @@ public class RobotContainer
     driverXbox.back().onTrue((new InstantCommand(() -> drivebase.zeroGyro())));
     driverXbox.start().whileTrue(new VisionSwerveAlign(visionSubsystem));
 
-    driverXbox.povUp().onTrue(new AmpPosition(neckSubsystem));
-    driverXbox.povDown().onTrue(new IntakePosition(neckSubsystem));
-    driverXbox.povLeft().onTrue(new SubwooferPosition(neckSubsystem));
-    driverXbox.povRight().onTrue(new YeetPosition(neckSubsystem));
-    driverXbox.b().onTrue(new VisionNeckAngle(neckSubsystem));
+    driverXbox.povUp().onTrue(new AmpPosition(primarySubsystem));
+    driverXbox.povDown().onTrue(new IntakePosition(primarySubsystem));
+    driverXbox.povRight().onTrue(new YeetPosition(primarySubsystem));
+    driverXbox.b().onTrue(new VisionNeckAngle(primarySubsystem));
 
-    driverXbox.y().whileTrue(new NeckUp(neckSubsystem));
-    driverXbox.y().whileFalse(new NeckStop(neckSubsystem));
-    driverXbox.a().whileTrue(new NeckDown(neckSubsystem));
-    driverXbox.a().whileFalse(new NeckStop(neckSubsystem));
+    driverXbox.y().whileTrue(new NeckUp(primarySubsystem));
+    driverXbox.y().whileFalse(new NeckStop(primarySubsystem));
+    driverXbox.a().whileTrue(new NeckDown(primarySubsystem));
+    driverXbox.a().whileFalse(new NeckStop(primarySubsystem));
 
     // Auxilary Controller
-    auxXbox.back().onTrue(new ManualControlEnabled(neckSubsystem));
-    auxXbox.start().onTrue(new ManualControlDisabled(neckSubsystem));
+    auxXbox.back().onTrue(new ManualControlEnabled(primarySubsystem));
+    auxXbox.start().onTrue(new ManualControlDisabled(primarySubsystem));
 
-    auxXbox.rightBumper().whileTrue(new BeakShooter(beakSubsystem));
-    auxXbox.rightBumper().whileFalse(new BeakShooterStop(beakSubsystem));
+    auxXbox.rightBumper().whileTrue(new BeakShooter(primarySubsystem));
+    auxXbox.rightBumper().whileFalse(new BeakShooterStop(primarySubsystem));
 
-    auxXbox.leftBumper().whileTrue(new BeakIntake(beakSubsystem));
-    auxXbox.leftBumper().whileFalse(new BeakIntakeStop(beakSubsystem));
+    auxXbox.leftBumper().whileTrue(new BeakIntake(primarySubsystem));
+    auxXbox.leftBumper().whileFalse(new BeakIntakeStop(primarySubsystem));
 
-    auxXbox.x().whileTrue(new BeakOuttake(beakSubsystem));
-    auxXbox.x().whileFalse(new BeakIntakeStop(beakSubsystem));
+    auxXbox.x().whileTrue(new BeakOuttake(primarySubsystem));
+    auxXbox.x().whileFalse(new BeakIntakeStop(primarySubsystem));
 
     auxXbox.povUp().whileTrue(new ClimberUp(climberSubsystem));
     auxXbox.povUp().whileFalse(new ClimberStop(climberSubsystem));
@@ -119,7 +124,7 @@ public class RobotContainer
   // Use this method to pass the autonomous command to the main class
   public Command getAutonomousCommand()
   {
-    return new PathPlannerAuto(autoName);
+    return drivebase.getAutonomousCommand(autoName);
   }
 
   public void setMotorBrake(boolean brake)
