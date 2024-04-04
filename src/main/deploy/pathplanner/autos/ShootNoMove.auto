@@ -46,30 +46,6 @@
           "data": {
             "name": "StopAll"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "SubwooferToMiddleNote"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "MiddleNoteToSubwoofer"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "SubwooferToTopNote"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "TopNoteToSubwoofer"
-          }
         }
       ]
     }

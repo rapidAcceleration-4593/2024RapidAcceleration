@@ -9,23 +9,19 @@ public class VisionSubsystem extends SubsystemBase {
 
     private final SwerveSubsystem swerve;
 
-    private final PIDController rotationController;
+    private final PIDController rotationController = new PIDController(0.1, 0.0, 0.0);
 
-    private static double rotationDeadband;
+    private static double rotationDeadband = 0.01;
 
     public VisionSubsystem(SwerveSubsystem swerve) {
         // Initialize Swerve
         this.swerve = swerve;
-
-        rotationController = new PIDController(0.1, 0.0, 0.0);
-        rotationDeadband = 0.01;
     }
 
     public void VisionSwerveAlign() {
         boolean hasTargets = LimelightHelpers.getTV("");
         
         if (hasTargets && (LimelightHelpers.getFiducialID("") == 4 || LimelightHelpers.getFiducialID("") == 7)) {
-
             double rotationAdjust = rotationController.calculate(LimelightHelpers.getTX(""), 0.0);
 
             if (Math.abs(rotationAdjust) < rotationDeadband) {

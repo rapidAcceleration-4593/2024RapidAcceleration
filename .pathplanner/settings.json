@@ -1,13 +1,10 @@
 {
   "robotWidth": 0.8128,
-  "robotLength": 0.8128,
+  "robotLength": 0.96,
   "holonomicMode": true,
   "pathFolders": [
-    "2NoteAuto",
-    "3NoteAuto",
-    "AssholeAuto",
-    "4NoteAuto",
     "Other",
+    "PrimaryAutos",
     "SideAutos"
   ],
   "autoFolders": [],
