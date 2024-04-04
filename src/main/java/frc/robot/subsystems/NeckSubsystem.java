@@ -28,7 +28,7 @@ public class NeckSubsystem extends SubsystemBase {
     public final PIDController neckRotateController = new PIDController(0.0, 0.0, 0.0);
 
     private boolean bottomLimitSwitchPressed = false;
-    private boolean manualControlEnabled = false;
+    public boolean manualControlEnabled = false;
 
     public int neckGoalAngle = 0;
 
@@ -49,11 +49,8 @@ public class NeckSubsystem extends SubsystemBase {
     public void periodic() {
         ManageNeckStates();
         ManageEncoderFailure();
-
-        if (!manualControlEnabled) {
-            ManageLimitSwitches();
-            UpdatePIDConstants();
-        }
+        UpdatePIDConstants();
+        ManageLimitSwitches();
 
         System.out.println("<--------------->");
         System.out.println("Goal:" + neckGoalAngle);
@@ -63,8 +60,8 @@ public class NeckSubsystem extends SubsystemBase {
         // System.out.println("Top Limit Switch: " + !topLimitSwitch.get());
         // System.out.println("Bottom Limit Switch: " + !bottomLimitSwitch.get());
 
-        // System.out.println("Manual Control Enabled: " + manualControlEnabled);
-        // System.out.println("Neck State: " + currentNeckState);
+        System.out.println("Manual Control Enabled: " + manualControlEnabled);
+        System.out.println("Neck State: " + currentNeckState);
     }
 
     private void ManageNeckStates() {
@@ -73,7 +70,7 @@ public class NeckSubsystem extends SubsystemBase {
                 neckGoalAngle = 0;
                 break;
             case SUBWOOFER:
-                neckGoalAngle = 20;
+                neckGoalAngle = 30;
                 break;
             case VISION:
                 boolean hasTargets = LimelightHelpers.getTV("");
@@ -134,28 +131,30 @@ public class NeckSubsystem extends SubsystemBase {
     }
 
     private void ManageLimitSwitches() {
-        if (bottomLimitSwitch.get()) {
-            if (currentNeckState == NeckStates.INTAKE && primaryNeckEncoder.get() <= 25 && primaryNeckEncoder.get() > 0) {
-                NeckSetRotateSpeed(-0.07);
+        if (!manualControlEnabled) {
+            if (bottomLimitSwitch.get()) {
+                if (currentNeckState == NeckStates.INTAKE && primaryNeckEncoder.get() <= 25 && primaryNeckEncoder.get() > 0) {
+                    NeckSetRotateSpeed(-0.07);
+                }
+                bottomLimitSwitchPressed = false;
+            } else {
+                if (!bottomLimitSwitchPressed) {
+                    primaryNeckEncoder.reset();
+                    secondaryNeckEncoder.reset();
+                    bottomLimitSwitchPressed = true;
+                }
             }
-            bottomLimitSwitchPressed = false;
-        } else {
-            if (!bottomLimitSwitchPressed) {
-                primaryNeckEncoder.reset();
-                secondaryNeckEncoder.reset();
-                bottomLimitSwitchPressed = true;
-            }
-        }
 
-        if (topLimitSwitch.get()) {
-            if (currentNeckState == NeckStates.AMP && primaryNeckEncoder.get() >= 200 && primaryNeckEncoder.get() < 250) {
-                NeckSetRotateSpeed(0.16);
+            if (topLimitSwitch.get()) {
+                if (currentNeckState == NeckStates.AMP && primaryNeckEncoder.get() >= 200 && primaryNeckEncoder.get() < 250) {
+                    NeckSetRotateSpeed(0.16);
+                }
             }
         }
     }
 
     private void ManageEncoderFailure() {
-        // if (Math.abs(Math.abs(primaryNeckEncoder.get()) - Math.abs(secondaryNeckEncoder.get())) > 20) {
+        // if (!manualControlEnabled && Math.abs(Math.abs(primaryNeckEncoder.get()) - Math.abs(secondaryNeckEncoder.get())) > 20) {
         //     manualControlEnabled = true;
         // }
     }
@@ -170,7 +169,7 @@ public class NeckSubsystem extends SubsystemBase {
     private int VisionSetAngle(double distance) {
         int angle = 0;
         if (distance > 3.3 && distance < 15) {
-            angle = (int) (-349.351*Math.pow(distance, -0.854219) + 140.0);
+            angle = (int) (-349.351*Math.pow(distance, -0.854219) + 156.0);
         }
         return angle;
     }

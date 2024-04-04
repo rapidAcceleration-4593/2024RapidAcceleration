@@ -76,7 +76,7 @@ public class RobotContainer
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
         () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
         () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-        () -> driverXbox.getRightX()); // * 0.5
+        () -> driverXbox.getRightX() * 0.95);
 
     // Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
     //     () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
@@ -99,6 +99,12 @@ public class RobotContainer
     driverXbox.a().whileTrue(new NeckDown(neckSubsystem));
     driverXbox.a().whileFalse(new NeckStop(neckSubsystem));
 
+    driverXbox.povUp().whileTrue(new ClimberUp(climberSubsystem));
+    driverXbox.povUp().whileFalse(new ClimberStop(climberSubsystem));
+    
+    driverXbox.povDown().whileTrue(new ClimberDown(climberSubsystem));
+    driverXbox.povDown().whileFalse(new ClimberStop(climberSubsystem));
+
     // Auxilary Controller
     auxXbox.back().onTrue(new ManualControlEnabled(neckSubsystem));
     auxXbox.start().onTrue(new ManualControlDisabled(neckSubsystem));
@@ -118,12 +124,6 @@ public class RobotContainer
 
     auxXbox.x().whileTrue(new BeakOuttake(beakSubsystem));
     auxXbox.x().whileFalse(new BeakIntakeStop(beakSubsystem));
-
-    auxXbox.povUp().whileTrue(new ClimberUp(climberSubsystem));
-    auxXbox.povUp().whileFalse(new ClimberStop(climberSubsystem));
-    
-    auxXbox.povDown().whileTrue(new ClimberDown(climberSubsystem));
-    auxXbox.povDown().whileFalse(new ClimberStop(climberSubsystem));
   }
 
   // Use this method to pass the autonomous command to the main class

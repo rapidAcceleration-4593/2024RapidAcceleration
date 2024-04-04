@@ -7,8 +7,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
-import frc.robot.commands.PrimaryCommands.PresetPositions.IntakePosition;
-import frc.robot.commands.PrimaryCommands.PresetPositions.SubwooferPosition;
 
 public class BeakSubsystem extends SubsystemBase {
     
@@ -42,7 +40,7 @@ public class BeakSubsystem extends SubsystemBase {
     }
     
     public void Outtake() {
-        if (!bottomLimitSwitch.get() && neckSubsystem.currentNeckState == NeckStates.INTAKE) {
+        if (neckSubsystem.currentNeckState == NeckStates.INTAKE) {
             bumperIntakeMotor.set(-1.0);
             beakIntakeMotor.set(1.0);
         } else {
@@ -99,32 +97,34 @@ public class BeakSubsystem extends SubsystemBase {
     }
 
     public void periodic() {
-        if (!intakeLimitSwitch.get()) {
-            siccLEDS.set(Relay.Value.kOff);
-            intakeIntaked = false;
-
-            if (bottomLimitSwitch.get() && subwooferPositionSet && neckSubsystem.currentNeckState != NeckStates.INTAKE) {
-                if (!intakeDownTimerStarted) {
-                    intakeDownTimer.start();
-                    intakeDownTimerStarted = true;
-                } else if (intakeDownTimer.hasElapsed(0.5)) {
-                    new IntakePosition(neckSubsystem);
-                    intakeDownTimer.stop();
-                    intakeDownTimer.reset();
-                    intakeDownTimerStarted = false;
-                    subwooferPositionSet = false;
+        if (!neckSubsystem.manualControlEnabled) {
+            if (intakeLimitSwitch.get()) {
+                siccLEDS.set(Relay.Value.kOn);
+                if (!intakeIntaked) {
+                    IntakeStop();
+                    intakeIntaked = true;
                 }
-            }
-        } else {
-            siccLEDS.set(Relay.Value.kOn);
-            if (!intakeIntaked) {
-                IntakeStop();
-                intakeIntaked = true;
-            }
 
-            if (!bottomLimitSwitch.get() && !subwooferPositionSet && neckSubsystem.currentNeckState == NeckStates.INTAKE) {
-                new SubwooferPosition(neckSubsystem);
-                subwooferPositionSet = true;
+                if (!bottomLimitSwitch.get() && !subwooferPositionSet && neckSubsystem.currentNeckState == NeckStates.INTAKE) {
+                    neckSubsystem.SubwooferPosition();
+                    subwooferPositionSet = true;
+                }
+            } else {
+                siccLEDS.set(Relay.Value.kOff);
+                intakeIntaked = false;
+
+                if (bottomLimitSwitch.get() && subwooferPositionSet && neckSubsystem.currentNeckState != NeckStates.INTAKE) {
+                    if (!intakeDownTimerStarted) {
+                        intakeDownTimer.start();
+                        intakeDownTimerStarted = true;
+                    } else if (intakeDownTimer.hasElapsed(0.5)) {
+                        neckSubsystem.IntakePosition();
+                        intakeDownTimer.stop();
+                        intakeDownTimer.reset();
+                        intakeDownTimerStarted = false;
+                        subwooferPositionSet = false;
+                    }
+                }
             }
         }
     }
