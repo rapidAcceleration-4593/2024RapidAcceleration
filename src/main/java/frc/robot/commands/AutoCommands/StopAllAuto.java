@@ -1,20 +1,20 @@
 package frc.robot.commands.AutoCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.BeakSubsystem;
+import frc.robot.subsystems.PrimarySubsystem;
 
 public class StopAllAuto extends Command {
 
-    private final BeakSubsystem beakSubsystem;
+    private final PrimarySubsystem primarySubsystem;
 
-    public StopAllAuto(BeakSubsystem beakSubsystem) {
-        this.beakSubsystem = beakSubsystem;
-        addRequirements(beakSubsystem);
+    public StopAllAuto(PrimarySubsystem primarySubsystem) {
+        this.primarySubsystem = primarySubsystem;
+        addRequirements(primarySubsystem);
     }
     
     @Override
     public void initialize() {
-        beakSubsystem.StopAllAuto();
+        primarySubsystem.StopAllAuto();
     }
 
     @Override

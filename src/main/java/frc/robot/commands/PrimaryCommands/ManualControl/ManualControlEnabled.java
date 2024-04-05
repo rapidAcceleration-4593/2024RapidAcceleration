@@ -1,20 +1,20 @@
 package frc.robot.commands.PrimaryCommands.ManualControl;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.NeckSubsystem;
+import frc.robot.subsystems.PrimarySubsystem;
 
 public class ManualControlEnabled extends Command {
     
-    private final NeckSubsystem neckSubsystem;
+    private final PrimarySubsystem primarySubsystem;
 
-    public ManualControlEnabled(NeckSubsystem neckSubsystem) {
-        this.neckSubsystem = neckSubsystem;
-        addRequirements(neckSubsystem);
+    public ManualControlEnabled(PrimarySubsystem primarySubsystem) {
+        this.primarySubsystem = primarySubsystem;
+        addRequirements(primarySubsystem);
     }
 
     @Override
     public void initialize() {
-        neckSubsystem.EnableManualControl();
+        primarySubsystem.EnableManualControl();
     }
 
     @Override
