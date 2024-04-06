@@ -18,7 +18,7 @@ import frc.robot.commands.BeakCommands.Shooter.*;
 import frc.robot.commands.ClimberCommands.*;
 import frc.robot.commands.PrimaryCommands.ManualControl.*;
 import frc.robot.commands.PrimaryCommands.PresetPositions.*;
-import frc.robot.commands.PrimaryCommands.Vision.VisionSwerveAlign;
+import frc.robot.commands.PrimaryCommands.Vision.*;
 
 import com.pathplanner.lib.auto.NamedCommands;
 import java.io.File;
@@ -54,35 +54,18 @@ public class RobotContainer
 
     configureBindings();
 
-    // Applies deadbands and inverts controls because joysticks
-    // are back-right positive while robot
-    // controls are front-left positive
-    // left stick controls translation
-    // right stick controls the desired angle NOT angular rotation
     // Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
     //     () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
     //     () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
     //     () -> driverXbox.getRightX(),
     //     () -> driverXbox.getRightY());
 
-    // Applies deadbands and inverts controls because joysticks
-    // are back-right positive while robot
-    // controls are front-left positive
-    // left stick controls translation
-    // right stick controls the angular velocity of the robot
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
         () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
         () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
         () -> driverXbox.getRightX() * 0.95);
 
-    // Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
-    //     () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
-    //     () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-    //     () -> driverXbox.getRawAxis(2));
-
     drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
-    // drivebase.setDefaultCommand(
-    //     !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
   }
 
   private void configureBindings()
@@ -91,10 +74,10 @@ public class RobotContainer
     driverXbox.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
     driverXbox.start().whileTrue(new VisionSwerveAlign(visionSubsystem));
 
-    // driverXbox.y().whileTrue(new NeckUp(neckSubsystem));
-    // driverXbox.y().whileFalse(new NeckStop(neckSubsystem));
-    // driverXbox.a().whileTrue(new NeckDown(neckSubsystem));
-    // driverXbox.a().whileFalse(new NeckStop(neckSubsystem));
+    driverXbox.y().whileTrue(new NeckUp(primarySubsystem));
+    driverXbox.y().whileFalse(new NeckStop(primarySubsystem));
+    driverXbox.a().whileTrue(new NeckDown(primarySubsystem));
+    driverXbox.a().whileFalse(new NeckStop(primarySubsystem));
 
     driverXbox.povUp().whileTrue(new ClimberUp(climberSubsystem));
     driverXbox.povUp().whileFalse(new ClimberStop(climberSubsystem));
@@ -108,10 +91,10 @@ public class RobotContainer
 
     auxXbox.povDown().onTrue(new IntakePosition(primarySubsystem));
     auxXbox.povLeft().onTrue(new SubwooferPosition(primarySubsystem));
-    // auxXbox.povUp().onTrue(new AmpPosition(neckSubsystem));
-    // auxXbox.povRight().onTrue(new YeetPosition(neckSubsystem));
-    // auxXbox.b().whileTrue(new VisionNeckAnglePressed(neckSubsystem));
-    // auxXbox.b().whileFalse(new VisionNeckAngleNotPressed(neckSubsystem));
+    auxXbox.povUp().onTrue(new AmpPosition(primarySubsystem));
+    auxXbox.povRight().onTrue(new YeetPosition(primarySubsystem));
+    auxXbox.b().whileTrue(new VisionNeckAnglePressed(primarySubsystem));
+    auxXbox.b().whileFalse(new VisionNeckAngleNotPressed(primarySubsystem));
 
     auxXbox.rightBumper().whileTrue(new BeakShooter(primarySubsystem));
     auxXbox.rightBumper().whileFalse(new BeakShooterStop(primarySubsystem));

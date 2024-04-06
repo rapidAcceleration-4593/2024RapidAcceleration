@@ -13,8 +13,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import swervelib.math.Matter;
 
 /**
@@ -56,7 +56,7 @@ public final class Constants
   }
 
   public static final class LEDConstants {
-    public static final Relay SiccLEDs = new Relay(0);
+    public static final Spark SiccLEDs = new Spark(999);
   }
 
   public static final class AutonConstants
