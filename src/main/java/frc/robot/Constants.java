@@ -56,7 +56,7 @@ public final class Constants
   }
 
   public static final class LEDConstants {
-    public static final Spark SiccLEDs = new Spark(999);
+    public static final Spark SiccLEDs = new Spark(5);
   }
 
   public static final class AutonConstants

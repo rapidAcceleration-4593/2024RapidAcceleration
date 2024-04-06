@@ -10,10 +10,10 @@ public class VisionSubsystem extends SubsystemBase {
 
     private final SwerveSubsystem swerve;
 
-    private final PIDController translationXController = new PIDController(0.2, 0.0, 0.0);
-    private final PIDController translationYController = new PIDController(0.2, 0.0, 0.0);
+    private final PIDController translationXController = new PIDController(1.0, 0.0, 0.0);
+    private final PIDController translationYController = new PIDController(1.0, 0.0, 0.0);
     private final PIDController rotationController = new PIDController(0.1, 0.0, 0.0);
-    private final PIDController rotationFlatController = new PIDController(0.1, 0.0, 0.0);
+    private final PIDController rotationFlatController = new PIDController(1.0, 0.0, 0.0);
 
     private static double translationDeadband = 0.1;
     private static double rotationDeadband = 0.01;
@@ -36,7 +36,7 @@ public class VisionSubsystem extends SubsystemBase {
                 }
 
                 swerve.drive(new Translation2d(0.0, 0.0), -rotationAdjust, false);
-            } else if ((LimelightHelpers.getFiducialID("") == 11) || (LimelightHelpers.getFiducialID("") == 12) || (LimelightHelpers.getFiducialID("") == 13) || (LimelightHelpers.getFiducialID("") == 14) || (LimelightHelpers.getFiducialID("") == 15) || (LimelightHelpers.getFiducialID("") == 16)) {
+            } else if ((LimelightHelpers.getFiducialID("") == 1) || (LimelightHelpers.getFiducialID("") == 12) || (LimelightHelpers.getFiducialID("") == 13) || (LimelightHelpers.getFiducialID("") == 14) || (LimelightHelpers.getFiducialID("") == 15) || (LimelightHelpers.getFiducialID("") == 16)) {
                 double translationAdjustX = translationXController.calculate(target.getZ(), 6.0);
                 double translationAdjustY = translationYController.calculate(target.getX());
                 double rotationAdjust = rotationFlatController.calculate(target.getRotation().getY());

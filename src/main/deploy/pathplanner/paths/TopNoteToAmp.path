@@ -108,13 +108,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 60.0,
+    "rotation": -120.0,
     "rotateFast": true
   },
   "reversed": false,
   "folder": "SideAutos",
   "previewStartingState": {
-    "rotation": 0.0,
+    "rotation": 180.0,
     "velocity": 0
   },
   "useDefaultConstraints": false
