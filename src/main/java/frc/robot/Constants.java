@@ -39,8 +39,8 @@ public final class Constants
     public static final CANSparkMax rightGearbox2 = new CANSparkMax(9, MotorType.kBrushless);
     public static final DigitalInput topLimitSwitch = new DigitalInput(4);
     public static final DigitalInput bottomLimitSwitch = new DigitalInput(1);
-    public static final Encoder primaryNeckEncoder = new Encoder(6, 7);
-    public static final DutyCycleEncoder secondaryNeckEncoder = new DutyCycleEncoder(2);
+    public static final DutyCycleEncoder primaryNeckEncoder = new DutyCycleEncoder(2);
+    public static final Encoder secondaryNeckEncoder = new Encoder(6, 7);
   }
 
   public static final class BeakConstants {

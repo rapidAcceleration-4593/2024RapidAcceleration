@@ -79,6 +79,9 @@ public class RobotContainer
     driverXbox.povDown().whileTrue(new ClimberDown(climberSubsystem));
     driverXbox.povDown().whileFalse(new ClimberStop(climberSubsystem));
 
+    driverXbox.x().onTrue(new AddCounts(primarySubsystem));
+    driverXbox.b().onTrue(new SubtractCounts(primarySubsystem));
+
     // Auxilary Controller
     auxXbox.back().onTrue(new ManualControlEnabled(primarySubsystem));
     auxXbox.start().onTrue(new ManualControlDisabled(primarySubsystem));
