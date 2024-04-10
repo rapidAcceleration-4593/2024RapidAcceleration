@@ -45,7 +45,7 @@ public class PrimarySubsystem extends SubsystemBase {
 
     private final Spark siccLEDS = LEDConstants.SiccLEDs;
 
-    private int neckGoalAngle = 0;
+    private double neckGoalAngle = 0.0;
 
     public void IntakePosition() { if (!manualControlEnabled) { currentNeckState = NeckStates.INTAKE; subwooferPositionSet = false; }}
     public void SubwooferPosition() { if (!manualControlEnabled) { currentNeckState = NeckStates.SUBWOOFER; }}
@@ -54,13 +54,18 @@ public class PrimarySubsystem extends SubsystemBase {
 
     public void VisionNeckAnglePressed() { if (!manualControlEnabled && currentNeckState != NeckStates.INTAKE) { currentNeckState = NeckStates.VISION; }}
     public void VisionNeckAngleNotPressed() { if (!manualControlEnabled && currentNeckState == NeckStates.VISION) { currentNeckState = NeckStates.SUBWOOFER; }}
+    public void VisionNeckAngleAuto() { if (!manualControlEnabled && currentNeckState != NeckStates.INTAKE) { currentNeckState = NeckStates.VISION; }}
 
     public void NeckUp() { if (manualControlEnabled) { siccLEDS.set(0.87); if (topLimitSwitch.get()) { currentNeckState = NeckStates.MANUAL_UP; } else { currentNeckState = NeckStates.MANUAL_STOP; }}}
     public void NeckDown() { if (manualControlEnabled) { siccLEDS.set(0.87); if (bottomLimitSwitch.get()) { currentNeckState = NeckStates.MANUAL_DOWN; } else { currentNeckState = NeckStates.MANUAL_STOP; }}}
     public void NeckStop() { if (manualControlEnabled) { siccLEDS.set(0.87); currentNeckState = NeckStates.MANUAL_STOP; }}
 
     public void EnableManualControl() { manualControlEnabled = true; }
-    public void DisableManualControl() { if (!bottomLimitSwitch.get()) { manualControlEnabled = false; IntakePosition(); }}
+    public void DisableManualControl() {
+        if (!bottomLimitSwitch.get() && primaryNeckEncoder.isConnected() && Math.abs(primaryNeckEncoder.getDistance() - secondaryNeckEncoder.get()) < 5) {
+            manualControlEnabled = false; IntakePosition();
+        }
+    }
 
     public PrimarySubsystem() {
         primaryNeckEncoder.setDistancePerRotation(1024);
@@ -87,10 +92,10 @@ public class PrimarySubsystem extends SubsystemBase {
     private void ManageNeckStates() {
         switch (currentNeckState) {
             case INTAKE:
-                neckGoalAngle = 0;
+                neckGoalAngle = 0.0;
                 break;
             case SUBWOOFER:
-                neckGoalAngle = 40;
+                neckGoalAngle = 40.0;
                 break;
             case VISION:
                 boolean hasTargets = LimelightHelpers.getTV("");
@@ -99,16 +104,16 @@ public class PrimarySubsystem extends SubsystemBase {
                 }
                 break;
             case YEET:
-                neckGoalAngle = 100;
+                neckGoalAngle = 100.0;
                 break;
             case AMP:
-                neckGoalAngle = 250;
+                neckGoalAngle = 250.0;
                 break;
             case MANUAL_UP:
                 NeckSetRotateSpeed(0.16);
                 break;
             case MANUAL_DOWN:
-                NeckSetRotateSpeed(-0.07);
+                NeckSetRotateSpeed(-0.08);
                 break;
             case MANUAL_STOP:
                 NeckSetRotateSpeed(0.0);
@@ -192,9 +197,10 @@ public class PrimarySubsystem extends SubsystemBase {
     }
 
     private void ManageEncoderFailure() {
-        // if (!manualControlEnabled && !primaryNeckEncoder.isConnected()) {
-        //     manualControlEnabled = true;
-        // }
+        double encoderDifference = Math.abs(primaryNeckEncoder.getDistance() - secondaryNeckEncoder.get());
+        if (!manualControlEnabled && (!primaryNeckEncoder.isConnected() || Math.abs(primaryNeckEncoder.getDistance()) > 400 || encoderDifference > 20)) {
+            manualControlEnabled = true;
+        }
     }
 
     private void NeckSetRotateSpeed(double speed) {
@@ -204,10 +210,11 @@ public class PrimarySubsystem extends SubsystemBase {
         rightGearbox2.follow(leftGearbox1, true);
     }
 
-    private int VisionSetAngle(double distance) {
-        int angle = 0;
+    private double VisionSetAngle(double distance) {
+        double angle = 0;
         if (distance > 3.3 && distance < 20) {
-            angle = (int) (-349.351*Math.pow(distance, -0.854219) + 160.0);
+            // angle = -349.351 * Math.pow(distance, -0.854219) + 160.0;
+            angle = -760.752 * Math.pow(distance, -2.03428) + 99.4525;
         }
         return angle;
     }

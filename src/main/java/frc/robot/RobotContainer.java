@@ -39,12 +39,13 @@ public class RobotContainer
   private final CommandXboxController driverXbox = new CommandXboxController(0);
   private final CommandXboxController auxXbox = new CommandXboxController(1);
 
-  private final String autoName = MatchConstants.autoName;
+  public final String autoName = MatchConstants.autoName;
 
   public RobotContainer()
   {
     NamedCommands.registerCommand("IntakePosition", new IntakePosition(primarySubsystem));
     NamedCommands.registerCommand("SubwooferPosition", new SubwooferPosition(primarySubsystem));
+    NamedCommands.registerCommand("VisionAngle", new VisionNeckAngleAuto(primarySubsystem));
 
     NamedCommands.registerCommand("Shooter", new ShooterAuto(primarySubsystem));
     NamedCommands.registerCommand("Intake", new IntakeAuto(primarySubsystem));
