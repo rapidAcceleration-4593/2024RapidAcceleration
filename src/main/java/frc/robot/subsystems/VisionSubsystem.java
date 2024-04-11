@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 
@@ -11,15 +10,13 @@ public class VisionSubsystem extends SubsystemBase {
 
     private final SwerveSubsystem swerve;
 
-    private final PIDController translationXController = new PIDController(5.0, 0.0, 0.0);
-    private final PIDController translationYController = new PIDController(5.0, 0.0, 0.0);
+    private final PIDController translationXController = new PIDController(1.0, 0.0, 0.0);
+    private final PIDController translationYController = new PIDController(1.0, 0.0, 0.0);
     private final PIDController rotationController = new PIDController(0.1, 0.0, 0.0);
-    private final PIDController rotationFlatController = new PIDController(5.0, 0.0, 0.0);
+    private final PIDController rotationFlatController = new PIDController(1.0, 0.0, 0.0);
 
     private static double translationDeadband = 0.1;
     private static double rotationDeadband = 0.01;
-
-    private Timer autonTimer = new Timer();
 
     public VisionSubsystem(SwerveSubsystem swerve) {
         // Initialize Swerve
@@ -43,8 +40,8 @@ public class VisionSubsystem extends SubsystemBase {
                     || (LimelightHelpers.getFiducialID("") == 5) || (LimelightHelpers.getFiducialID("") == 6)
                     || (LimelightHelpers.getFiducialID("") == 1)) {
                 double translationAdjustX = translationXController.calculate(target.getZ(), 6.0);
-                double translationAdjustY = translationYController.calculate(target.getX());
-                double rotationAdjust = rotationFlatController.calculate(target.getRotation().getY());
+                double translationAdjustY = translationYController.calculate(target.getX(), 0.0);
+                double rotationAdjust = rotationFlatController.calculate(target.getRotation().getY(), 0.0);
                 
                 if (Math.abs(rotationAdjust) > rotationDeadband) {
                     swerve.drive(new Translation2d(0.0, 0.0), -rotationAdjust, false);
@@ -60,15 +57,4 @@ public class VisionSubsystem extends SubsystemBase {
             }
         }
     }
-
-    // public void autonomousInit() {
-        
-    // }
-
-    // public void autonomousPeriodic() {
-    //     autonTimer.start();
-    //     if (autonTimer.get() > 6.0 && autonTimer.get() < 10) {
-    //         VisionSwerveAlign();
-    //     }
-    // }
 }

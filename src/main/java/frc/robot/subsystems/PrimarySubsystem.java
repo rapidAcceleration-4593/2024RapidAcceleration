@@ -56,16 +56,12 @@ public class PrimarySubsystem extends SubsystemBase {
     public void VisionNeckAngleNotPressed() { if (!manualControlEnabled && currentNeckState == NeckStates.VISION) { currentNeckState = NeckStates.SUBWOOFER; }}
     public void VisionNeckAngleAuto() { if (!manualControlEnabled && currentNeckState != NeckStates.INTAKE) { currentNeckState = NeckStates.VISION; }}
 
-    public void NeckUp() { if (manualControlEnabled) { siccLEDS.set(0.87); if (topLimitSwitch.get()) { currentNeckState = NeckStates.MANUAL_UP; } else { currentNeckState = NeckStates.MANUAL_STOP; }}}
-    public void NeckDown() { if (manualControlEnabled) { siccLEDS.set(0.87); if (bottomLimitSwitch.get()) { currentNeckState = NeckStates.MANUAL_DOWN; } else { currentNeckState = NeckStates.MANUAL_STOP; }}}
-    public void NeckStop() { if (manualControlEnabled) { siccLEDS.set(0.87); currentNeckState = NeckStates.MANUAL_STOP; }}
+    public void NeckUp() { if (manualControlEnabled) { if (topLimitSwitch.get()) { currentNeckState = NeckStates.MANUAL_UP; } else { currentNeckState = NeckStates.MANUAL_STOP; }}}
+    public void NeckDown() { if (manualControlEnabled) { if (bottomLimitSwitch.get()) { currentNeckState = NeckStates.MANUAL_DOWN; } else { currentNeckState = NeckStates.MANUAL_STOP; }}}
+    public void NeckStop() { if (manualControlEnabled) { currentNeckState = NeckStates.MANUAL_STOP; }}
 
     public void EnableManualControl() { manualControlEnabled = true; }
-    public void DisableManualControl() {
-        if (!bottomLimitSwitch.get() && primaryNeckEncoder.isConnected() && Math.abs(primaryNeckEncoder.getDistance() - secondaryNeckEncoder.get()) < 5) {
-            manualControlEnabled = false; IntakePosition();
-        }
-    }
+    public void DisableManualControl() { if (!bottomLimitSwitch.get() && Math.abs(primaryNeckEncoder.getDistance() - secondaryNeckEncoder.get()) < 5) { manualControlEnabled = false; IntakePosition(); }}
 
     public PrimarySubsystem() {
         primaryNeckEncoder.setDistancePerRotation(1024);
@@ -143,7 +139,7 @@ public class PrimarySubsystem extends SubsystemBase {
                 d = 0.0;
                 neckRotateController.setPID(p, i, d);
                 NeckSetRotateSpeed(neckRotateController.calculate(primaryNeckEncoder.getDistance(), neckGoalAngle));
-            } else if (error > 0 && primaryNeckEncoder.getDistance() > 25 && currentNeckState != NeckStates.AMP) {
+            } else if (error > 0 && primaryNeckEncoder.getDistance() > 25 && primaryNeckEncoder.getDistance() < 350 && currentNeckState != NeckStates.AMP) {
                 // Down Controller
                 p = 0.0016;
                 i = 0.0;
@@ -153,6 +149,8 @@ public class PrimarySubsystem extends SubsystemBase {
             }
 
             ManageLimitSwitches();
+        } else {
+            siccLEDS.set(0.87);
         }
     }
 
