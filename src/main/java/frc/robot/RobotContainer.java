@@ -39,7 +39,7 @@ public class RobotContainer
   private final CommandXboxController driverXbox = new CommandXboxController(0);
   private final CommandXboxController auxXbox = new CommandXboxController(1);
 
-  public final String autoName = MatchConstants.autoName;
+  private final String autoName = MatchConstants.autoName;
 
   public RobotContainer()
   {

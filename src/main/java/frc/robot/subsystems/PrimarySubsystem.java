@@ -69,15 +69,16 @@ public class PrimarySubsystem extends SubsystemBase {
 
     public PrimarySubsystem() {
         primaryNeckEncoder.setDistancePerRotation(1024);
+        primaryNeckEncoder.reset();
     }
 
     public void periodic() {
         ManageNeckStates();
-        ManageEncoderFailure();
         UpdatePIDConstants();
+        ManageEncoderFailure();
 
         System.out.println("<--------------->");
-        System.out.println("Goal:" + neckGoalAngle);
+        System.out.println("Goal: " + neckGoalAngle);
         System.out.println("Primary Encoder Value: " + primaryNeckEncoder.getDistance());
         System.out.println("Secondary Encoder Value: " + secondaryNeckEncoder.get());
 
@@ -113,7 +114,7 @@ public class PrimarySubsystem extends SubsystemBase {
                 NeckSetRotateSpeed(0.16);
                 break;
             case MANUAL_DOWN:
-                NeckSetRotateSpeed(-0.08);
+                NeckSetRotateSpeed(-0.07);
                 break;
             case MANUAL_STOP:
                 NeckSetRotateSpeed(0.0);
@@ -198,7 +199,7 @@ public class PrimarySubsystem extends SubsystemBase {
 
     private void ManageEncoderFailure() {
         double encoderDifference = Math.abs(primaryNeckEncoder.getDistance() - secondaryNeckEncoder.get());
-        if (!manualControlEnabled && (!primaryNeckEncoder.isConnected() || Math.abs(primaryNeckEncoder.getDistance()) > 400 || encoderDifference > 20)) {
+        if (!manualControlEnabled && (encoderDifference > 20)) {
             manualControlEnabled = true;
         }
     }
@@ -213,7 +214,7 @@ public class PrimarySubsystem extends SubsystemBase {
     private double VisionSetAngle(double distance) {
         double angle = 0;
         if (distance > 3.3 && distance < 20) {
-            // angle = -349.351 * Math.pow(distance, -0.854219) + 160.0;
+            // angle = -349.351*Math.pow(distance, -0.854219) + 160.0;
             angle = -760.752 * Math.pow(distance, -2.03428) + 99.4525;
         }
         return angle;
@@ -246,7 +247,7 @@ public class PrimarySubsystem extends SubsystemBase {
         if (currentNeckState == NeckStates.AMP) {
             shooterTopMotor.set(0.25);
             shooterBottomMotor.set(0.25);
-            beakIntakeMotor.set(-0.9);
+            beakIntakeMotor.set(-1.0);
         } else {
             shooterTopMotor.set(1.0);
             shooterBottomMotor.set(1.0);

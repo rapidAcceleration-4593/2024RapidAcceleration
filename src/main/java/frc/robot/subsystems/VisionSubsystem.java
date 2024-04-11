@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 
@@ -17,6 +18,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     private static double translationDeadband = 0.1;
     private static double rotationDeadband = 0.01;
+
+    private Timer autonTimer = new Timer();
 
     public VisionSubsystem(SwerveSubsystem swerve) {
         // Initialize Swerve
@@ -57,4 +60,15 @@ public class VisionSubsystem extends SubsystemBase {
             }
         }
     }
+
+    // public void autonomousInit() {
+        
+    // }
+
+    // public void autonomousPeriodic() {
+    //     autonTimer.start();
+    //     if (autonTimer.get() > 6.0 && autonTimer.get() < 10) {
+    //         VisionSwerveAlign();
+    //     }
+    // }
 }

@@ -9,9 +9,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.PrimaryCommands.Vision.VisionSwerveAlign;
-import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,11 +28,7 @@ public class Robot extends TimedRobot
 
   private RobotContainer m_robotContainer;
 
-  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
-  private final VisionSubsystem visionSubsystem = new VisionSubsystem(drivebase);
-
   private Timer disabledTimer;
-  private Timer autonTimer;
 
   public Robot()
   {
@@ -58,9 +51,6 @@ public class Robot extends TimedRobot
     // Create a timer to disable motor brake a few seconds after disable.  This will let the robot stop
     // immediately when disabled, but then also let it be pushed more 
     disabledTimer = new Timer();
-
-    // This is a custom timer created for swerve alignment during auto. This is the worse possible way to do this. This is a full god send right now before worlds
-    autonTimer = new Timer();
   }
 
   // This function is called every 20 ms, no matter the mode. Use this for items like diagnostics that you want ran during disabled, autonomous, teleoperated and test.
@@ -94,29 +84,21 @@ public class Robot extends TimedRobot
   }
 
   // This autonomous runs the autonomous command selected by your RobotContainer class.
-  @Override
   public void autonomousInit()
   {
     m_robotContainer.setMotorBrake(true);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
+    if (m_autonomousCommand != null)
+    {
       m_autonomousCommand.schedule();
-
-      autonTimer.start();
     }
   }
 
   // This function is called periodically during autonomous.
-  @Override
   public void autonomousPeriodic()
   {
-    if (m_robotContainer.autoName == "AutoVision") {
-      if (autonTimer.get() > 5.5 && autonTimer.get() < 7.0) {
-        new VisionSwerveAlign(visionSubsystem);
-      }
-    }
   }
 
   @Override
@@ -129,8 +111,6 @@ public class Robot extends TimedRobot
     if (m_autonomousCommand != null)
     {
       m_autonomousCommand.cancel();
-      autonTimer.stop();
-      autonTimer.reset();
     }
     m_robotContainer.setMotorBrake(true);
   }

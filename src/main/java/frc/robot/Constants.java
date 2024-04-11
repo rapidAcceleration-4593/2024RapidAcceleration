@@ -29,7 +29,7 @@ public final class Constants
   public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
 
   public static final class MatchConstants {
-    public static final String autoName = "4NoteAuto"; // 4NoteAuto, 3NoteAuto, 2NoteAuto, Amp2NoteAuto, SourceMoveOut, ShootNoMove, DoNothing, GrieferAuto
+    public static final String autoName = "AutoVision"; // Amp2NoteAuto, SourceMoveOut, ShootNoMove, DoNothing, GrieferAuto
   }
 
   public static final class NeckConstants {

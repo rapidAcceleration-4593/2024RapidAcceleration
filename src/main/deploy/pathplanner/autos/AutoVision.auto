@@ -56,6 +56,12 @@
         {
           "type": "named",
           "data": {
+            "name": "StopAll"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "VisionAngle"
           }
         }
