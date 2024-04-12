@@ -11,7 +11,6 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
@@ -39,7 +38,7 @@ public final class Constants
     public static final CANSparkMax rightGearbox2 = new CANSparkMax(9, MotorType.kBrushless);
     public static final DigitalInput topLimitSwitch = new DigitalInput(4);
     public static final DigitalInput bottomLimitSwitch = new DigitalInput(1);
-    public static final DutyCycleEncoder primaryNeckEncoder = new DutyCycleEncoder(2);
+    public static final Encoder primaryNeckEncoder = new Encoder(2, 3);
     public static final Encoder secondaryNeckEncoder = new Encoder(6, 7);
   }
 

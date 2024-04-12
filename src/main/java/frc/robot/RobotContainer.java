@@ -33,7 +33,6 @@ public class RobotContainer
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
 
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
-  private final VisionSubsystem visionSubsystem = new VisionSubsystem(drivebase);
   private final PrimarySubsystem primarySubsystem = new PrimarySubsystem();
 
   private final CommandXboxController driverXbox = new CommandXboxController(0);
@@ -67,7 +66,7 @@ public class RobotContainer
   {
     // Driver Controller
     driverXbox.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
-    driverXbox.start().whileTrue(new VisionSwerveAlign(visionSubsystem));
+    driverXbox.start().whileTrue(drivebase.aimAtSpeaker(2));
 
     driverXbox.y().whileTrue(new NeckUp(primarySubsystem));
     driverXbox.y().whileFalse(new NeckStop(primarySubsystem));

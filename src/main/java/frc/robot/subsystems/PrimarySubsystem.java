@@ -1,15 +1,19 @@
 package frc.robot.subsystems;
 
+import java.io.File;
+
+import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonTrackedTarget;
+
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.LimelightHelpers;
 import frc.robot.Constants.*;
 
 public class PrimarySubsystem extends SubsystemBase {
@@ -28,13 +32,16 @@ public class PrimarySubsystem extends SubsystemBase {
     private final DigitalInput topLimitSwitch = NeckConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = NeckConstants.bottomLimitSwitch;
 
-    private final DutyCycleEncoder primaryNeckEncoder = NeckConstants.primaryNeckEncoder;
+    private final Encoder primaryNeckEncoder = NeckConstants.primaryNeckEncoder;
     private final Encoder secondaryNeckEncoder = NeckConstants.secondaryNeckEncoder;
 
     private enum NeckStates { INTAKE, SUBWOOFER, VISION, YEET, AMP, MANUAL_UP, MANUAL_DOWN, MANUAL_STOP, TEST }
     private NeckStates currentNeckState = NeckStates.INTAKE;
 
     private final PIDController neckRotateController = new PIDController(0.0, 0.0, 0.0);
+
+    private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+    PhotonCamera camera = new PhotonCamera("photonvision");
 
     private boolean manualControlEnabled = false;
     private boolean shooterTimerStarted = false;
@@ -45,7 +52,7 @@ public class PrimarySubsystem extends SubsystemBase {
 
     private final Spark siccLEDS = LEDConstants.SiccLEDs;
 
-    private double neckGoalAngle = 0.0;
+    private int neckGoalAngle = 0;
 
     public void IntakePosition() { if (!manualControlEnabled) { currentNeckState = NeckStates.INTAKE; subwooferPositionSet = false; }}
     public void SubwooferPosition() { if (!manualControlEnabled) { currentNeckState = NeckStates.SUBWOOFER; }}
@@ -61,12 +68,7 @@ public class PrimarySubsystem extends SubsystemBase {
     public void NeckStop() { if (manualControlEnabled) { currentNeckState = NeckStates.MANUAL_STOP; }}
 
     public void EnableManualControl() { manualControlEnabled = true; }
-    public void DisableManualControl() { if (!bottomLimitSwitch.get() && Math.abs(primaryNeckEncoder.getDistance() - secondaryNeckEncoder.get()) < 5) { manualControlEnabled = false; IntakePosition(); }}
-
-    public PrimarySubsystem() {
-        primaryNeckEncoder.setDistancePerRotation(1024);
-        primaryNeckEncoder.reset();
-    }
+    public void DisableManualControl() { if (!bottomLimitSwitch.get()) { manualControlEnabled = false; IntakePosition(); }}
 
     public void periodic() {
         ManageNeckStates();
@@ -75,7 +77,7 @@ public class PrimarySubsystem extends SubsystemBase {
 
         System.out.println("<--------------->");
         System.out.println("Goal: " + neckGoalAngle);
-        System.out.println("Primary Encoder Value: " + primaryNeckEncoder.getDistance());
+        System.out.println("Primary Encoder Value: " + primaryNeckEncoder.get());
         System.out.println("Secondary Encoder Value: " + secondaryNeckEncoder.get());
 
         // System.out.println("Top Limit Switch: " + topLimitSwitch.get());
@@ -89,22 +91,25 @@ public class PrimarySubsystem extends SubsystemBase {
     private void ManageNeckStates() {
         switch (currentNeckState) {
             case INTAKE:
-                neckGoalAngle = 0.0;
+                neckGoalAngle = 0;
                 break;
             case SUBWOOFER:
-                neckGoalAngle = 40.0;
+                neckGoalAngle = 40;
                 break;
             case VISION:
-                boolean hasTargets = LimelightHelpers.getTV("");
-                if (hasTargets && (LimelightHelpers.getFiducialID("") == 4 || LimelightHelpers.getFiducialID("") == 7)) {
-                    neckGoalAngle = VisionSetAngle(Math.hypot(LimelightHelpers.getTargetPose3d_CameraSpace("").getZ(), Math.abs(LimelightHelpers.getTargetPose3d_CameraSpace("").getX())));
+                var result = camera.getLatestResult();
+                boolean hasTargets = result.hasTargets();
+                PhotonTrackedTarget target = result.getBestTarget();
+                double distanceToSpeaker = drivebase.getDistanceToSpeaker();
+                if (hasTargets && (target.getFiducialId() == 4 || target.getFiducialId() == 7)) {
+                    neckGoalAngle = VisionSetAngle(distanceToSpeaker);
                 }
                 break;
             case YEET:
-                neckGoalAngle = 100.0;
+                neckGoalAngle = 100;
                 break;
             case AMP:
-                neckGoalAngle = 250.0;
+                neckGoalAngle = 250;
                 break;
             case MANUAL_UP:
                 NeckSetRotateSpeed(0.16);
@@ -123,7 +128,7 @@ public class PrimarySubsystem extends SubsystemBase {
     private void UpdatePIDConstants() {
         if (!manualControlEnabled) {
             double p, i, d;
-            double error = primaryNeckEncoder.getDistance() - neckGoalAngle;
+            double error = primaryNeckEncoder.get() - neckGoalAngle;
 
             if (Math.abs(error) <= 20 && currentNeckState != NeckStates.INTAKE && currentNeckState != NeckStates.AMP) {
                 // Close Controller
@@ -131,42 +136,42 @@ public class PrimarySubsystem extends SubsystemBase {
                 i = 0.003;
                 d = 0.0;
                 neckRotateController.setPID(p, i, d);
-                NeckSetRotateSpeed(neckRotateController.calculate(primaryNeckEncoder.getDistance(), neckGoalAngle));
-            } else if (error < 0 && primaryNeckEncoder.getDistance() < 200 && currentNeckState != NeckStates.INTAKE) {
+                NeckSetRotateSpeed(neckRotateController.calculate(primaryNeckEncoder.get(), neckGoalAngle));
+            } else if (error < 0 && primaryNeckEncoder.get() < 200 && currentNeckState != NeckStates.INTAKE) {
                 // Up Controller
                 p = 0.0015;
                 i = 0.0075;
                 d = 0.0;
                 neckRotateController.setPID(p, i, d);
-                NeckSetRotateSpeed(neckRotateController.calculate(primaryNeckEncoder.getDistance(), neckGoalAngle));
-            } else if (error > 0 && primaryNeckEncoder.getDistance() > 25 && primaryNeckEncoder.getDistance() < 350 && currentNeckState != NeckStates.AMP) {
+                NeckSetRotateSpeed(neckRotateController.calculate(primaryNeckEncoder.get(), neckGoalAngle));
+            } else if (error > 0 && primaryNeckEncoder.get() > 25 && currentNeckState != NeckStates.AMP) {
                 // Down Controller
                 p = 0.0016;
                 i = 0.0;
                 d = 0.0;
                 neckRotateController.setPID(p, i, d);
-                NeckSetRotateSpeed(neckRotateController.calculate(primaryNeckEncoder.getDistance(), neckGoalAngle));
+                NeckSetRotateSpeed(neckRotateController.calculate(primaryNeckEncoder.get(), neckGoalAngle));
             }
 
             ManageLimitSwitches();
-        } else {
-            siccLEDS.set(0.87);
+        } else { siccLEDS.set(0.87); }
+
+        if (!bottomLimitSwitch.get() && currentNeckState == NeckStates.INTAKE) {
+            primaryNeckEncoder.reset();
+            secondaryNeckEncoder.reset();
+            NeckSetRotateSpeed(0.0);
         }
     }
 
     private void ManageLimitSwitches() {
         if (bottomLimitSwitch.get()) {
-            if (currentNeckState == NeckStates.INTAKE && primaryNeckEncoder.getDistance() <= 25 && primaryNeckEncoder.getDistance() > 3) {
+            if (currentNeckState == NeckStates.INTAKE && primaryNeckEncoder.get() <= 25 && primaryNeckEncoder.get() > 3) {
                 NeckSetRotateSpeed(-0.07);
             }
-        } else if (!bottomLimitSwitch.get() && currentNeckState == NeckStates.INTAKE) {
-            primaryNeckEncoder.reset();
-            secondaryNeckEncoder.reset();
-            NeckSetRotateSpeed(0.0);
         }
 
         if (topLimitSwitch.get()) {
-            if (currentNeckState == NeckStates.AMP && primaryNeckEncoder.getDistance() >= 200 && primaryNeckEncoder.getDistance() < 290) {
+            if (currentNeckState == NeckStates.AMP && primaryNeckEncoder.get() >= 200 && primaryNeckEncoder.get() < 290) {
                 NeckSetRotateSpeed(0.16);
             }
         } else if (!topLimitSwitch.get()) {
@@ -196,10 +201,10 @@ public class PrimarySubsystem extends SubsystemBase {
     }
 
     private void ManageEncoderFailure() {
-        double encoderDifference = Math.abs(primaryNeckEncoder.getDistance() - secondaryNeckEncoder.get());
-        if (!manualControlEnabled && (encoderDifference > 20)) {
-            manualControlEnabled = true;
-        }
+        // double encoderDifference = Math.abs(primaryNeckEncoder.get() - secondaryNeckEncoder.get());
+        // if (!manualControlEnabled && (encoderDifference > 20)) {
+        //     manualControlEnabled = true;
+        // }
     }
 
     private void NeckSetRotateSpeed(double speed) {
@@ -209,16 +214,14 @@ public class PrimarySubsystem extends SubsystemBase {
         rightGearbox2.follow(leftGearbox1, true);
     }
 
-    private double VisionSetAngle(double distance) {
-        double angle = 0;
+    private int VisionSetAngle(double distance) {
+        int angle = 0;
         if (distance > 3.3 && distance < 20) {
             // angle = -349.351*Math.pow(distance, -0.854219) + 160.0;
-            angle = -760.752 * Math.pow(distance, -2.03428) + 99.4525;
+            angle = (int) (-760.752 * Math.pow(distance, -2.03428) + 99.4525);
         }
         return angle;
     }
-
-
 
     // Beak Subsystem
     public void Intake() {
