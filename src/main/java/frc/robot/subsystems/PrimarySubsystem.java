@@ -80,7 +80,7 @@ public class PrimarySubsystem extends SubsystemBase {
         System.out.println("<--------------->");
         System.out.println("Goal: " + neckGoalAngle);
         System.out.println("Primary Encoder Value: " + primaryNeckEncoderValue);
-        // System.out.println("Secondary Encoder Value: " + secondaryNeckEncoder.get());
+        System.out.println("Secondary Encoder Value: " + secondaryNeckEncoder.get());
 
         // System.out.println("Top Limit Switch: " + topLimitSwitch.get());
         // System.out.println("Bottom Limit Switch: " + bottomLimitSwitch.get());

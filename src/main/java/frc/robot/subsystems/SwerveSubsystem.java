@@ -51,6 +51,7 @@ public class SwerveSubsystem extends SubsystemBase
    * Swerve drive object.
    */
   private final SwerveDrive swerveDrive;
+  PhotonCamera cameraTest = new PhotonCamera("Camera_Module_v1");
   /**
    * Maximum speed of the robot in meters per second, used to limit acceleration.
    */
@@ -197,7 +198,6 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public Command aimAtTarget(PhotonCamera camera)
   {
-
     return run(() -> {
       PhotonPipelineResult result = camera.getLatestResult();
       if (result.hasTargets())
@@ -230,6 +230,7 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public Command driveToPose(Pose2d pose)
   {
+
 // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
         swerveDrive.getMaximumVelocity(), 4.0,
@@ -272,20 +273,34 @@ public class SwerveSubsystem extends SubsystemBase
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX, BooleanSupplier doAim, PhotonCamera camera) {
     return run(
       () -> {
+        // PIDController angleController = new PIDController(0.1, 0.0, 0.0);
+
         double xInput = Math.pow(translationX.getAsDouble(), 3);
         double yInput = Math.pow(translationY.getAsDouble(), 3);
         double rotationInput = Math.pow(angularRotationX.getAsDouble(), 3);
 
         PhotonPipelineResult result = camera.getLatestResult();
-        PIDController turnController = new PIDController(0.1, 0.0, 0.0);
+        PIDController turnController = new PIDController(0.15, 0.003, 0.0);
 
         // Drive + Aim at Speaker AprilTag
-        if (doAim.getAsBoolean() && result.hasTargets() && (result.getBestTarget().getFiducialId() == 4 || result.getBestTarget().getFiducialId() == 7)) {
+        if (doAim.getAsBoolean() && result.hasTargets() && (result.getBestTarget().getFiducialId() == 4 || result.getBestTarget().getFiducialId() == 7 || result.getBestTarget().getFiducialId() == 6)) {
+          // double value = (cameraTest.getLatestResult().getBestTarget().getBestCameraToTarget().getRotation().getZ()) * 180/Math.PI;
+          // double test = 0;
+
+          // if (value < 0) {
+          //   test = angleController.calculate(value, -180);
+          // } else if (value > 0) {
+          //   test = angleController.calculate(value, 180);
+          // } else {
+          //   System.out.println("HIII");
+          // }
+          
           drive(
             swerveDrive.swerveController.getRawTargetSpeeds(
               xInput * swerveDrive.getMaximumVelocity(),
               yInput * swerveDrive.getMaximumVelocity(),
               -turnController.calculate(result.getBestTarget().getYaw(), 0)
+              // test
             )
           );
         } else {
@@ -417,6 +432,29 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
+    // if (cameraTest.getLatestResult().hasTargets() == true) {
+    //   if ((cameraTest.getLatestResult().getBestTarget().getFiducialId() == 4 || cameraTest.getLatestResult().getBestTarget().getFiducialId() == 7)) {
+    //     PIDController angleController = new PIDController(0.1, 0.0, 0.0);
+
+    //     double value = (cameraTest.getLatestResult().getBestTarget().getBestCameraToTarget().getRotation().getZ()) * 180/Math.PI;
+    //     double test = 0;
+
+    //     if (value < 0) {
+    //       test = angleController.calculate(value, -180);
+    //     } else if (value > 0) {
+    //       test = angleController.calculate(value, 180);
+    //     }
+
+    //     swerveDrive.drive(new Translation2d(), test, true, false);
+
+        // System.out.println(Math.abs((cameraTest.getLatestResult().getBestTarget().getBestCameraToTarget().getRotation().getZ()) * 180/Math.PI));
+    //   } else {
+    //     System.out.println("hi");
+    //   }
+    // } else if (cameraTest.getLatestResult().hasTargets() == false) {
+    //   System.out.println("noo");
+    // }
+
   }
 
   @Override
