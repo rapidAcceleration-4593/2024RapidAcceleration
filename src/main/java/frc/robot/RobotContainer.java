@@ -54,19 +54,26 @@ public class RobotContainer
 
     configureBindings();
 
-    Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
+    // Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
+    //     () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
+    //     () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
+    //     () -> driverXbox.getRightX() * 0.95);
+
+    Command driveFieldOrientedAnglularVelocityAprilTagAlignment = drivebase.driveCommand(
         () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
         () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-        () -> driverXbox.getRightX() * 0.95);
+        () -> driverXbox.getRightX() * 0.95,
+        () -> driverXbox.start().getAsBoolean(),
+        primarySubsystem.returnCamera()
+    );
 
-    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityAprilTagAlignment);
   }
 
   private void configureBindings()
   {
     // Driver Controller
     driverXbox.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
-    driverXbox.start().whileTrue(drivebase.aimAtSpeaker(2));
 
     driverXbox.y().whileTrue(new NeckUp(primarySubsystem));
     driverXbox.y().whileFalse(new NeckStop(primarySubsystem));
@@ -78,9 +85,6 @@ public class RobotContainer
     
     driverXbox.povDown().whileTrue(new ClimberDown(climberSubsystem));
     driverXbox.povDown().whileFalse(new ClimberStop(climberSubsystem));
-
-    driverXbox.x().onTrue(new AddCounts(primarySubsystem));
-    driverXbox.b().onTrue(new SubtractCounts(primarySubsystem));
 
     // Auxilary Controller
     auxXbox.back().onTrue(new ManualControlEnabled(primarySubsystem));

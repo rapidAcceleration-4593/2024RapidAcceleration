@@ -1,15 +1,11 @@
 package frc.robot.subsystems;
 
-import java.io.File;
-
 import org.photonvision.PhotonCamera;
-import org.photonvision.targeting.PhotonTrackedTarget;
-
+import org.photonvision.common.hardware.VisionLEDMode;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
@@ -35,18 +31,20 @@ public class PrimarySubsystem extends SubsystemBase {
     private final Encoder primaryNeckEncoder = NeckConstants.primaryNeckEncoder;
     private final Encoder secondaryNeckEncoder = NeckConstants.secondaryNeckEncoder;
 
+    private int primaryNeckEncoderValue = primaryNeckEncoder.get() / -2;
+
     private enum NeckStates { INTAKE, SUBWOOFER, VISION, YEET, AMP, MANUAL_UP, MANUAL_DOWN, MANUAL_STOP, TEST }
     private NeckStates currentNeckState = NeckStates.INTAKE;
 
     private final PIDController neckRotateController = new PIDController(0.0, 0.0, 0.0);
 
-    private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
-    PhotonCamera camera = new PhotonCamera("photonvision");
+    PhotonCamera camera = new PhotonCamera("Camera_Module_v1");
 
     private boolean manualControlEnabled = false;
     private boolean shooterTimerStarted = false;
     private boolean intakeIntaked = false;
     private boolean subwooferPositionSet = false;
+    private boolean shotFirstNote = false;
 
     private Timer shooterTimer = new Timer();
 
@@ -68,24 +66,28 @@ public class PrimarySubsystem extends SubsystemBase {
     public void NeckStop() { if (manualControlEnabled) { currentNeckState = NeckStates.MANUAL_STOP; }}
 
     public void EnableManualControl() { manualControlEnabled = true; }
-    public void DisableManualControl() { if (!bottomLimitSwitch.get()) { manualControlEnabled = false; IntakePosition(); }}
+    public void DisableManualControl() { if (!bottomLimitSwitch.get() && Math.abs(primaryNeckEncoderValue - secondaryNeckEncoder.get()) < 5) { manualControlEnabled = false; IntakePosition(); }}
 
     public void periodic() {
+        primaryNeckEncoderValue = primaryNeckEncoder.get() / -2;
+        
+        camera.setLED(VisionLEDMode.kOn);
+
         ManageNeckStates();
         UpdatePIDConstants();
         ManageEncoderFailure();
 
         System.out.println("<--------------->");
         System.out.println("Goal: " + neckGoalAngle);
-        System.out.println("Primary Encoder Value: " + primaryNeckEncoder.get());
-        System.out.println("Secondary Encoder Value: " + secondaryNeckEncoder.get());
+        System.out.println("Primary Encoder Value: " + primaryNeckEncoderValue);
+        // System.out.println("Secondary Encoder Value: " + secondaryNeckEncoder.get());
 
         // System.out.println("Top Limit Switch: " + topLimitSwitch.get());
         // System.out.println("Bottom Limit Switch: " + bottomLimitSwitch.get());
         // System.out.println("Intake Limit Switch: " + intakeLimitSwitch.get());
 
         // System.out.println("Manual Control Enabled: " + manualControlEnabled);
-        System.out.println("Neck State: " + currentNeckState);
+        // System.out.println("Neck State: " + currentNeckState);
     }
 
     private void ManageNeckStates() {
@@ -97,13 +99,14 @@ public class PrimarySubsystem extends SubsystemBase {
                 neckGoalAngle = 40;
                 break;
             case VISION:
-                var result = camera.getLatestResult();
-                boolean hasTargets = result.hasTargets();
-                PhotonTrackedTarget target = result.getBestTarget();
-                double distanceToSpeaker = drivebase.getDistanceToSpeaker();
-                if (hasTargets && (target.getFiducialId() == 4 || target.getFiducialId() == 7)) {
-                    neckGoalAngle = VisionSetAngle(distanceToSpeaker);
-                }
+                if (camera.getLatestResult().hasTargets() && (camera.getLatestResult().getBestTarget().getFiducialId() == 4 || camera.getLatestResult().getBestTarget().getFiducialId() == 7)) {
+                    double distanceX = camera.getLatestResult().getBestTarget().getBestCameraToTarget().getX();
+                    double distanceY = camera.getLatestResult().getBestTarget().getBestCameraToTarget().getY();
+                    double distanceHypo = Math.hypot(distanceX, distanceY);
+                    neckGoalAngle = VisionSetAngle(distanceHypo);
+                } else {
+                    System.out.println("Noo");
+                }    
                 break;
             case YEET:
                 neckGoalAngle = 100;
@@ -128,33 +131,35 @@ public class PrimarySubsystem extends SubsystemBase {
     private void UpdatePIDConstants() {
         if (!manualControlEnabled) {
             double p, i, d;
-            double error = primaryNeckEncoder.get() - neckGoalAngle;
+            double error = primaryNeckEncoderValue - neckGoalAngle;
 
             if (Math.abs(error) <= 20 && currentNeckState != NeckStates.INTAKE && currentNeckState != NeckStates.AMP) {
                 // Close Controller
-                p = 0.015;
-                i = 0.003;
+                p = 0.0155;
+                i = 0.00125;
                 d = 0.0;
                 neckRotateController.setPID(p, i, d);
-                NeckSetRotateSpeed(neckRotateController.calculate(primaryNeckEncoder.get(), neckGoalAngle));
-            } else if (error < 0 && primaryNeckEncoder.get() < 200 && currentNeckState != NeckStates.INTAKE) {
+                NeckSetRotateSpeed(neckRotateController.calculate(primaryNeckEncoderValue, neckGoalAngle));
+            } else if (error < 0 && primaryNeckEncoderValue < 200 && currentNeckState != NeckStates.INTAKE) {
                 // Up Controller
                 p = 0.0015;
                 i = 0.0075;
                 d = 0.0;
                 neckRotateController.setPID(p, i, d);
-                NeckSetRotateSpeed(neckRotateController.calculate(primaryNeckEncoder.get(), neckGoalAngle));
-            } else if (error > 0 && primaryNeckEncoder.get() > 25 && currentNeckState != NeckStates.AMP) {
+                NeckSetRotateSpeed(neckRotateController.calculate(primaryNeckEncoderValue, neckGoalAngle));
+            } else if (error > 0 && primaryNeckEncoderValue > 25 && primaryNeckEncoderValue < 350 && currentNeckState != NeckStates.AMP) {
                 // Down Controller
-                p = 0.0016;
+                p = 0.0022;
                 i = 0.0;
                 d = 0.0;
                 neckRotateController.setPID(p, i, d);
-                NeckSetRotateSpeed(neckRotateController.calculate(primaryNeckEncoder.get(), neckGoalAngle));
+                NeckSetRotateSpeed(neckRotateController.calculate(primaryNeckEncoderValue, neckGoalAngle));
             }
 
             ManageLimitSwitches();
-        } else { siccLEDS.set(0.87); }
+        } else {
+            siccLEDS.set(0.87);
+        }
 
         if (!bottomLimitSwitch.get() && currentNeckState == NeckStates.INTAKE) {
             primaryNeckEncoder.reset();
@@ -165,16 +170,16 @@ public class PrimarySubsystem extends SubsystemBase {
 
     private void ManageLimitSwitches() {
         if (bottomLimitSwitch.get()) {
-            if (currentNeckState == NeckStates.INTAKE && primaryNeckEncoder.get() <= 25 && primaryNeckEncoder.get() > 3) {
-                NeckSetRotateSpeed(-0.07);
+            if (currentNeckState == NeckStates.INTAKE && primaryNeckEncoderValue <= 25 && primaryNeckEncoderValue > 3) {
+                NeckSetRotateSpeed(-0.12);
             }
         }
 
         if (topLimitSwitch.get()) {
-            if (currentNeckState == NeckStates.AMP && primaryNeckEncoder.get() >= 200 && primaryNeckEncoder.get() < 290) {
+            if (currentNeckState == NeckStates.AMP && primaryNeckEncoderValue >= 200 && primaryNeckEncoderValue < 290) {
                 NeckSetRotateSpeed(0.16);
             }
-        } else if (!topLimitSwitch.get()) {
+        } else if (!topLimitSwitch.get() && currentNeckState == NeckStates.AMP) {
             NeckSetRotateSpeed(0.0);
         }
 
@@ -185,13 +190,14 @@ public class PrimarySubsystem extends SubsystemBase {
                 intakeIntaked = true;
             }
 
-            if (!bottomLimitSwitch.get() && !subwooferPositionSet && currentNeckState == NeckStates.INTAKE) {
+            if (!bottomLimitSwitch.get() && shotFirstNote && !subwooferPositionSet && currentNeckState == NeckStates.INTAKE) {
                 SubwooferPosition();
                 subwooferPositionSet = true;
             }
         } else {
             siccLEDS.set(0.61); // RED SOLID
             intakeIntaked = false;
+            shotFirstNote = true;
 
             if (bottomLimitSwitch.get() && subwooferPositionSet && currentNeckState != NeckStates.INTAKE) {
                 IntakePosition();
@@ -201,10 +207,10 @@ public class PrimarySubsystem extends SubsystemBase {
     }
 
     private void ManageEncoderFailure() {
-        // double encoderDifference = Math.abs(primaryNeckEncoder.get() - secondaryNeckEncoder.get());
-        // if (!manualControlEnabled && (encoderDifference > 20)) {
-        //     manualControlEnabled = true;
-        // }
+        double encoderDifference = Math.abs(primaryNeckEncoderValue - secondaryNeckEncoder.get());
+        if (!manualControlEnabled && (encoderDifference > 20)) {
+            manualControlEnabled = true;
+        }
     }
 
     private void NeckSetRotateSpeed(double speed) {
@@ -216,12 +222,12 @@ public class PrimarySubsystem extends SubsystemBase {
 
     private int VisionSetAngle(double distance) {
         int angle = 0;
-        if (distance > 3.3 && distance < 20) {
-            // angle = -349.351*Math.pow(distance, -0.854219) + 160.0;
-            angle = (int) (-760.752 * Math.pow(distance, -2.03428) + 99.4525);
+        if (distance > 0 && distance < 5) {
+            angle = (int) (-166.49 * Math.pow(distance, -0.51321) + 194.95);
         }
         return angle;
     }
+
 
     // Beak Subsystem
     public void Intake() {
@@ -256,7 +262,7 @@ public class PrimarySubsystem extends SubsystemBase {
             if (!shooterTimerStarted) {
                 shooterTimer.start();
                 shooterTimerStarted = true;
-            } else if (shooterTimer.hasElapsed(1.4)) {
+            } else if (shooterTimer.hasElapsed(1.5)) {
                 beakIntakeMotor.set(-1.0);
             }
         }
@@ -288,15 +294,7 @@ public class PrimarySubsystem extends SubsystemBase {
         shooterBottomMotor.set(0.0);
     }
 
-
-    // TESTING
-    public void AddCounts() {
-        currentNeckState = NeckStates.TEST;
-        neckGoalAngle += 5;
-    }
-
-    public void SubtractCounts() {
-        currentNeckState = NeckStates.TEST;
-        neckGoalAngle -= 5;
+    public PhotonCamera returnCamera() {
+        return camera;
     }
 }
