@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.7500000000000002,
-        "y": 1.9000000000000004
+        "x": 3.2624388683482204,
+        "y": 1.7916532434138215
       },
       "isLocked": false,
       "linkedName": null
@@ -43,9 +43,9 @@
     "rotateFast": true
   },
   "reversed": false,
-  "folder": "SideAutos",
+  "folder": "Source",
   "previewStartingState": {
-    "rotation": 120.0,
+    "rotation": 119.1253625606264,
     "velocity": 0
   },
   "useDefaultConstraints": true

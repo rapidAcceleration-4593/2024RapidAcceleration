@@ -5,14 +5,21 @@
       "x": 1.4,
       "y": 5.551187918118234
     },
-    "rotation": 0
+    "rotation": 180.0
   },
   "command": {
     "type": "sequential",
     "data": {
-      "commands": []
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "ResetGyro"
+          }
+        }
+      ]
     }
   },
-  "folder": null,
+  "folder": "Other",
   "choreoAuto": false
 }

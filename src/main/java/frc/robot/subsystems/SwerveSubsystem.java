@@ -273,46 +273,32 @@ public class SwerveSubsystem extends SubsystemBase
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX, BooleanSupplier doAim, PhotonCamera camera) {
     return run(
       () -> {
-        // PIDController angleController = new PIDController(0.1, 0.0, 0.0);
-
         double xInput = Math.pow(translationX.getAsDouble(), 3);
         double yInput = Math.pow(translationY.getAsDouble(), 3);
         double rotationInput = Math.pow(angularRotationX.getAsDouble(), 3);
 
         PhotonPipelineResult result = camera.getLatestResult();
-        PIDController turnController = new PIDController(0.15, 0.003, 0.0);
-
-        // Drive + Aim at Speaker AprilTag
-        if (doAim.getAsBoolean() && result.hasTargets() && (result.getBestTarget().getFiducialId() == 4 || result.getBestTarget().getFiducialId() == 7 || result.getBestTarget().getFiducialId() == 6)) {
-          // double value = (cameraTest.getLatestResult().getBestTarget().getBestCameraToTarget().getRotation().getZ()) * 180/Math.PI;
-          // double test = 0;
-
-          // if (value < 0) {
-          //   test = angleController.calculate(value, -180);
-          // } else if (value > 0) {
-          //   test = angleController.calculate(value, 180);
-          // } else {
-          //   System.out.println("HIII");
-          // }
-          
-          drive(
-            swerveDrive.swerveController.getRawTargetSpeeds(
-              xInput * swerveDrive.getMaximumVelocity(),
-              yInput * swerveDrive.getMaximumVelocity(),
-              -turnController.calculate(result.getBestTarget().getYaw(), 0)
-              // test
-            )
-          );
-        } else {
-          // Drive Normally
-          swerveDrive.drive(
-            new Translation2d(
-              xInput * swerveDrive.getMaximumVelocity(),
-              yInput * swerveDrive.getMaximumVelocity()),
-            rotationInput * swerveDrive.getMaximumAngularVelocity(),
-            true,
-            false
-          );
+        try (PIDController turnController = new PIDController(0.15, 0.003, 0.0)) {
+          // Drive + Aim at Speaker AprilTag
+          if (doAim.getAsBoolean() && result.hasTargets() && (result.getBestTarget().getFiducialId() == 4 || result.getBestTarget().getFiducialId() == 7 || result.getBestTarget().getFiducialId() == 6)) {
+            drive(
+              swerveDrive.swerveController.getRawTargetSpeeds(
+                xInput * swerveDrive.getMaximumVelocity(),
+                yInput * swerveDrive.getMaximumVelocity(),
+                -turnController.calculate(result.getBestTarget().getYaw(), 0)
+              )
+            );
+          } else {
+            // Drive Normally
+            swerveDrive.drive(
+              new Translation2d(
+                xInput * swerveDrive.getMaximumVelocity(),
+                yInput * swerveDrive.getMaximumVelocity()),
+              rotationInput * swerveDrive.getMaximumAngularVelocity(),
+              true,
+              false
+            );
+          }
         }
       }
     );

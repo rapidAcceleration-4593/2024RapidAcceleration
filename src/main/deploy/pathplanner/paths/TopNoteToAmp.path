@@ -32,23 +32,6 @@
   "constraintZones": [],
   "eventMarkers": [
     {
-      "name": "Start",
-      "waypointRelativePos": 0.05,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "StopAll"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
       "name": "Shooter",
       "waypointRelativePos": 0.1,
       "command": {
@@ -67,7 +50,7 @@
     },
     {
       "name": "Intake",
-      "waypointRelativePos": 0.5,
+      "waypointRelativePos": 0.9,
       "command": {
         "type": "parallel",
         "data": {
@@ -112,7 +95,7 @@
     "rotateFast": true
   },
   "reversed": false,
-  "folder": "SideAutos",
+  "folder": "Amp",
   "previewStartingState": {
     "rotation": 180.0,
     "velocity": 0

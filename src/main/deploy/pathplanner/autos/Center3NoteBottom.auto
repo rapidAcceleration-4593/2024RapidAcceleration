@@ -2,19 +2,19 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.75,
-      "y": 4.4
+      "x": 1.4120428956421427,
+      "y": 5.551187918118234
     },
-    "rotation": -60.0
+    "rotation": 180.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 1.0
+            "name": "SubwooferPosition"
           }
         },
         {
@@ -26,7 +26,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.6
+            "waitTime": 1.25
           }
         },
         {
@@ -38,7 +38,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.4
           }
         },
         {
@@ -48,9 +48,33 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "IntakePosition"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "SourceMoveOut"
+            "pathName": "SubwooferToMiddleNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MiddleNoteToSubwoofer"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SubwooferToBottomNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BottomNoteToSubwoofer"
           }
         },
         {
@@ -62,6 +86,6 @@
       ]
     }
   },
-  "folder": null,
+  "folder": "Center",
   "choreoAuto": false
 }

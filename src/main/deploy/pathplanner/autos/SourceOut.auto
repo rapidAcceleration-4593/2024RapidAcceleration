@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.4,
-      "y": 5.55
+      "x": 0.7511871911042578,
+      "y": 4.4
     },
-    "rotation": 180.0
+    "rotation": 120.0
   },
   "command": {
     "type": "sequential",
@@ -56,42 +56,18 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SubwooferToMiddleNote"
+            "pathName": "SourceMoveOut"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "MiddleNoteToSubwoofer"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "SubwooferToTopNote"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "TopNoteToSubwoofer"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "SubwooferToBottomNote"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BottomNoteToSubwoofer"
+            "name": "ResetGyro"
           }
         }
       ]
     }
   },
-  "folder": null,
+  "folder": "Source",
   "choreoAuto": false
 }

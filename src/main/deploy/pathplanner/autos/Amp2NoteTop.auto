@@ -2,19 +2,19 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.75,
+      "x": 0.7511871911042578,
       "y": 6.7
     },
-    "rotation": 60.0
+    "rotation": -120.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 1.0
+            "name": "SubwooferPosition"
           }
         },
         {
@@ -26,7 +26,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.6
+            "waitTime": 1.25
           }
         },
         {
@@ -38,13 +38,19 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.4
           }
         },
         {
           "type": "named",
           "data": {
             "name": "StopAll"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakePosition"
           }
         },
         {
@@ -58,10 +64,16 @@
           "data": {
             "pathName": "TopNoteToAmp"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ResetGyro"
+          }
         }
       ]
     }
   },
-  "folder": null,
+  "folder": "Amp",
   "choreoAuto": false
 }
