@@ -1,7 +1,11 @@
 package frc.robot.subsystems;
 
+import java.util.List;
+
 import org.photonvision.PhotonCamera;
 import org.photonvision.common.hardware.VisionLEDMode;
+import org.photonvision.targeting.PhotonTrackedTarget;
+
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -45,8 +49,12 @@ public class PrimarySubsystem extends SubsystemBase {
     private boolean intakeIntaked = false;
     private boolean subwooferPositionSet = false;
     private boolean shotFirstNote = false;
+    private boolean downTimerStarted = false;
+    private boolean autoTimerStarted = false;
 
     private Timer shooterTimer = new Timer();
+    private Timer downTimer = new Timer();
+    private Timer autoTimer = new Timer();
 
     private final Spark siccLEDS = LEDConstants.SiccLEDs;
 
@@ -71,7 +79,18 @@ public class PrimarySubsystem extends SubsystemBase {
     public void periodic() {
         primaryNeckEncoderValue = primaryNeckEncoder.get() / -2;
         
-        camera.setLED(VisionLEDMode.kOn);
+        camera.setLED(VisionLEDMode.kOff);
+
+        if (!autoTimerStarted && primaryNeckEncoderValue > 10) {
+            autoTimer.start();
+            autoTimerStarted = true;
+        } else if (autoTimerStarted && autoTimer.get() >= 15) {
+            autoTimer.stop();
+            if (!shooterTimerStarted && shotFirstNote) {
+                shooterTopMotor.set(0.15);
+                shooterBottomMotor.set(0.15);
+            }
+        }
 
         ManageNeckStates();
         UpdatePIDConstants();
@@ -82,9 +101,9 @@ public class PrimarySubsystem extends SubsystemBase {
         System.out.println("Primary Encoder Value: " + primaryNeckEncoderValue);
         System.out.println("Secondary Encoder Value: " + secondaryNeckEncoder.get());
 
-        // System.out.println("Top Limit Switch: " + topLimitSwitch.get());
-        // System.out.println("Bottom Limit Switch: " + bottomLimitSwitch.get());
-        // System.out.println("Intake Limit Switch: " + intakeLimitSwitch.get());
+        System.out.println("Top Limit Switch: " + topLimitSwitch.get());
+        System.out.println("Bottom Limit Switch: " + bottomLimitSwitch.get());
+        System.out.println("Intake Limit Switch: " + intakeLimitSwitch.get());
 
         // System.out.println("Manual Control Enabled: " + manualControlEnabled);
         // System.out.println("Neck State: " + currentNeckState);
@@ -99,14 +118,20 @@ public class PrimarySubsystem extends SubsystemBase {
                 neckGoalAngle = 40;
                 break;
             case VISION:
-                if (camera.getLatestResult().hasTargets() && (camera.getLatestResult().getBestTarget().getFiducialId() == 4 || camera.getLatestResult().getBestTarget().getFiducialId() == 7)) {
-                    double distanceX = camera.getLatestResult().getBestTarget().getBestCameraToTarget().getX();
-                    double distanceY = camera.getLatestResult().getBestTarget().getBestCameraToTarget().getY();
-                    double distanceHypo = Math.hypot(distanceX, distanceY);
-                    neckGoalAngle = VisionSetAngle(distanceHypo);
+                if (camera.getLatestResult().hasTargets()) {
+                    List<PhotonTrackedTarget> targets = camera.getLatestResult().getTargets();
+                    for (PhotonTrackedTarget target : targets) {
+                        int targetID = target.getFiducialId();
+                        if (targetID == 4 || targetID == 7) {
+                            double distanceX = camera.getLatestResult().getBestTarget().getBestCameraToTarget().getX();
+                            double distanceY = camera.getLatestResult().getBestTarget().getBestCameraToTarget().getY();
+                            double distanceHypo = Math.hypot(distanceX, distanceY);
+                            neckGoalAngle = VisionSetAngle(distanceHypo);
+                        }
+                    }
                 } else {
-                    System.out.println("Noo");
-                }    
+                    System.out.println("HI POOKIE AHHH");
+                } 
                 break;
             case YEET:
                 neckGoalAngle = 100;
@@ -200,8 +225,22 @@ public class PrimarySubsystem extends SubsystemBase {
             shotFirstNote = true;
 
             if (bottomLimitSwitch.get() && subwooferPositionSet && currentNeckState != NeckStates.INTAKE) {
+                if (!downTimerStarted) {
+                    downTimer.start();
+                    downTimerStarted = true;
+                }
+            }
+        }
+
+        if (downTimerStarted) {
+            if (downTimer.get() > 0.0 && downTimer.get() < 0.25) {
+                IntakeCheck();
+            } else if (downTimer.get() > 0.25) {
                 IntakePosition();
                 subwooferPositionSet = false;
+                downTimerStarted = false;
+                downTimer.stop();
+                downTimer.reset();
             }
         }
     }
@@ -238,6 +277,17 @@ public class PrimarySubsystem extends SubsystemBase {
             IntakeStop();
         }
     }
+
+    private void IntakeCheck() {
+        if (bottomLimitSwitch.get() && subwooferPositionSet && !intakeLimitSwitch.get() && currentNeckState != NeckStates.INTAKE) {
+            beakIntakeMotor.set(-1.0);
+        } else if (intakeLimitSwitch.get()) {
+            IntakeStop();
+            downTimerStarted = false;
+            downTimer.stop();
+            downTimer.reset();
+        }
+    }
     
     public void Outtake() {
         bumperIntakeMotor.set(-1.0);
@@ -252,8 +302,6 @@ public class PrimarySubsystem extends SubsystemBase {
 
     public void Shooter() {
         if (currentNeckState == NeckStates.AMP) {
-            shooterTopMotor.set(0.25);
-            shooterBottomMotor.set(0.25);
             beakIntakeMotor.set(-1.0);
         } else {
             shooterTopMotor.set(1.0);
@@ -262,7 +310,7 @@ public class PrimarySubsystem extends SubsystemBase {
             if (!shooterTimerStarted) {
                 shooterTimer.start();
                 shooterTimerStarted = true;
-            } else if (shooterTimer.hasElapsed(1.5)) {
+            } else if (shooterTimer.get() >= 0.8) {
                 beakIntakeMotor.set(-1.0);
             }
         }

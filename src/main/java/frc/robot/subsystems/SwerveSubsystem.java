@@ -55,7 +55,7 @@ public class SwerveSubsystem extends SubsystemBase
   /**
    * Maximum speed of the robot in meters per second, used to limit acceleration.
    */
-  public        double      maximumSpeed = Units.feetToMeters(16.0);
+  public        double      maximumSpeed = Units.feetToMeters(22.0);
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -280,7 +280,7 @@ public class SwerveSubsystem extends SubsystemBase
         PhotonPipelineResult result = camera.getLatestResult();
         try (PIDController turnController = new PIDController(0.15, 0.003, 0.0)) {
           // Drive + Aim at Speaker AprilTag
-          if (doAim.getAsBoolean() && result.hasTargets() && (result.getBestTarget().getFiducialId() == 4 || result.getBestTarget().getFiducialId() == 7 || result.getBestTarget().getFiducialId() == 6)) {
+          if (doAim.getAsBoolean() && result.hasTargets() && (result.getBestTarget().getFiducialId() == 4 || result.getBestTarget().getFiducialId() == 7)) {
             drive(
               swerveDrive.swerveController.getRawTargetSpeeds(
                 xInput * swerveDrive.getMaximumVelocity(),
@@ -418,29 +418,6 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
-    // if (cameraTest.getLatestResult().hasTargets() == true) {
-    //   if ((cameraTest.getLatestResult().getBestTarget().getFiducialId() == 4 || cameraTest.getLatestResult().getBestTarget().getFiducialId() == 7)) {
-    //     PIDController angleController = new PIDController(0.1, 0.0, 0.0);
-
-    //     double value = (cameraTest.getLatestResult().getBestTarget().getBestCameraToTarget().getRotation().getZ()) * 180/Math.PI;
-    //     double test = 0;
-
-    //     if (value < 0) {
-    //       test = angleController.calculate(value, -180);
-    //     } else if (value > 0) {
-    //       test = angleController.calculate(value, 180);
-    //     }
-
-    //     swerveDrive.drive(new Translation2d(), test, true, false);
-
-        // System.out.println(Math.abs((cameraTest.getLatestResult().getBestTarget().getBestCameraToTarget().getRotation().getZ()) * 180/Math.PI));
-    //   } else {
-    //     System.out.println("hi");
-    //   }
-    // } else if (cameraTest.getLatestResult().hasTargets() == false) {
-    //   System.out.println("noo");
-    // }
-
   }
 
   @Override

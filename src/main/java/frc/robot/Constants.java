@@ -28,11 +28,12 @@ public final class Constants
   public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
 
   public static final class MatchConstants {
-    public static final String autoName = "4NoteAuto";
-    // DoNothing, ScoreNoMove
-    // Center2NoteMiddle, Center3NoteTop, Center3NoteBottom, Center4Note
-    // SourceOut
-    // Amp2NoteTop
+    public static final String autoName = "Amp2NoteTop";
+    // NO MOVING:  DoNothing, ScoreNoMove
+    // CENTER:     Center2NoteMiddle, Center3NoteTop, Center3NoteBottom, Center4Note
+    // SOURCE:     SourceOut, SourceFarBottom, ScoreGriefer
+    // AMP:        Amp2NoteTop
+    // BOTTOM:     Griefer
   }
 
   public static final class NeckConstants {
@@ -79,7 +80,7 @@ public final class Constants
     // Joystick Deadband
     public static final double LEFT_X_DEADBAND  = 0.1;
     public static final double LEFT_Y_DEADBAND  = 0.1;
-    public static final double RIGHT_X_DEADBAND = 0.1;
+    public static final double RIGHT_X_DEADBAND = 0.15;
     public static final double TURN_CONSTANT    = 6;
   }
 }
