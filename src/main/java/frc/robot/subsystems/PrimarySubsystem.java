@@ -16,6 +16,9 @@ import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
 public class PrimarySubsystem extends SubsystemBase {
 
     private final CANSparkMax leftGearbox1 = NeckConstants.leftGearbox1;
@@ -80,6 +83,14 @@ public class PrimarySubsystem extends SubsystemBase {
         primaryNeckEncoderValue = primaryNeckEncoder.get() / -2;
         
         camera.setLED(VisionLEDMode.kOff);
+
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("accelerationstation");
+        table.getEntry("armState").setValue(currentNeckState);
+        table.getEntry("primaryEncoderValue").setValue(primaryNeckEncoderValue);
+        table.getEntry("secondaryEncoderValue").setValue(secondaryNeckEncoder.get());
+        table.getEntry("bottomLimitSwitchBool").setValue(!bottomLimitSwitch.get());
+        table.getEntry("topLimitSwitchBool").setValue(!topLimitSwitch.get());
+        table.getEntry("intakeLimitSwitchBool").setValue(intakeLimitSwitch.get());
 
         if (!autoTimerStarted && primaryNeckEncoderValue > 10) {
             autoTimer.start();
