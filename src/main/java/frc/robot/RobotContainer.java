@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.MatchConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.*;
 import frc.robot.commands.AutoCommands.*;
@@ -37,8 +36,6 @@ public class RobotContainer
 
   private final CommandXboxController driverXbox = new CommandXboxController(0);
   private final CommandXboxController auxXbox = new CommandXboxController(1);
-
-  private final String autoName = MatchConstants.autoName;
 
   public RobotContainer()
   {
@@ -110,7 +107,7 @@ public class RobotContainer
   // Use this method to pass the autonomous command to the main class
   public Command getAutonomousCommand()
   {
-    return drivebase.getAutonomousCommand(autoName);
+    return drivebase.getAutonomousCommand(PrimarySubsystem.autoName);
   }
 
   public void setMotorBrake(boolean brake)

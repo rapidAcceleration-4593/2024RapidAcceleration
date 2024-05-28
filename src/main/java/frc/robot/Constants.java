@@ -27,15 +27,6 @@ public final class Constants
   public static final Matter CHASSIS    = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
 
-  public static final class MatchConstants {
-    public static final String autoName = "Amp2NoteTop";
-    // NO MOVING:  DoNothing, ScoreNoMove
-    // CENTER:     Center2NoteMiddle, Center3NoteTop, Center3NoteBottom, Center4Note
-    // SOURCE:     SourceOut, SourceFarBottom, ScoreGriefer
-    // AMP:        Amp2NoteTop
-    // BOTTOM:     Griefer
-  }
-
   public static final class NeckConstants {
     public static final CANSparkMax leftGearbox1 = new CANSparkMax(19, MotorType.kBrushless);
     public static final CANSparkMax leftGearbox2 = new CANSparkMax(20, MotorType.kBrushless);

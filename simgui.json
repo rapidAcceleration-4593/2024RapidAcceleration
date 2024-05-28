@@ -63,6 +63,7 @@
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/Pigeon 2 (v6) [0]": "Gyro",
       "/SmartDashboard/Pigeon 2 (v6) [13]": "Gyro",
+      "/SmartDashboard/Pigeon 2 (v6) [30]": "Gyro",
       "/SmartDashboard/Pigeon 2 (v6) [9]": "Gyro",
       "/SmartDashboard/Pigeon 2 [13]": "Gyro",
       "/SmartDashboard/SendableChooser[0]": "String Chooser",
@@ -70,11 +71,6 @@
       "/SmartDashboard/navX-Sensor[4]": "Gyro"
     },
     "windows": {
-      "/FMSInfo": {
-        "window": {
-          "visible": true
-        }
-      },
       "/SmartDashboard/Field": {
         "XModules": {
           "arrowColor": [
@@ -101,6 +97,9 @@
   },
   "NetworkTables": {
     "transitory": {
+      "FMSInfo": {
+        "open": true
+      },
       "SmartDashboard": {
         "Field": {
           "open": true
@@ -113,6 +112,88 @@
     }
   },
   "NetworkTables Info": {
+    "Clients": {
+      "open": true
+    },
+    "Connections": {
+      "open": true
+    },
+    "Dashboard@2": {
+      "Subscribers": {
+        "open": true
+      }
+    },
+    "NT3@127.0.0.1:51624": {
+      "open": true
+    },
+    "NT3@127.0.0.1:53197": {
+      "open": true
+    },
+    "Server": {
+      "open": true
+    },
+    "ntcore-ts-1716869285082@2": {
+      "open": true
+    },
+    "ntcore-ts-1716921771341@2": {
+      "Publishers": {
+        "open": true
+      },
+      "open": true
+    },
+    "ntcore-ts-1716927052564@2": {
+      "Publishers": {
+        "open": true
+      },
+      "open": true
+    },
+    "ntcore-ts-1716927053173@3": {
+      "Publishers": {
+        "open": true
+      },
+      "open": true
+    },
+    "ntcore-ts-1716927094823@1": {
+      "Publishers": {
+        "open": true
+      },
+      "open": true
+    },
+    "ntcore-ts-1716927094823@2": {
+      "open": true
+    },
+    "ntcore-ts-1716927277533@1": {
+      "Publishers": {
+        "open": true
+      },
+      "open": true
+    },
+    "ntcore-ts-1716927278109@2": {
+      "Publishers": {
+        "open": true
+      }
+    },
+    "ntcore-ts-1716927969328@2": {
+      "Publishers": {
+        "open": true
+      },
+      "open": true
+    },
+    "ntcore-ts-1716928700616@1": {
+      "Publishers": {
+        "open": true
+      },
+      "open": true
+    },
+    "ntcore-ts-1716929495208@3": {
+      "Publishers": {
+        "open": true
+      },
+      "open": true
+    },
     "visible": true
+  },
+  "NetworkTables View": {
+    "visible": false
   }
 }

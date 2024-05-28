@@ -5,19 +5,19 @@ import java.util.List;
 import org.photonvision.PhotonCamera;
 import org.photonvision.common.hardware.VisionLEDMode;
 import org.photonvision.targeting.PhotonTrackedTarget;
-
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.CANBus.CANBusStatus;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
-
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class PrimarySubsystem extends SubsystemBase {
 
@@ -54,6 +54,7 @@ public class PrimarySubsystem extends SubsystemBase {
     private boolean shotFirstNote = false;
     private boolean downTimerStarted = false;
     private boolean autoTimerStarted = false;
+    private boolean encoderFailureDetected = false;
 
     private Timer shooterTimer = new Timer();
     private Timer downTimer = new Timer();
@@ -79,18 +80,30 @@ public class PrimarySubsystem extends SubsystemBase {
     public void EnableManualControl() { manualControlEnabled = true; }
     public void DisableManualControl() { if (!bottomLimitSwitch.get() && Math.abs(primaryNeckEncoderValue - secondaryNeckEncoder.get()) < 5) { manualControlEnabled = false; IntakePosition(); }}
 
+    public static String autoName = SmartDashboard.getString("AutoSelector", "DoNothing");
+    private CANBusStatus CANInfo = CANBus.getStatus("rio");
+
     public void periodic() {
         primaryNeckEncoderValue = primaryNeckEncoder.get() / -2;
         
         camera.setLED(VisionLEDMode.kOff);
 
-        NetworkTable table = NetworkTableInstance.getDefault().getTable("accelerationstation");
-        table.getEntry("armState").setValue(currentNeckState);
-        table.getEntry("primaryEncoderValue").setValue(primaryNeckEncoderValue);
-        table.getEntry("secondaryEncoderValue").setValue(secondaryNeckEncoder.get());
-        table.getEntry("bottomLimitSwitchBool").setValue(!bottomLimitSwitch.get());
-        table.getEntry("topLimitSwitchBool").setValue(!topLimitSwitch.get());
-        table.getEntry("intakeLimitSwitchBool").setValue(intakeLimitSwitch.get());
+        SmartDashboard.putNumber("MatchTimeRemaining", Math.round(DriverStation.getMatchTime()));
+        SmartDashboard.putNumber("CANBusUtilization", CANInfo.BusUtilization * 100);
+
+        SmartDashboard.putBoolean("DriverControllerConnected", DriverStation.isJoystickConnected(0));
+        SmartDashboard.putBoolean("AuxControllerConnected", DriverStation.isJoystickConnected(1));
+        SmartDashboard.putBoolean("EncoderFailureDetected", encoderFailureDetected);
+        SmartDashboard.putBoolean("ManualControlEnabled", manualControlEnabled);
+        
+        SmartDashboard.putString("ArmState", currentNeckState.name());
+        SmartDashboard.putNumber("PrimaryEncoderValue", primaryNeckEncoderValue);
+        SmartDashboard.putNumber("SecondaryEncoderValue", secondaryNeckEncoder.get());
+        SmartDashboard.putBoolean("BottomLimitSwitchValue", !bottomLimitSwitch.get());
+        SmartDashboard.putBoolean("TopLimitSwitchValue", !topLimitSwitch.get());
+        SmartDashboard.putBoolean("IntakeLimitSwitchValue", !intakeLimitSwitch.get());
+
+        autoName = SmartDashboard.getString("AutoSelector", "DoNothing");
 
         if (!autoTimerStarted && primaryNeckEncoderValue > 10) {
             autoTimer.start();
@@ -107,14 +120,14 @@ public class PrimarySubsystem extends SubsystemBase {
         UpdatePIDConstants();
         ManageEncoderFailure();
 
-        System.out.println("<--------------->");
-        System.out.println("Goal: " + neckGoalAngle);
-        System.out.println("Primary Encoder Value: " + primaryNeckEncoderValue);
-        System.out.println("Secondary Encoder Value: " + secondaryNeckEncoder.get());
+        // System.out.println("<--------------->");
+        // System.out.println("Goal: " + neckGoalAngle);
+        // System.out.println("Primary Encoder Value: " + primaryNeckEncoderValue);
+        // System.out.println("Secondary Encoder Value: " + secondaryNeckEncoder.get());
 
-        System.out.println("Top Limit Switch: " + topLimitSwitch.get());
-        System.out.println("Bottom Limit Switch: " + bottomLimitSwitch.get());
-        System.out.println("Intake Limit Switch: " + intakeLimitSwitch.get());
+        // System.out.println("Top Limit Switch: " + topLimitSwitch.get());
+        // System.out.println("Bottom Limit Switch: " + bottomLimitSwitch.get());
+        // System.out.println("Intake Limit Switch: " + intakeLimitSwitch.get());
 
         // System.out.println("Manual Control Enabled: " + manualControlEnabled);
         // System.out.println("Neck State: " + currentNeckState);
@@ -141,7 +154,7 @@ public class PrimarySubsystem extends SubsystemBase {
                         }
                     }
                 } else {
-                    System.out.println("HI POOKIE AHHH");
+                    System.out.println("No Targets Detected");
                 } 
                 break;
             case YEET:
@@ -260,6 +273,7 @@ public class PrimarySubsystem extends SubsystemBase {
         double encoderDifference = Math.abs(primaryNeckEncoderValue - secondaryNeckEncoder.get());
         if (!manualControlEnabled && (encoderDifference > 20)) {
             manualControlEnabled = true;
+            encoderFailureDetected = true;
         }
     }
 
