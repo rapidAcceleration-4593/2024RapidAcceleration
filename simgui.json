@@ -130,6 +130,9 @@
       "open": true
     },
     "Server": {
+      "Publishers": {
+        "open": true
+      },
       "open": true
     },
     "ntcore-ts-1716869285082@2": {

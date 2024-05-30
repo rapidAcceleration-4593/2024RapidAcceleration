@@ -89,7 +89,7 @@ public class PrimarySubsystem extends SubsystemBase {
         camera.setLED(VisionLEDMode.kOff);
 
         SmartDashboard.putNumber("MatchTimeRemaining", Math.round(DriverStation.getMatchTime()));
-        SmartDashboard.putNumber("CANBusUtilization", CANInfo.BusUtilization * 100);
+        SmartDashboard.putNumber("CANBusUtilization", Math.round(CANInfo.BusUtilization * 100));
 
         SmartDashboard.putBoolean("DriverControllerConnected", DriverStation.isJoystickConnected(0));
         SmartDashboard.putBoolean("AuxControllerConnected", DriverStation.isJoystickConnected(1));
