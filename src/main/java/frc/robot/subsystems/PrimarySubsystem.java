@@ -101,7 +101,7 @@ public class PrimarySubsystem extends SubsystemBase {
         SmartDashboard.putNumber("SecondaryEncoderValue", secondaryNeckEncoder.get());
         SmartDashboard.putBoolean("BottomLimitSwitchValue", !bottomLimitSwitch.get());
         SmartDashboard.putBoolean("TopLimitSwitchValue", !topLimitSwitch.get());
-        SmartDashboard.putBoolean("IntakeLimitSwitchValue", !intakeLimitSwitch.get());
+        SmartDashboard.putBoolean("IntakeLimitSwitchValue", intakeLimitSwitch.get());
 
         autoName = SmartDashboard.getString("AutoSelector", "DoNothing");
 
